@@ -1,0 +1,1 @@
+net use J: \\10.142.113.99\hrSysDataBackup woshinibaba2210726 /user:administrator
