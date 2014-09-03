@@ -1,7 +1,7 @@
 {
   "version": "0.0.0",
   "private": true,
-  "name": "angular-phonecat",
+  "name": "chequeSys",
   "description": "A tutorial application for AngularJS",
   "repository": "https://github.com/angular/angular-phonecat",
   "license": "MIT",
@@ -28,7 +28,7 @@
     "postinstall": "bower install",
 
     "prestart": "npm install",
-    "start": "node ./server/bin/www",
+    "start": "nodemon ./server/bin/www",
 
     "pretest": "npm install",
     "test": "node node_modules/karma/bin/karma start test/karma.conf.js",
