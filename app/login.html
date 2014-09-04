@@ -31,14 +31,26 @@
     <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
     <!--[if lt IE 9]>
-    <script src="bower_components/html5shiv/dist/html5shiv.min.js"></script>
-    <script src="bower_components/respond/dest/respond.min.js"></script>
+        <script src="bower_components/html5shiv/dist/html5shiv.min.js"></script>
+        <script src="bower_components/respond/dest/respond.min.js"></script>
     <![endif]-->
 </head>
 <body>
 
 <div class="container">
-    <h2>welcome to cheque system</h2>
+    <div class="col-md-6 col-md-offset-3">
+        <form class="form-signin" role="form" method="post" action="/login">
+            <h2 class="form-signin-heading">请登录</h2>
+            <input class="form-control" name="username" placeholder="用户名称" required autofocus>
+            <br />
+            <input type="password" class="form-control" name="password" placeholder="登录密码" required>
+            <br />
+            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+        </form>
+        <% if (error) { %>
+            <h3 class="text-center text-danger"><%= error %></h3>
+        <% } %>
+    </div>
 </div> <!-- /container -->
 
 </body>

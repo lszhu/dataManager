@@ -4,23 +4,50 @@ var favicon = require('serve-favicon');
 var logger = require('morgan');
 var cookieParser = require('cookie-parser');
 var bodyParser = require('body-parser');
+var session = require('express-session');
+var debug = require('debug')('app');
+
+// get running environment selection from configuration file
+var runningEnv = require('./config').runningEnv;
 
 var routes = require('./routes/index');
 var users = require('./routes/users');
 
 var app = express();
 
+// set running environment
+app.set('env', runningEnv);
+
 // view engine setup
 app.set('views', path.join(__dirname, '/../app'));
 app.set('view engine', 'ejs');
+app.engine('html', require('ejs').renderFile);
 
 // uncomment after placing your favicon in /public
-//app.use(favicon(__dirname + '/public/favicon.ico'));
+app.use(favicon(__dirname + '/../app/img/favicon.png'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(cookieParser());
+// support sessions used for authentication
+app.use(session({
+    name: 'ChequeSys.sid',
+    secret: 'DoNotTouchMe',
+    resave: true,
+    saveUninitialized: true
+}));
+
 app.use(express.static(path.join(__dirname, '/../app')));
+
+// redirect to login page before any access
+app.use('/', function(req, res, next) {
+    debug('req.session: ' + req.session);
+    if (!req.session.user && req.path != '/login') {
+        req.session.error = 'NoLogin';
+        return res.redirect('/login');
+    }
+    next();
+});
 
 app.use('/', routes);
 app.use('/users', users);

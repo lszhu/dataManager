@@ -1,34 +1,34 @@
 ﻿// 此处设置web服务的端口号
-var httpPort = 23456;         // 蓝山所用端口号
-
+var httpPort = 23456;
 
 // 此处设置web服务使用环境，可以是开发环境或生产环境
-//var runningEnvironment = 'development';
-var runningEnvironment = 'productivity';
+var runningEnvironment = 'development';
+//var runningEnvironment = 'productivity';
 
-// 此处设置系统读取的静态数据
-var county = 'lanShan';
+// 此处设置系统唯一标识，可用于一个服务器安装多个服务
+var sysId = 'chequeSys01';
 
 // 此处修改内置管理员账号的名称和密码等信息
 var builtinAccount = {
     username: 'admin',            // 管理员名称
     password: 'admin',            // 管理员密码
-    area: '0',
-    permission: '管理员',
-    type: 'independent'
+    group: '0',                   // 管理员所属组号
+    permission: {},               // 除组规定的权限外的额外权限
+    enabled: true,                // 启用状态
+    description : 'builtin administrator'
 };
 
 // 此处设定mongodb数据库服务器的参数：链接地址、端口、数据库
 var dbServer = {
-    address: 'localhost:',
-    port: '27017',
+    address: 'localhost:',        // 数据库服务器地址
+    port: '27017',                // 数据库服务端口
     dbName: 'chequesys'           // 数据库名称
 };
 
 // 此处设定连接mongodb数据库的参数
 var dbParameters = {
-    user: 'chequesys',           // 数据库连接用户名称
-    pass: 'letmein',             // 数据库连接用户密码
+    user: 'chequesys',            // 数据库连接用户名称
+    pass: 'chequeSys2014',        // 数据库连接用户密码
     server: {socketOptions: {keepAlive: 1}}
 };
 
@@ -38,7 +38,7 @@ var queryLimit = 100000;
 module.exports = {
     port: httpPort,
     runningEnv: runningEnvironment,
-    county: county,
+    sysId: sysId,
     builtinAccount: builtinAccount,
     db: {
         server: dbServer,
