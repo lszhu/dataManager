@@ -47,19 +47,25 @@
         "borrower": "借阅人",
         "target": "借阅目标",
         "reason": "借阅原因",
-        "return": "归还时间",
+        "retrieve": "归还时间",
         "comment": "其他说明"
     },
     "rights": {
         "projects": "可访问项目列表",
         "subjects": "可访问科目列表",
-        "date": "可访问时间范围",
+        "date": {
+            "begin": "可访问时间起点",
+            "end": "可访问时间终点"
+        },
         "figures": "可访问财务数据",
         "voucher": "可访问凭证",
         "contract": "可访问合同",
         "archive": "可存档数据",
         "destroy": "可销毁数据",
         "approval": "可批准写入",
-        "lending": "可借出原始档类型列表"
+        "lending": {
+            "voucher": "可借出原始凭证",
+            "contract": "可借出合同正本"
+        }
     }
 }

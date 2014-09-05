@@ -23,40 +23,84 @@ mongoose.connection.once('open', function() {
 });
 
 var personSchema = new Schema({
-    // basic info
-    username: String,
-    idNumber: String,
-    nation: String,
-    address: {
-        county: String,
-        town: String,
-        village: String
-    },
-    districtId: String,
-    postService: [String],
-    extraPostService: String,
-    // employment/unemployment switch
-    employment: String,
-    // employment info
-    employmentInfo: {
-        workProvince: String,
-        salary: Number,
-        jobForm: String
-    },
-    // unemployment info
-    unemploymentInfo: {
-        unemploymentCause: String,
-        familyType: String,
-        preferredJobType: [String]
-    },
-    // insurance info
-    insurance: [String],
-    // editor info
-    editor: String,
-    modifiedDate: Date
 });
 
 var PersonMsg = mongoose.model('hrmsg', personSchema);
+
+var projectSchema = new Schema({
+    id: Number,
+    name: String,
+    description: String,
+    contract: [{
+        name: String,
+        path: String,
+        store: String,
+        date: Date,
+        destroyed: Boolean
+    }]
+});
+
+var figuresSchema = new Schema({
+    project: Number,
+    date: Date,
+    voucher: {
+        id: String,
+        path: String,
+        store: String
+    },
+    subject: String,
+    comment: String,
+    debit: Number,
+    credit: Number,
+    direction: String,
+    balance: String,
+    deleted: Boolean
+});
+
+var logSchema = new Schema({
+    time: Date,
+    operator: String,
+    operation: String,
+    target: String,
+    status: String
+});
+
+var accountSchema = new Schema({
+    username: String,
+    password: String,
+    group: String,
+    permission: Object,
+    enabled: String,
+    description: String
+});
+
+var lendingSchema = new Schema({
+    time: Date,
+    borrower: String,
+    target: String,
+    reason: String,
+    retrieve: Date,
+    comment: String
+});
+
+var rightsSchema = new Schema({
+    projects: [Number],
+    subjects: [String],
+    date: {
+        begin: Date,
+        end: Date
+    },
+    figures: Boolean,
+    voucher: Boolean,
+    contract: Boolean,
+    archive: Boolean,
+    destroy: Boolean,
+    approval: Boolean,
+    lending: {
+        voucher: Boolean,
+        contract: Boolean
+    }
+});
 
 function save(hrMsg) {
     PersonMsg.update(
@@ -95,61 +139,12 @@ function remove(condition, callback) {
     PersonMsg.remove(condition, callback);
 }
 
-function preprocessUserMsg(userMsg) {
-    //userMsg.address = getAddress(userMsg.administrator);
-    if (userMsg.employment == '已就业') {
-        userMsg.unemploymentInfo = null;
-    } else {
-        userMsg.employmentInfo = null;
-    }
-}
-
-function count(districtId, callback) {
-    PersonMsg.count({districtId: districtId}, function(e, c) {
-        if (e) {
-            console.log('DataBase access error.');
-            callback(districtId, 0);
-            return;
-        }
-        callback(districtId, c);
-    });
-}
-
-function multiCount(list, callback) {
-    var result = {};
-    // to count the running count processes
-    var counting = 0;
-
-    for (var i = 0; i < list.length; i++) {
-        counting++;
-        count(list[i], function(districtId, c) {
-            counting--;
-            result[districtId] = c;
-            if (counting == 0) {
-                callback(result);
-            }
-        });
-    }
-}
-
-var accountSchema = new Schema({
-    username: String,
-    password: String,
-    enabled: Boolean,
-    area: String,
-    permission: String,
-    // type can be 'independent' or 'bound'
-    type: String
-});
 
 var Account = mongoose.model('account', accountSchema);
 
 // save account information
 function saveAccount(acc) {
-    Account.update(
-        {username: acc.username},
-        acc,
-        {upsert: true},
+    Account.update({username: acc.username}, acc, {upsert: true},
         function(err) {
             if (err) {
                 console.error('save error: \n%o', err);
@@ -193,105 +188,6 @@ function getAccount(username, callback) {
     Account.findOne({username: username}, callback);
 }
 
-// batch initiate bound account with district ID
-function batchInitAccount(districts, countyId, callback) {
-    var error = false;
-    var count = 0;
-    for (var town in districts[countyId]) {
-        debug('townId: ' + town);
-        if (!districts[countyId].hasOwnProperty(town)) {
-            continue;
-        }
-        // town level account
-        var account = {
-            username: town,
-            password: Date.now().toString(),
-            enabled: false,
-            area: town,
-            permission: '只读',
-            type: 'bound'
-        };
-        // used to count in doing update
-        count++;
-        Account.update(
-            {username: town},
-            account,
-            {upsert: true},
-            function(err) {
-                return err ? (error = err) : count--;
-            }
-        );
-        for (var village in districts[town]) {
-            debug('villageId: ' + village);
-            if (!districts[town].hasOwnProperty(village)) {
-                continue;
-            }
-            // village level account
-            account = {
-                username: village,
-                password: Date.now().toString(),
-                enabled: false,
-                area: village,
-                permission: '只读',
-                type: 'bound'
-            };
-            // used to count in doing update
-            count++;
-            Account.update(
-                {username: village},
-                account,
-                {upsert: true},
-                function(err) {
-                    return err ? (error = err) : count--;
-                }
-            );
-        }
-    }
-    // access DB timeout is 3s
-    var timeout = 3000;
-    // check DB update result every 0.1s
-    setTimeout(result, 100);
-    function result() {
-        if (count == 0) {
-            return callback();
-        }
-        if (timeout <  0) {
-            return callback('dbAccessTimeout');
-        }
-        timeout -= 100;
-        setTimeout(result, 100);
-    }
-
-}
-
-// batch initiate bound account with district ID
-function batchInitPassword(password, callback) {
-    Account.update(
-        {type: 'bound'},
-        {password: password},
-        {multi: true},
-        callback
-    );
-}
-
-// batch initiate bound account with district ID
-function batchChangePermission(permission, callback) {
-    Account.update(
-        {type: 'bound'},
-        {permission: permission},
-        {multi: true},
-        callback);
-}
-
-// batch initiate bound account with district ID
-function batchChangeStatus(status, callback) {
-    Account.update(
-        {type: 'bound'},
-        {enabled: status},
-        {multi: true},
-        callback);
-}
-
 module.exports = {
     save: save,
     query: query,
@@ -305,9 +201,5 @@ module.exports = {
     changeAccountPassword: changeAccountPassword,
     deleteAccount: deleteAccount,
     queryAccounts: queryAccounts,
-    getAccount: getAccount,
-    batchInitAccount: batchInitAccount,
-    batchInitPassword: batchInitPassword,
-    batchChangePermission: batchChangePermission,
-    batchChangeStatus: batchChangeStatus
+    getAccount: getAccount
 };
