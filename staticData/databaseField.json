@@ -1,0 +1,65 @@
+{
+    "project": {
+        "id": "项目编号",
+        "name": "项目名称",
+        "description": "项目摘要",
+        "contract": {
+            "name": "项目合同",
+            "path": "电子合同位置",
+            "store": "原始合同位置",
+            "date": "签订日期",
+            "destroyed": "已销毁"
+        }
+    },
+    "figures": {
+        "project": "项目编号",
+        "date": "日期",
+        "voucher": {
+            "id": "凭证编号",
+            "path": "电子凭证位置",
+            "store": "原始凭证位置"
+        },
+        "subject": "科目编号",
+        "comment": "摘要",
+        "debit": "借方",
+        "credit": "贷方",
+        "direction": "方向",
+        "balance": "余额",
+        "deleted": "已删除"
+    },
+    "log": {
+        "time": "时间",
+        "operator": "操作账号",
+        "operation": "操作",
+        "target": "操作对象",
+        "status": "操作结果"
+    },
+    "account": {
+        "username": "账号",
+        "password": "密码",
+        "group": "用户组",
+        "permission": "权限",
+        "enabled": "已启用状态",
+        "description": "描述"
+    },
+    "lending": {
+        "time": "借阅时间",
+        "borrower": "借阅人",
+        "target": "借阅目标",
+        "reason": "借阅原因",
+        "return": "归还时间",
+        "comment": "其他说明"
+    },
+    "rights": {
+        "projects": "可访问项目列表",
+        "subjects": "可访问科目列表",
+        "date": "可访问时间范围",
+        "figures": "可访问财务数据",
+        "voucher": "可访问凭证",
+        "contract": "可访问合同",
+        "archive": "可存档数据",
+        "destroy": "可销毁数据",
+        "approval": "可批准写入",
+        "lending": "可借出原始档类型列表"
+    }
+}

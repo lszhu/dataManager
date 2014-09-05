@@ -27,58 +27,27 @@ var personSchema = new Schema({
     username: String,
     idNumber: String,
     nation: String,
-    // readonly basic info
-    age: Number,
-    birthday: Number,
-    gender: String,
-    workRegisterId: String,
     address: {
         county: String,
         town: String,
         village: String
     },
     districtId: String,
-    // still basic info
-    education: String,
-    graduateDate: Number,
-    phone: String,
-    censusRegisterType: String,
-    politicalOutlook: String,
-    marriage: String,
-    // training and service info
-    trainingType: String,
-    postTraining: String,
-    technicalGrade: String,
     postService: [String],
     extraPostService: String,
     // employment/unemployment switch
     employment: String,
     // employment info
     employmentInfo: {
-        employer: String,
-        jobType: String,
-        industry: String,
-        startWorkDate: String,
-        workplace: String,
         workProvince: String,
         salary: Number,
         jobForm: String
     },
     // unemployment info
     unemploymentInfo: {
-        humanCategory: String,
-        unemployedDate: String,
         unemploymentCause: String,
         familyType: String,
-        preferredJobType: [String],
-        //extraPreferredJobType: String,
-        preferredSalary: Number,
-        preferredIndustry: String,
-        preferredWorkplace: String,
-        preferredJobForm: String,
-        preferredService: [String],
-        extraPreferredService: String,
-        preferredTraining: String
+        preferredJobType: [String]
     },
     // insurance info
     insurance: [String],
@@ -150,16 +119,7 @@ function multiCount(list, callback) {
     var result = {};
     // to count the running count processes
     var counting = 0;
-//    function recurse() {
-//        if (!list) {
-//            return [];
-//        }
-//        districtId = list.shift();
-//        counting++;
-//        count(districtId, function(e, c) {
-//            result.push([districtId, c]);
-//        });
-//    }
+
     for (var i = 0; i < list.length; i++) {
         counting++;
         count(list[i], function(districtId, c) {
