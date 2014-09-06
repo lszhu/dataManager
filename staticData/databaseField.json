@@ -1,17 +1,58 @@
 {
+    "archive": {
+        "id": "文档编号",
+        "name": "文档名称",
+        "path": "电子文档位置",
+        "store": "原始文档位置",
+        "date": "创建日期",
+        "destroyed": "已销毁",
+        "lending": {
+            "borrower": "借用人",
+            "time": "借出日期"
+        },
+        "editor": "归档人"
+    },
+    "store": {
+        "id": "存放位置编号",
+        "room": {
+            "id": "档案室编号",
+            "name": "档案室名称"
+          },
+        "cabinet": {
+            "id": "文件柜编号",
+            "name": "文件柜名称"
+          },
+        "folder": {
+            "id": "卷宗编号",
+            "name": "卷宗名称"
+          },
+        "description": "描述",
+        "date": "归档日期",
+        "operator": "操作员"
+    },
     "project": {
         "id": "项目编号",
         "name": "项目名称",
         "description": "项目摘要",
         "contract": {
-            "name": "项目合同",
+            "id": "合同编号",
+            "name": "合同名称",
             "path": "电子合同位置",
             "store": "原始合同位置",
             "date": "签订日期",
             "destroyed": "已销毁"
+        },
+        "file": {
+            "id": "文档编号",
+            "name": "文档名称",
+            "path": "电子文档位置",
+            "store": "原始文档位置",
+            "date": "创建日期",
+            "destroyed": "已销毁"
         }
     },
-    "figures": {
+    "figure": {
+        "id": "条目编号",
         "project": "项目编号",
         "date": "日期",
         "voucher": {
@@ -37,10 +78,16 @@
     "account": {
         "username": "账号",
         "password": "密码",
-        "group": "用户组",
-        "permission": "权限",
         "enabled": "已启用状态",
-        "description": "描述"
+        "description": "描述",
+        "groups": "用户组列表",
+        "rights": "权限"
+    },
+    "group": {
+        "name": "用户组名",
+        "comment": "描述",
+        "accounts": "账号列表",
+        "rights": "授权列表"
     },
     "lending": {
         "time": "借阅时间",
@@ -51,21 +98,37 @@
         "comment": "其他说明"
     },
     "rights": {
+        "system": {
+            "log": "可查看日志",
+            "account": "可管理账号",
+            "group": "可管理用户组"
+        },
         "projects": "可访问项目列表",
         "subjects": "可访问科目列表",
         "date": {
             "begin": "可访问时间起点",
             "end": "可访问时间终点"
         },
-        "figures": "可访问财务数据",
+        "figures": {
+            "readable": "可访问财务数据",
+            "removable": "可删除财务数据"
+        },
         "voucher": "可访问凭证",
         "contract": "可访问合同",
-        "archive": "可存档数据",
+        "archive": {
+            "figure": "可存档财务数据",
+            "cheque": "可存档财务凭证",
+            "contract": "可存档合同",
+            "file": "可存档普通文件",
+            "digital": "可管理电子档",
+            "original": "可管理原始档"
+        },
         "destroy": "可销毁数据",
         "approval": "可批准写入",
         "lending": {
             "voucher": "可借出原始凭证",
-            "contract": "可借出合同正本"
+            "contract": "可借出合同正本",
+            "file": "可借出普通文件"
         }
     }
 }

@@ -8,12 +8,18 @@ var runningEnvironment = 'development';
 // 此处设置系统唯一标识，可用于一个服务器安装多个服务
 var sysId = 'chequeSys01';
 
+// 存放合同文件的路径
+var contractPath = '../contract';
+
+// 存放支票文件的路径
+var chequePath = '../cheque';
+
 // 此处修改内置管理员账号的名称和密码等信息
 var builtinAccount = {
     username: 'admin',            // 管理员名称
     password: 'admin',            // 管理员密码
-    group: '0',                   // 管理员所属组号
-    permission: {},               // 除组规定的权限外的额外权限
+    groups: ['administrator'],    // 管理员所属组号
+    rights: {},                   // 除组规定的权限外的额外权限
     enabled: true,                // 启用状态
     description : 'builtin administrator'
 };
@@ -39,6 +45,8 @@ module.exports = {
     port: httpPort,
     runningEnv: runningEnvironment,
     sysId: sysId,
+    contractPath: contractPath,
+    chequePath: chequePath,
     builtinAccount: builtinAccount,
     db: {
         server: dbServer,

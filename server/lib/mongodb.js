@@ -1,205 +1,240 @@
-var debug = require('debug')('db');
+var mongoose = require('mongoose');
+var debug = require('debug')('mongodb');
+
 // mongodb server parameters
 var db = require('../config').db;
 // Specifies the maximum number of documents the query will return
 var maxReturnedDoc = require('../config').queryLimit;
 
-var mongoose = require('mongoose');
-var Schema = mongoose.Schema;
+// initiate a connection to mongodb
+function connectDb() {
+    mongoose.connect('mongodb://' + db.server.address + ':' +
+        db.server.port + '/' + db.server.dbName, db.parameter);
 
-mongoose.connect('mongodb://' + db.server.address + ':' +
-    db.server.port + '/' + db.server.dbName, db.parameter);
+    mongoose.connection.on('error', function(err) {
+        console.error('connection error:', err);
+        // if connection failed, retry after 10s
+        setTimeout(function() {
+            mongoose.connect('mongodb://' + db.server.address + ':' +
+                db.server.port + '/' + db.server.dbName, db.parameter);
+        }, 10000);
+    });
+    mongoose.connection.once('open', function() {
+        console.log('database connected.');
+    });
+}
 
-mongoose.connection.on('error', function(err) {
-    console.error('connection error:', err);
-    // if connection failed, retry after 10s
-    setTimeout(function() {
-        mongoose.connect('mongodb://' + db.server.address + ':' +
-            db.server.port + '/' + db.server.dbName, db.parameter);
-    }, 10000);
-});
-mongoose.connection.once('open', function() {
-    console.log('database connected.');
-});
-
-var personSchema = new Schema({
-});
-
-var PersonMsg = mongoose.model('hrmsg', personSchema);
-
-var projectSchema = new Schema({
-    id: Number,
-    name: String,
-    description: String,
-    contract: [{
+// create collection models
+function createModels() {
+    var archiveSchema = new mongoose.Schema({
+        id: String,
         name: String,
         path: String,
-        store: String,
+        store: Number,
         date: Date,
-        destroyed: Boolean
-    }]
-});
+        destroyed: Boolean,
+        lending: {
+            borrower: String,
+            time: Date
+        },
+        editor: String
+    });
 
-var figuresSchema = new Schema({
-    project: Number,
-    date: Date,
-    voucher: {
+    var storeSchema = new mongoose.Schema({
+        id: Number,
+        room: {
+            id: Number,
+            name: String
+        },
+        cabinet: {
+            id: Number,
+            name: String
+        },
+        folder: {
+            id: Number,
+            name: String
+        },
+        description: String,
+        date: Date,
+        operator: String
+    });
+
+    var projectSchema = new mongoose.Schema({
+        id: Number,
+        name: String,
+        description: String,
+        contract: [{
+            id: String,
+            name: String,
+            path: String,
+            store: String,
+            date: Date,
+            destroyed: Boolean
+        }],
+        file: [{
+            id: String,
+            name: String,
+            path: String,
+            store: String,
+            date: Date,
+            destroyed: Boolean
+        }]
+    });
+
+    var figureSchema = new mongoose.Schema({
         id: String,
-        path: String,
-        store: String
-    },
-    subject: String,
-    comment: String,
-    debit: Number,
-    credit: Number,
-    direction: String,
-    balance: String,
-    deleted: Boolean
-});
+        project: Number,
+        date: Date,
+        voucher: {
+            id: String,
+            path: String,
+            store: String
+        },
+        subject: String,
+        comment: String,
+        debit: Number,
+        credit: Number,
+        direction: String,
+        balance: String,
+        deleted: Boolean
+    });
 
-var logSchema = new Schema({
-    time: Date,
-    operator: String,
-    operation: String,
-    target: String,
-    status: String
-});
+    var logSchema = new mongoose.Schema({
+        time: Date,
+        operator: String,
+        operation: String,
+        target: String,
+        status: String
+    });
 
-var accountSchema = new Schema({
-    username: String,
-    password: String,
-    group: String,
-    permission: Object,
-    enabled: String,
-    description: String
-});
-
-var lendingSchema = new Schema({
-    time: Date,
-    borrower: String,
-    target: String,
-    reason: String,
-    retrieve: Date,
-    comment: String
-});
-
-var rightsSchema = new Schema({
-    projects: [Number],
-    subjects: [String],
-    date: {
-        begin: Date,
-        end: Date
-    },
-    figures: Boolean,
-    voucher: Boolean,
-    contract: Boolean,
-    archive: Boolean,
-    destroy: Boolean,
-    approval: Boolean,
-    lending: {
-        voucher: Boolean,
-        contract: Boolean
-    }
-});
-
-function save(hrMsg) {
-    PersonMsg.update(
-        {idNumber: hrMsg.idNumber},
-        hrMsg,
-        {upsert: true},
-        function(err) {
-            if (err) {
-                console.error('save error: \n%o', err);
+    var accountSchema = new mongoose.Schema({
+        username: String,
+        password: String,
+        enabled: String,
+        description: String,
+        groups: [String],
+        rights: {
+            system: {
+                log: Boolean,
+                account: Boolean,
+                group: Boolean
+            },
+            projects: Boolean,
+            subjects: Boolean,
+            date: {
+                begin: Boolean,
+                end: Boolean
+            },
+            figures: {
+                readable: Boolean,
+                removable: Boolean
+            },
+            voucher: Boolean,
+            contract: Boolean,
+            archive: {
+                figure: Boolean,
+                cheque: Boolean,
+                contract: Boolean,
+                file: Boolean,
+                digital: Boolean,
+                original: Boolean
+            },
+            destroy: Boolean,
+            approval: Boolean,
+            lending: {
+                voucher: Boolean,
+                contract: Boolean,
+                file: Boolean
             }
-        });
-}
-
-function query(condition, callback) {
-    PersonMsg.find(condition)
-        .lean()         // make return value changeable
-        .limit(maxReturnedDoc)  // limit returned documents
-        //.sort({districtId: 1, username: 1})
-        .exec(callback);
-}
-
-function search(condition, district, callback) {
-    var query = PersonMsg.find(condition).read('primary');
-    query.where(district)
-        .lean()         // make return value changeable
-        .limit(maxReturnedDoc)  // limit returned documents
-        //.sort({districtId: 1, username: 1})
-        .exec(callback);
-}
-
-function update(condition, value, callback) {
-    PersonMsg.update(condition, value, {multi: true}, callback);
-}
-
-function remove(condition, callback) {
-    PersonMsg.remove(condition, callback);
-}
-
-
-var Account = mongoose.model('account', accountSchema);
-
-// save account information
-function saveAccount(acc) {
-    Account.update({username: acc.username}, acc, {upsert: true},
-        function(err) {
-            if (err) {
-                console.error('save error: \n%o', err);
-            }
-        });
-}
-
-// change account status
-function changeAccountStatus(user, status) {
-    Account.update({username: user}, {enabled: status}, function(err) {
-        if (err) {
-            console.error('save error: \n%o', err);
         }
     });
-}
 
-// change account password
-function changeAccountPassword(user, password, callback) {
-    Account.update({username: user}, {password: password}, callback);
-}
-
-// delete account
-function deleteAccount(user) {
-    Account.remove({username: user}, function(err) {
-        if (err) {
-            console.error('save error: \n%o', err);
+    var groupSchema = new mongoose.Schema({
+        name: String,
+        comment: String,
+        accounts: [String],
+        rights: {
+            system: {
+                log: Boolean,
+                account: Boolean,
+                group: Boolean
+            },
+            projects: Boolean,
+            subjects: Boolean,
+            date: {
+                begin: Boolean,
+                end: Boolean
+            },
+            figures: {
+                readable: Boolean,
+                removable: Boolean
+            },
+            voucher: Boolean,
+            contract: Boolean,
+            archive: {
+                figure: Boolean,
+                cheque: Boolean,
+                contract: Boolean,
+                file: Boolean,
+                digital: Boolean,
+                original: Boolean
+            },
+            destroy: Boolean,
+            approval: Boolean,
+            lending: {
+                voucher: Boolean,
+                contract: Boolean,
+                file: Boolean
+            }
         }
     });
+
+    var lendingSchema = new mongoose.Schema({
+        time: Date,
+        borrower: String,
+        target: String,
+        reason: String,
+        retrieve: Date,
+        comment: String
+    });
+
+    return {
+        archive:  mongoose.model('archive', archiveSchema),
+        store:  mongoose.model('store', storeSchema),
+        project: mongoose.model('project', projectSchema),
+        figure: mongoose.model('figure', figureSchema),
+        log: mongoose.model('log', logSchema),
+        account: mongoose.model('account', accountSchema),
+        group: mongoose.model('group', groupSchema),
+        lending: mongoose.model('lending', lendingSchema)
+    };
 }
 
-// query accounts information
-function queryAccounts(condition, callback) {
-    Account.find(condition)
-        .lean()         // make return value changeable
-        .sort('username')
+// connect to mongodb when system started
+connectDb();
+// create models being used
+var models = createModels();
+
+function save(model, condition, data, callback) {
+    models[model]
+        .update(condition, data, {upsert: true, multi: true}, callback);
+}
+
+function query(model, condition, callback) {
+    models[model]
+        .find(condition)
+        .lean()                 // make return value changeable
+        .limit(maxReturnedDoc)  // limit returned documents
         .exec(callback);
 }
 
-// get account information
-function getAccount(username, callback) {
-    Account.findOne({username: username}, callback);
+function remove(model, condition, callback) {
+    models[model]
+        .remove(condition, callback);
 }
 
 module.exports = {
     save: save,
     query: query,
-    remove: remove,
-    update: update,
-    count: count,
-    multiCount: multiCount,
-    preprocessUserMsg: preprocessUserMsg,
-    saveAccount: saveAccount,
-    changeAccountStatus: changeAccountStatus,
-    changeAccountPassword: changeAccountPassword,
-    deleteAccount: deleteAccount,
-    queryAccounts: queryAccounts,
-    getAccount: getAccount
+    remove: remove
 };
