@@ -51,7 +51,7 @@ router.post('/login', function(req, res) {
 
 /* phonecat app as test page. */
 router.get('/phonecat', function(req, res) {
-  res.render('phonecat.html');
+  res.render('public/phonecat.html');
 });
 
 module.exports = router;

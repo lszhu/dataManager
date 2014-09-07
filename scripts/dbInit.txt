@@ -1,4 +1,4 @@
-// 数据库维护备忘
+﻿// 数据库维护备忘
 // example for administrator
 use admin
 
@@ -14,14 +14,14 @@ db.createUser(
 
 // example for each county
 
-use ningyuan
+use chequesys
 
 show users
 
 db.createUser(
 	{
-		user: 'hrsys',
-		pwd: 'letmein',
+		user: 'chequesys',
+		pwd: 'chequeSys2014',
 		roles: ['readWrite']
 	}
 );

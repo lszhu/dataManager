@@ -215,16 +215,18 @@ connectDb();
 // create models being used
 var models = createModels();
 
-function save(model, condition, data, callback) {
-    models[model]
-        .update(condition, data, {upsert: true, multi: true}, callback);
-}
-
 function query(model, condition, callback) {
     models[model]
         .find(condition)
-        .lean()                 // make return value changeable
-        .limit(maxReturnedDoc)  // limit returned documents
+        .lean()                     // make return value changeable
+        .limit(maxReturnedDoc)      // limit returned documents
+        .exec(callback);
+}
+
+function queryOne(model, condition, callback) {
+    models[model]
+        .findOne(condition)
+        .lean()                     // make return value changeable
         .exec(callback);
 }
 
@@ -233,8 +235,19 @@ function remove(model, condition, callback) {
         .remove(condition, callback);
 }
 
+function save(model, condition, data, callback) {
+    models[model]
+        .update(condition, data, {upsert: true, multi: true}, callback);
+}
+
+function getAccount(username, callback) {
+    queryOne('account', {username: username}, callback);
+}
+
 module.exports = {
-    save: save,
     query: query,
-    remove: remove
+    queryOne: queryOne,
+    save: save,
+    remove: remove,
+    getAccount: getAccount
 };

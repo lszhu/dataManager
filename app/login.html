@@ -1,56 +1,57 @@
 <!DOCTYPE html>
 <html lang="zh-cn">
 <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>cheque system</title>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cheque system</title>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="bower_components/bootstrap/dist/css/bootstrap.min.css">
-    <!-- user special css files -->
-    <link rel="stylesheet" href="css/app.css">
-    <link rel="stylesheet" href="css/animations.css">
+  <!-- Bootstrap -->
+  <link rel="stylesheet" href="/bootstrap/dist/css/bootstrap.min.css">
+  <!-- user special css files -->
+  <link rel="stylesheet" href="/css/app.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <link rel="stylesheet" href="/css/frame.css">
 
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="bower_components/jquery/dist/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="bower_components/bootstrap/dist/js/bootstrap.min.js"></script>
-    <!-- angular.js lib -->
-    <script src="bower_components/angular/angular.js"></script>
-    <script src="bower_components/angular-animate/angular-animate.js"></script>
-    <script src="bower_components/angular-route/angular-route.js"></script>
-    <script src="bower_components/angular-resource/angular-resource.js"></script>
-    <!-- user specail js files -->
-    <script src="js/app.js"></script>
-    <script src="js/animations.js"></script>
-    <script src="js/controllers.js"></script>
-    <script src="js/filters.js"></script>
-    <script src="js/services.js"></script>
+  <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+  <script src="/jquery/dist/jquery.min.js"></script>
+  <!-- Include all compiled plugins (below), or include individual files as needed -->
+  <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+  <!-- angular.js lib -->
+  <script src="/angular/angular.js"></script>
+  <script src="/angular-animate/angular-animate.js"></script>
+  <script src="/angular-route/angular-route.js"></script>
+  <script src="/angular-resource/angular-resource.js"></script>
+  <!-- user specail js files -->
+  <script src="/js/app.js"></script>
+  <script src="/js/animations.js"></script>
+  <script src="/js/controllers.js"></script>
+  <script src="/js/filters.js"></script>
+  <script src="/js/services.js"></script>
 
-    <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-        <script src="bower_components/html5shiv/dist/html5shiv.min.js"></script>
-        <script src="bower_components/respond/dest/respond.min.js"></script>
-    <![endif]-->
+  <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+  <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+  <!--[if lt IE 9]>
+    <script src="/html5shiv/dist/html5shiv.min.js"></script>
+    <script src="/respond/dest/respond.min.js"></script>
+  <![endif]-->
 </head>
 <body>
 
 <div class="container">
-    <div class="col-md-6 col-md-offset-3">
-        <form class="form-signin" role="form" method="post" action="/login">
-            <h2 class="form-signin-heading">请登录</h2>
-            <input class="form-control" name="username" placeholder="用户名称" required autofocus>
-            <br />
-            <input type="password" class="form-control" name="password" placeholder="登录密码" required>
-            <br />
-            <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
-        </form>
-        <% if (error) { %>
-            <h3 class="text-center text-danger"><%= error %></h3>
-        <% } %>
-    </div>
+  <div class="col-md-6 col-md-offset-3">
+    <form class="form-signin" role="form" method="post" action="/login">
+      <h2 class="form-signin-heading">请登录</h2>
+      <input class="form-control" name="username" placeholder="用户名称" required autofocus>
+      <br />
+      <input type="password" class="form-control" name="password" placeholder="登录密码" required>
+      <br />
+      <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+    </form>
+    <% if (error) { %>
+    <h3 class="text-center text-danger"><%= error %></h3>
+    <% } %>
+  </div>
 </div> <!-- /container -->
 
 </body>

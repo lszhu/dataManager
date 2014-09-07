@@ -24,7 +24,7 @@ app.set('view engine', 'ejs');
 app.engine('html', require('ejs').renderFile);
 
 // uncomment after placing your favicon in /public
-app.use(favicon(__dirname + '/../app/img/favicon.png'));
+app.use(favicon(__dirname + '/../app/public/img/favicon.png'));
 app.use(logger('dev'));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -37,11 +37,12 @@ app.use(session({
     saveUninitialized: true
 }));
 
-app.use(express.static(path.join(__dirname, '/../app')));
+app.use(express.static(path.join(__dirname, '/../app/public')));
+app.use(express.static(path.join(__dirname, '/../app/bower_components')));
 
 // redirect to login page before any access
 app.use('/', function(req, res, next) {
-    debug('req.session: ' + req.session);
+    debug('req.session: ' + JSON.stringify(req.session));
     if (!req.session.user && req.path != '/login') {
         req.session.error = 'NoLogin';
         return res.redirect('/login');
@@ -56,7 +57,8 @@ app.use('/users', users);
 app.use(function(req, res, next) {
     var err = new Error('Not Found');
     err.status = 404;
-    next(err);
+    res.render('404.html');
+    //next(err);
 });
 
 // error handlers
@@ -66,7 +68,7 @@ app.use(function(req, res, next) {
 if (app.get('env') === 'development') {
     app.use(function(err, req, res, next) {
         res.status(err.status || 500);
-        res.render('error', {
+        res.render('error.html', {
             message: err.message,
             error: err
         });
@@ -77,7 +79,7 @@ if (app.get('env') === 'development') {
 // no stacktraces leaked to user
 app.use(function(err, req, res, next) {
     res.status(err.status || 500);
-    res.render('error', {
+    res.render('error.html', {
         message: err.message,
         error: {}
     });
