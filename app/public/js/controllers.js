@@ -2,6 +2,15 @@
 
 /* Controllers */
 
+var mainFrameCtrl = angular.module('mainFrameCtrl', []);
+mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
+    function($scope, AppMenu) {
+        $scope.appMenu = AppMenu;
+    }]);
+
+///////////////////////////////////////////////////////////
+// used for phoneCat, a template app
+
 var phonecatControllers = angular.module('phonecatControllers', []);
 
 phonecatControllers.controller('PhoneListCtrl', ['$scope', 'Phone',

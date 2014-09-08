@@ -2,6 +2,15 @@
 
 /* App Module */
 
+var archiveApp = angular.module('archiveApp', [
+    'ngRoute',
+    'mainFrameCtrl',
+    'appService'
+]);
+
+///////////////////////////////////////////////////////////
+// used for phoneCat, a template app
+
 var phonecatApp = angular.module('phonecatApp', [
   'ngRoute',
   'phonecatAnimations',
