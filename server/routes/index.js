@@ -49,6 +49,11 @@ router.post('/login', function(req, res) {
 
 });
 
+router.all('/logout', function(req, res) {
+    req.session.user = undefined;
+    res.redirect('/login');
+});
+
 /* phonecat app as test page. */
 router.get('/phonecat', function(req, res) {
   res.render('public/phonecat.html');

@@ -2,6 +2,11 @@
     "archive": {
         "id": "文档编号",
         "name": "文档名称",
+        "category": "类别",
+        "description": "描述",
+        "keys": "主题词",
+        "page": "页数",
+        "secret": "密级",
         "path": "电子文档位置",
         "store": "原始文档位置",
         "date": "创建日期",

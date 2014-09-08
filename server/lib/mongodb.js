@@ -29,6 +29,11 @@ function createModels() {
     var archiveSchema = new mongoose.Schema({
         id: String,
         name: String,
+        category: String,
+        description: String,
+        keys: String,
+        page: Number,
+        secret: String,
         path: String,
         store: Number,
         date: Date,
