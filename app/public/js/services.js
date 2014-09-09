@@ -15,15 +15,17 @@ appService.factory('AppMenu', function() {
                 {name: '文件', link: '/search/file'},
                 {name: '关键词', link: '/search/key'}
             ]
+            //showing: false
         },
         {
             name: '报表',
             subMenu: [
-                {name: '时段-科目x项目', link: '/report/isp'},
-                {name: '项目-时段-科目', link: '/report/pis'},
-                {name: '项目-科目x时间', link: '/report/pst'},
-                {name: '科目-时间x项目', link: '/report/stp'}
+                {name: '时段 - 科目 x 项目', link: '/report/isp'},
+                {name: '项目 - 时段 - 科目', link: '/report/pis'},
+                {name: '项目 - 科目 x 时间', link: '/report/pst'},
+                {name: '科目 - 时间 x 项目', link: '/report/stp'}
             ]
+            //showing: false
         },
         {
             name: '档案',
@@ -37,6 +39,29 @@ appService.factory('AppMenu', function() {
                 {name: '鉴定销毁', link: '/archive/destroy'},
                 {name: '档案统计', link: '/archive/report'}
             ]
+            //showing: false
+        },
+        {
+            name: '工具',
+            subMenu: [
+                {name: '项目创建/合并/更新/删除', link: '/'},
+                {name: '财务数据增加/修改/删除/导入', link: '/'},
+                {name: '票据/合同/文件自动/手动关联', link: '/'},
+                {name: '', link: '/'}
+            ]
+            //showing: false
+        },
+        {
+            name: '档案',
+            subMenu: [
+                {name: '科目管理', link: '/'},
+                {name: '用户管理', link: '/'},
+                {name: '用户组管', link: '/'},
+                {name: '日志查看还', link: '/'},
+                {name: '系统状态', link: '/'},
+                {name: '', link: '/'}
+            ]
+            //showing: false
         }
     ]
 });

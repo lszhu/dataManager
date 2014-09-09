@@ -6,7 +6,20 @@ var mainFrameCtrl = angular.module('mainFrameCtrl', []);
 mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
     function($scope, AppMenu) {
         $scope.appMenu = AppMenu;
-    }]);
+        for (var i = 0; i < $scope.appMenu.length; i++) {
+            $scope.appMenu[i].show = 'glyphicon-chevron-down';
+        }
+        $scope.toggleShow = function(name) {
+            for (var i = 0; i < $scope.appMenu.length; i++) {
+                if ($scope.appMenu[i].name == name) {
+                    $scope.appMenu[i].show =
+                        $scope.appMenu[i].show == 'glyphicon-chevron-up' ?
+                            'glyphicon-chevron-down' : 'glyphicon-chevron-up';
+                }
+            }
+        }
+    }
+]);
 
 ///////////////////////////////////////////////////////////
 // used for phoneCat, a template app
