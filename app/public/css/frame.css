@@ -17,25 +17,45 @@ body {
 }
 
 /*
+ * Fixed top menu bar
+ */
+
+.navbar a {
+    font-weight: bold;
+}
+
+/*
  * Sidebar
  */
 
 .sideMenu {
     width: 240px;
-    font: bold;
+    font-weight: bold ;
 }
 .sideMenu .panel-heading {
     cursor: pointer;
 }
 
 .shiftRightIcon {
-    margin-left: 100px;
+    margin-left: 75px;
+    margin-right: 0;
 }
 
 .shiftRight {
     margin-left: 0;
 }
 
+.panel-heading span {
+    color: lightblue;
+}
+
+.panel-body {
+    padding: 10px;
+}
+
+.panel-body ul {
+    padding-left: 20px;
+}
 
 /* Hide for mobile, show later */
 .sidebar {

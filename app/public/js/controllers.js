@@ -21,6 +21,14 @@ mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
     }
 ]);
 
+mainFrameCtrl.controller('FilterKey', ['$scope',
+    function($scope) {
+        $scope.resetKey = function() {
+            $scope.filterKey = '';
+        }
+    }
+]);
+
 ///////////////////////////////////////////////////////////
 // used for phoneCat, a template app
 
