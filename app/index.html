@@ -53,7 +53,7 @@
     <div class="navbar-collapse collapse" ng-controller="MenuCtrl">
       <ul class="nav navbar-nav" ng-repeat="menu in appMenu">
         <li  class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+          <a  class="dropdown-toggle" data-toggle="dropdown">
             {{menu.name}}<span class="caret"></span>
           </a>
           <ul class="dropdown-menu" role="menu">
@@ -79,15 +79,16 @@
       </ul>
       <ul class="nav navbar-nav navbar-right">
         <li class="active">
-          <form class="navbar-form navbar-right" ng-controller="FilterKey">
+          <form class="navbar-form navbar-right" ng-controller="FilterKeyCtrl">
             <input type="text" ng-model="filterKey" class="form-control" placeholder="查询过滤">
           </form>
         </li>
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown">帮助<span class="caret"></span></a>
+          <a href="" class="dropdown-toggle" data-toggle="dropdown">帮助<span class="caret"></span></a>
           <ul class="dropdown-menu" role="menu">
-            <li><a href="#">操作指南</a></li>
-            <li><a href="#">关于</a></li>
+            <li><a href="#help/welcome">欢迎</a></li>
+            <li><a href="#help/guide">操作指南</a></li>
+            <li><a href="#help/about">关于</a></li>
           </ul>
         </li>
         <li><a href="/logout">退出</a></li>
@@ -102,7 +103,7 @@
   <div class="row">
     <div class="sidebar sideMenu" ng-controller="MenuCtrl">
       <div class="panel panel-primary" ng-repeat="menu in appMenu">
-        <div class="panel-heading" ng-click="toggleShow(menu.name)">
+        <div class="panel-heading" ng-click="toggleShow($index)">
           <span ng-class="menu.icon"></span>&nbsp;
           {{menu.name}}
           <span ng-class="menu.show" class="shiftRightIcon glyphicon"></span>
@@ -153,6 +154,9 @@
         </div>
       </div>
 
+      <div ng-view></div>
+
+      <!--
       <h2 class="sub-header">Section title</h2>
       <div class="table-responsive">
         <table class="table table-striped">
@@ -281,6 +285,7 @@
           </tbody>
         </table>
       </div>
+      -->
     </div>
   </div>
 </div> <!-- /container -->

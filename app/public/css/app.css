@@ -4,7 +4,9 @@ body {
   padding-top: 20px;
 }
 
-
+a {
+    cursor: pointer;
+}
 .phone-images {
   background-color: white;
   width: 450px;

@@ -9,25 +9,35 @@ mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
         for (var i = 0; i < $scope.appMenu.length; i++) {
             $scope.appMenu[i].show = 'glyphicon-chevron-down';
         }
-        $scope.toggleShow = function(name) {
-            for (var i = 0; i < $scope.appMenu.length; i++) {
-                if ($scope.appMenu[i].name == name) {
-                    $scope.appMenu[i].show =
-                        $scope.appMenu[i].show == 'glyphicon-chevron-up' ?
-                            'glyphicon-chevron-down' : 'glyphicon-chevron-up';
-                }
-            }
+        $scope.toggleShow = function(i) {
+            $scope.appMenu[i].show =
+                    $scope.appMenu[i].show == 'glyphicon-chevron-up' ?
+                        'glyphicon-chevron-down' : 'glyphicon-chevron-up';
         }
     }
 ]);
 
-mainFrameCtrl.controller('FilterKey', ['$scope',
+mainFrameCtrl.controller('FilterKeyCtrl', ['$scope',
     function($scope) {
         $scope.resetKey = function() {
             $scope.filterKey = '';
         }
     }
 ]);
+
+mainFrameCtrl.controller('WorkplaceCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+/*
+ mainFrameCtrl.controller('MergeProjectCtrl', ['$scope',
+ function($scope) {
+ $scope.tmp = '';
+ }
+ ]);
+ */
 
 ///////////////////////////////////////////////////////////
 // used for phoneCat, a template app

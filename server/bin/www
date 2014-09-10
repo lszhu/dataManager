@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 var debug = require('debug')('chequeSys');
-var app = require('../app');
+var app = require('../server');
 
 // get serve port from config file
 process.env.PORT = require('../config').port;

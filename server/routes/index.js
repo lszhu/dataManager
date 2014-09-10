@@ -1,6 +1,7 @@
 var express = require('express');
 var router = express.Router();
 var util = require('util');
+var path = require('path');
 
 // for debug
 var debug = require('debug')('route');
@@ -13,7 +14,12 @@ var db = require('../lib/mongodb');
 /* GET home page. */
 router.get('/', function(req, res) {
     debug("session: " + util.inspect(req.session));
-    res.render('index.html');
+    if (req.originalUrl == '/' || req.originalUrl == '/#') {
+        res.render('index.html');
+        //return;
+    }
+    //var hash = req.originalUrl.split('#')[1];
+    //res.sendFile(__dirname + '/../../app/partials/' + hash + '.html');
     //res.send('welcome to cheque system.');
 });
 
@@ -52,6 +58,22 @@ router.post('/login', function(req, res) {
 router.all('/logout', function(req, res) {
     req.session.user = undefined;
     res.redirect('/login');
+});
+
+// welcome partial view
+router.get('/welcome', function(req, res) {
+    var root = path.resolve(__dirname + '/../../app/partials/');
+    res.sendFile('welcome.html', {root: root});
+});
+
+// for angular.js to get partial view file
+router.get(/\/.+\/(.+)/, function(req, res) {
+    //res.render('partials/createProject.html', {error: ''});
+    var root = path.resolve(__dirname + '/../../app/partials/');
+    debug('root path: ' + root);
+    var filename = req.params[0];
+    debug('filename: ' + filename);
+    res.sendFile('/' + filename + '.html', {root: root});
 });
 
 /* phonecat app as test page. */
