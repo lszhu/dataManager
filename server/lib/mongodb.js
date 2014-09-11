@@ -220,10 +220,6 @@ function createModels() {
 connectDb();
 // create models being used
 var models = createModels();
-function saveProject(condition, data, callback) {
-    project           // callback(err, numberAffected, rawResponse)
-        .update(condition, data, {upsert: true, multi: true}, callback);
-}
 
 function query(model, condition, callback) {
     models[model]

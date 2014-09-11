@@ -70,7 +70,9 @@ router.post('/createProject', function(req, res) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
         return;
     }
+    name = name.trim();
     var description = req.description ? req.description : '';
+    description = description.trim();
     var logMsg = {
         operator: req.session.user.username,
         operation: '创建项目',
@@ -110,6 +112,42 @@ router.post('/createProject', function(req, res) {
                 );
             });
         }
+    });
+});
+
+router.post('/logReport', function(req, res) {
+    var condition = {};
+    if (req.body.operator) {
+        condition.operator = new RegExp(req.body.operator.trim());
+    }
+    if (req.body.operation) {
+        condition.operation = new RegExp(req.body.operation.trim());
+    }
+    if (req.body.target) {
+        condition.target = new RegExp(req.body.target.trim());
+    }
+    if (req.body.comment) {
+        condition.comment = new RegExp(req.body.comment.trim());
+    }
+    if (req.body.status) {
+        condition.status = req.body.status;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '日志查看',
+        target: '日志数据库',
+        comment: '数据库查询访问失败',
+        status: '失败'
+    };
+    db.query('log', condition, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send(docs);
+        tool.log(db, logMsg, '从数据库成功获取日志信息', '成功');
     });
 });
 

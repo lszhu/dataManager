@@ -31,17 +31,42 @@ mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('MergeProjectCtrl', ['$scope',
+mainFrameCtrl.controller('ProjectCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
 ]);
 
-mainFrameCtrl.controller('MergeProjectCtrl', ['$scope',
+mainFrameCtrl.controller('SubjectCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
 ]);
+
+mainFrameCtrl.controller('VoucherCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('ContractCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('DocumentCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('KeyCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
 
 mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
     function($scope, $http) {
@@ -51,8 +76,8 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
         $scope.description = '';
         $scope.createProject = function() {
             $http.post('/createProject',
-                {name: $scope.name.trim(),
-                description: $scope.description.trim(),
+                {name: $scope.name,
+                description: $scope.description,
                 option: 'notArbitrary'})
                 .success(function(res) {
                     if (res.status == 'ok') {
@@ -102,6 +127,59 @@ mainFrameCtrl.controller('DocumentManualBindCtrl', ['$scope',
     }
 ]);
 
+// advanced operation
+
+mainFrameCtrl.controller('subjectManageCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('userManageCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('groupManageCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
+
+mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.message = '';
+        $scope.msgClass = 'alert-success';
+        $scope.name = '';
+        $scope.description = '';
+        $scope.logReport = function() {
+            $http.post('/logReport',{
+                startDate: $scope.startDate,
+                endDate: $scope.endDate,
+                operator: $scope.operator,
+                operation: $scope.operation,
+                target: $scope.target,
+                comment: $scope.comment,
+                status: $scope.status
+            }).success(function(res) {
+                $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = '';
+                $scope.logMsgs = res;
+            }).error(function(res) {
+                $scope.message = 'system error: ' +
+                    JSON.stringify(res);
+            });
+        };
+    }
+]);
+
+mainFrameCtrl.controller('systemStatusCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
+    }
+]);
 
 ///////////////////////////////////////////////////////////
 // used for phoneCat, a template app
