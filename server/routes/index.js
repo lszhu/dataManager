@@ -10,17 +10,13 @@ var debug = require('debug')('route');
 var auth = require('../lib/auth');
 // access database
 var db = require('../lib/mongodb');
+// miscellaneous tools
+var tool = require('../lib/tool');
 
 /* GET home page. */
 router.get('/', function(req, res) {
     debug("session: " + util.inspect(req.session));
-    if (req.originalUrl == '/' || req.originalUrl == '/#') {
-        res.render('index.html');
-        //return;
-    }
-    //var hash = req.originalUrl.split('#')[1];
-    //res.sendFile(__dirname + '/../../app/partials/' + hash + '.html');
-    //res.send('welcome to cheque system.');
+    res.render('index.html');
 });
 
 /* login page. */
@@ -30,7 +26,6 @@ router.get('/login', function(req, res) {
 
 /* login page. */
 router.post('/login', function(req, res) {
-    //res.render('index', { title: 'login' });
     var acc = {
         username: req.body.username.trim(),
         password: req.body.password.trim()
@@ -60,15 +55,8 @@ router.all('/logout', function(req, res) {
     res.redirect('/login');
 });
 
-// welcome partial view
-router.get('/welcome', function(req, res) {
-    var root = path.resolve(__dirname + '/../../app/partials/');
-    res.sendFile('welcome.html', {root: root});
-});
-
 // for angular.js to get partial view file
 router.get(/\/.+\/(.+)/, function(req, res) {
-    //res.render('partials/createProject.html', {error: ''});
     var root = path.resolve(__dirname + '/../../app/partials/');
     debug('root path: ' + root);
     var filename = req.params[0];
@@ -76,9 +64,53 @@ router.get(/\/.+\/(.+)/, function(req, res) {
     res.sendFile('/' + filename + '.html', {root: root});
 });
 
-/* phonecat app as test page. */
-router.get('/phonecat', function(req, res) {
-  res.render('public/phonecat.html');
+router.post('/createProject', function(req, res) {
+    var name =  req.body.name;
+    if (!name) {
+        res.send({status: 'nameErr', message: '项目名称不能为空'});
+        return;
+    }
+    var description = req.description ? req.description : '';
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '创建项目',
+        target: name,
+        comment: '数据库访问失败',
+        status: '失败'
+    };
+    db.queryOne('project', {name: name}, function(err, doc) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询失败'});
+            tool.log(db, logMsg,'数据库查询失败');
+        } else if (doc) {
+            res.send({status: 'duplicate', message: '系统中已存在此项目'});
+            tool.log(db, logMsg, '项目已经存在');
+        } else {
+            db.count('project', {}, function(err, count) {
+                if (err) {
+                    console.log('Db error: ' + JSON.stringify(err));
+                    res.send({status: 'dbErr', message: '统计项目总数失败'});
+                    tool.log(db, logMsg, '统计项目总数失败');
+                }
+                console.log('save to db: ' + JSON.stringify({id: count + 1,
+                    name: name, description: description}));
+                db.save('project', {name: name}, {id: count + 1, name: name,
+                    description: description},
+                    function(err) {
+                        if (err) {
+                            console.log('Db error: ' + JSON.stringify(err));
+                            res.send({status: 'dbErr', message: '数据保存失败'});
+                            tool.log(db, logMsg, '数据保存失败');
+                        } else{
+                            res.send({status: 'ok', message: '创建项目成功'});
+                            tool.log(db, logMsg, '创建项目成功', '成功');
+                        }
+                    }
+                );
+            });
+        }
+    });
 });
 
 module.exports = router;

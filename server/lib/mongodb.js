@@ -109,6 +109,7 @@ function createModels() {
         operator: String,
         operation: String,
         target: String,
+        comment: String,
         status: String
     });
 
@@ -204,8 +205,8 @@ function createModels() {
     });
 
     return {
-        archive:  mongoose.model('archive', archiveSchema),
-        store:  mongoose.model('store', storeSchema),
+        archive: mongoose.model('archive', archiveSchema),
+        store: mongoose.model('store', storeSchema),
         project: mongoose.model('project', projectSchema),
         figure: mongoose.model('figure', figureSchema),
         log: mongoose.model('log', logSchema),
@@ -219,30 +220,39 @@ function createModels() {
 connectDb();
 // create models being used
 var models = createModels();
+function saveProject(condition, data, callback) {
+    project           // callback(err, numberAffected, rawResponse)
+        .update(condition, data, {upsert: true, multi: true}, callback);
+}
 
 function query(model, condition, callback) {
     models[model]
         .find(condition)
         .lean()                     // make return value changeable
         .limit(maxReturnedDoc)      // limit returned documents
-        .exec(callback);
+        .exec(callback);            // callback(err, docs)
 }
 
 function queryOne(model, condition, callback) {
     models[model]
         .findOne(condition)
         .lean()                     // make return value changeable
-        .exec(callback);
+        .exec(callback);            // callback(err, doc)
 }
 
 function remove(model, condition, callback) {
     models[model]
-        .remove(condition, callback);
+        .remove(condition, callback);   // callback(err)
 }
 
 function save(model, condition, data, callback) {
-    models[model]
+    models[model]           // callback(err, numberAffected, rawResponse)
         .update(condition, data, {upsert: true, multi: true}, callback);
+}
+
+function count(model, condition, callback) {
+    models[model]
+        .count(condition, callback);    //callback(err, count)
 }
 
 function getAccount(username, callback) {
@@ -254,5 +264,6 @@ module.exports = {
     queryOne: queryOne,
     save: save,
     remove: remove,
+    count: count,
     getAccount: getAccount
 };

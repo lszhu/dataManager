@@ -78,6 +78,7 @@
         "operator": "操作账号",
         "operation": "操作",
         "target": "操作对象",
+        "comment": "操作描述",
         "status": "操作结果"
     },
     "account": {

@@ -29,9 +29,10 @@ body {
     background: lightgrey;
     border-bottom: grey solid 1px;
 }
-.nav.navbar-nav li>a {
+.nav.navbar-nav li > a {
     font-weight: bold;
     color: darkblue;
+    cursor: pointer;
 }
 
 .navbar .dropdown-menu {

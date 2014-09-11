@@ -1,3 +1,28 @@
 <div>
-  <h2>create new project</h2>
+  <h1 class="page-header">创建项目</h1>
+  <form class="form-horizontal" role="form" ng-submit="createProject()">
+    <div class="form-group">
+      <label for="name" class="col-sm-2 control-label">项目名称</label>
+      <div class="col-sm-9">
+        <input type="text" class="form-control" name="name" ng-model="name" id="name" placeholder="输入项目名称" required>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description" class="col-sm-2 control-label">项目概要</label>
+      <div class="col-sm-9">
+        <textarea class="form-control" name="description" ng-model="description" rows="5" cols="100" id="description" placeholder="输入项目的概要信息"></textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-8">
+        <button type="submit" class="btn btn-primary">&nbsp;&nbsp;创 建&nbsp;&nbsp;</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="col-md-8 col-md-offset-2" ng-show="message">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
 </div>

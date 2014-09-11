@@ -8,17 +8,52 @@ var archiveApp = angular.module('archiveApp', [
     'appService'
 ]);
 
-archiveApp.config(['$routeProvider',
-    function($routeProvider) {
+archiveApp.config(['$routeProvider', 'AppMenuProvider',
+    function($routeProvider, AppMenuProvider) {
+        var route = $routeProvider.otherwise({redirectTo: '/'})
+            .when('/', {
+                templateUrl: '/help/welcome',
+                controller: 'WelcomeCtrl'
+            })
+            .when('/help/welcome', {
+                templateUrl: '/help/welcome',
+                controller: 'WelcomeCtrl'
+            })
+            .when('/help/guide', {
+                templateUrl: '/help/guide',
+                controller: 'WelcomeCtrl'
+            })
+            .when('/help/about', {
+                templateUrl: '/help/about',
+                controller: 'WelcomeCtrl'
+            });
+        var subMenu = '';
+        var appMenu =  AppMenuProvider.$get();
+        for (var i = 0; i < appMenu.length; i++) {
+            for (var j = 0; j < appMenu[i].subMenu.length; j++) {
+                subMenu = appMenu[i].subMenu[j];
+                if (!subMenu.link || !subMenu.controller) {
+                    continue;
+                }
+                route = route.when('/' + subMenu.link, {
+                        templateUrl: '/' + subMenu.link,
+                        controller: subMenu.controller
+                    });
+            }
+        }
+
+        /*
+        //route.otherwise({redirectTo: '/'});
+
         var templateUrl = function(path) {
             return path.type + '/' + path.operation;
         };
-        $routeProvider
+
+        $routeProvide
             .when('/:type/:operation', {
                 templateUrl: templateUrl,
                 controller: 'WorkplaceCtrl'
             })
-            /*
             // archive operation
             .when('/archive/storeManage', {
                 templateUrl: '/archive/storeManagement',
@@ -27,10 +62,6 @@ archiveApp.config(['$routeProvider',
             .when('/archive/storeQuery', {
                 templateUrl: '/archive/storeQuery',
                 controller: 'StoreQueryCtrl'
-            })
-            .when('/archive/storeManagement', {
-                templateUrl: '/archive/storeManagement',
-                controller: 'StoreManagementCtrl'
             })
             .when('/archive/filing', {
                 templateUrl: '/archive/filing',
@@ -123,11 +154,6 @@ archiveApp.config(['$routeProvider',
                 templateUrl: '/tool/documentAutoBind',
                 controller: 'DocumentAutoBindCtrl'
             })*/
-            // default view
-            .otherwise({
-                templateUrl: '/help/welcome',
-                controller: 'WorkplaceCtrl'
-            });
     }
 ]);
 
