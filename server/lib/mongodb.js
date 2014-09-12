@@ -221,11 +221,12 @@ connectDb();
 // create models being used
 var models = createModels();
 
-function query(model, condition, callback) {
+function query(model, condition, callback, limit) {
+    limitation = limit ? limit : maxReturnedDoc;
     models[model]
         .find(condition)
         .lean()                     // make return value changeable
-        .limit(maxReturnedDoc)      // limit returned documents
+        .limit(limitation)          // limit returned documents
         .exec(callback);            // callback(err, docs)
 }
 

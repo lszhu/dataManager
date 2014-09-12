@@ -157,6 +157,7 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
             $http.post('/logReport',{
                 startDate: $scope.startDate,
                 endDate: $scope.endDate,
+                timezone: (new Date()).getTimezoneOffset(),
                 operator: $scope.operator,
                 operation: $scope.operation,
                 target: $scope.target,
@@ -172,6 +173,9 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
                     JSON.stringify(res);
             });
         };
+        $scope.toLocalTime = function(time) {
+            return (new Date(time)).toLocaleString();
+        }
     }
 ]);
 

@@ -26,6 +26,6 @@ db.createUser(
 	}
 );
 
-db.hrmsgs.ensureIndex({idNumber: 1}, {unique: true});
+db.project.ensureIndex({name: 1}, {unique: true});
 
-db.hrmsgs.ensureIndex({districtId: 1});
+db.project.ensureIndex({id: 1}, {unique: true});

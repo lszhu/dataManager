@@ -85,38 +85,55 @@ router.post('/createProject', function(req, res) {
             console.log('Db error: ' + JSON.stringify(err));
             res.send({status: 'dbErr', message: '数据库查询失败'});
             tool.log(db, logMsg,'数据库查询失败');
-        } else if (doc) {
+            return;
+        }
+        if (doc) {
             res.send({status: 'duplicate', message: '系统中已存在此项目'});
             tool.log(db, logMsg, '项目已经存在');
-        } else {
-            db.count('project', {}, function(err, count) {
+            return;
+        }
+        db.save('project', {name: name},
+            {id: Date.now(), name: name, description: description},
+            function(err) {
                 if (err) {
                     console.log('Db error: ' + JSON.stringify(err));
-                    res.send({status: 'dbErr', message: '统计项目总数失败'});
-                    tool.log(db, logMsg, '统计项目总数失败');
+                    res.send({status: 'dbErr', message: '数据保存失败'});
+                    tool.log(db, logMsg, '数据保存失败');
+                } else{
+                    res.send({status: 'ok', message: '创建项目成功'});
+                    tool.log(db, logMsg, '创建项目成功', '成功');
                 }
-                console.log('save to db: ' + JSON.stringify({id: count + 1,
-                    name: name, description: description}));
-                db.save('project', {name: name}, {id: count + 1, name: name,
-                    description: description},
-                    function(err) {
-                        if (err) {
-                            console.log('Db error: ' + JSON.stringify(err));
-                            res.send({status: 'dbErr', message: '数据保存失败'});
-                            tool.log(db, logMsg, '数据保存失败');
-                        } else{
-                            res.send({status: 'ok', message: '创建项目成功'});
-                            tool.log(db, logMsg, '创建项目成功', '成功');
-                        }
-                    }
-                );
-            });
-        }
+            }
+        );
     });
 });
 
 router.post('/logReport', function(req, res) {
-    var condition = {};
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+    var condition = tool.period(req.body.startDate, req.body.endDate,
+        delta, req.body.timezone);
+    condition = condition ? {time: condition} : {};
+    /*
+    var start, end;
+    if (req.body.startDate) {
+        debug('startDate: ' + req.body.startDate);
+        start = req.body.startDate.split('-');
+        start = new Date(start[0], start[1] -1, start[2], 0, 0, 0, 0);
+        condition.time = {$gte: start};
+    }
+    if (req.body.endDate) {
+        debug('endDate: ' + req.body.endDate);
+        end = req.body.endDate.split('-');
+        end = new Date(end[0], end[1] - 1, end[2], 23, 59, 59, 999);
+        if (condition.time) {
+            condition.time.$lte = end;
+        } else {
+            condition.time = {$lte: end};
+        }
+    }    */
+    debug('date: ' + JSON.stringify(condition));
+
     if (req.body.operator) {
         condition.operator = new RegExp(req.body.operator.trim());
     }
@@ -140,6 +157,34 @@ router.post('/logReport', function(req, res) {
         status: '失败'
     };
     db.query('log', condition, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send(docs);
+        tool.log(db, logMsg, '从数据库成功获取日志信息', '成功');
+    });
+});
+
+
+router.post('/queryProject', function(req, res) {
+    var condition = {};
+    if (req.body.name) {
+        condition.name = new RegExp(req.body.comment.trim());
+    }
+    if (req.body.comment) {
+        condition.comment = new RegExp(req.body.comment.trim());
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '项目查看',
+        target: '项目数据库',
+        comment: '数据库查询访问失败',
+        status: '失败'
+    };
+    db.query('project', condition, function(err, docs) {
         if (err) {
             console.log('Db error: ' + JSON.stringify(err));
             res.send({status: 'dbErr', message: '数据库查询访问失败'});
