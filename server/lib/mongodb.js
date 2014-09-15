@@ -65,7 +65,7 @@ function createModels() {
     });
 
     var projectSchema = new mongoose.Schema({
-        id: Number,
+        id: String,
         name: String,
         description: String,
         contract: [{
@@ -88,7 +88,7 @@ function createModels() {
 
     var figureSchema = new mongoose.Schema({
         id: String,
-        project: Number,
+        project: String,
         date: Date,
         voucher: {
             id: String,
@@ -97,8 +97,8 @@ function createModels() {
         },
         subject: String,
         comment: String,
-        debit: Number,
-        credit: Number,
+        debit: String,
+        credit: String,
         direction: String,
         balance: String,
         deleted: Boolean
@@ -221,10 +221,10 @@ connectDb();
 // create models being used
 var models = createModels();
 
-function query(model, condition, callback, limit) {
+function query(model, condition, callback, fields, limit) {
     limitation = limit ? limit : maxReturnedDoc;
     models[model]
-        .find(condition)
+        .find(condition, fields)
         .lean()                     // make return value changeable
         .limit(limitation)          // limit returned documents
         .exec(callback);            // callback(err, docs)
@@ -256,11 +256,31 @@ function getAccount(username, callback) {
     queryOne('account', {username: username}, callback);
 }
 
+function batchSaveFigures(docs, callback) {
+    var count = 0;
+    var error = [];
+    debug('there are %d rows to add.', docs.length);
+    for (var i = 0; i < docs.length; i++) {
+        count++;
+        save('figure', {id: docs[i]['id']}, docs[i], function(err) {
+            if (err) {
+                error.push(err);
+            }
+            debug('a row of figures was saved to db');
+            count--;
+            if (count == 0) {
+                callback(error.length ? error : undefined);
+            }
+        });
+    }
+}
+
 module.exports = {
     query: query,
     queryOne: queryOne,
     save: save,
     remove: remove,
     count: count,
-    getAccount: getAccount
+    getAccount: getAccount,
+    batchSaveFigures: batchSaveFigures
 };

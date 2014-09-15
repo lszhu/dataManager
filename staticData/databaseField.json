@@ -58,7 +58,7 @@
     },
     "figure": {
         "id": "条目编号",
-        "project": "项目编号",
+        "project": "项目名称",
         "date": "日期",
         "voucher": {
             "id": "凭证编号",

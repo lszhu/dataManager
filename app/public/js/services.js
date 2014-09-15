@@ -58,9 +58,14 @@ appService.provider('AppMenu', function() {
                 name: '检索',
                 subMenu: [
                     {
-                        name: '项目',
+                        name: '项目概要',
                         link: 'search/queryProject',
                         controller: 'ProjectCtrl'
+                    },
+                    {
+                        name: '项目详情',
+                        link: 'search/queryProjectDetail',
+                        controller: 'ProjectDetailCtrl'
                     },
                     {
                         name: '科目',
@@ -83,7 +88,7 @@ appService.provider('AppMenu', function() {
                         controller: 'DocumentCtrl'
                     },
                     {
-                        name: '关键词',
+                        name: '综合查询',
                         link: 'search/queryKey',
                         controller: 'KeyCtrl'
                     }
@@ -94,24 +99,24 @@ appService.provider('AppMenu', function() {
                 name: '报表',
                 subMenu: [
                     {
-                        name: '时段 - 科目 x 项目',
-                        link: 'report/isp',
-                        controller: 'IspCtrl'
-                    },
-                    {
                         name: '项目 - 时段 - 科目',
                         link: 'report/pis',
                         controller: 'PisCtrl'
                     },
                     {
-                        name: '项目 - 科目 x 时间',
+                        name: '项目 - 科目 * 时间',
                         link: 'report/pst',
                         controller: 'PstCtrl'
                     },
                     {
-                        name: '科目 - 时间 x 项目',
+                        name: '科目 - 时间 * 项目',
                         link: 'report/stp',
                         controller: 'StpCtrl'
+                    },
+                    {
+                        name: '时段 - 科目 * 项目',
+                        link: 'report/isp',
+                        controller: 'IspCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-list-alt'
@@ -120,23 +125,23 @@ appService.provider('AppMenu', function() {
                 name: '图表',
                 subMenu: [
                     {
-                        name: '时段 - 科目 x 项目',
-                        link: 'report/ispGraph',
-                        controller: ''
-                    },
-                    {
                         name: '项目 - 时段 - 科目',
                         link: 'report/pisGraph',
                         controller: ''
                     },
                     {
-                        name: '项目 - 科目 x 时间',
+                        name: '项目 - 科目 * 时间',
                         link: 'report/pstGraph',
                         controller: ''
                     },
                     {
-                        name: '科目 - 时间 x 项目',
+                        name: '科目 - 时间 * 项目',
                         link: 'report/stpGraph',
+                        controller: ''
+                    },
+                    {
+                        name: '时段 - 科目 * 项目',
+                        link: 'report/ispGraph',
                         controller: ''
                     }
                 ],

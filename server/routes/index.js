@@ -71,11 +71,11 @@ router.post('/createProject', function(req, res) {
         return;
     }
     name = name.trim();
-    var description = req.description ? req.description : '';
+    var description = req.body.description ? req.body.description : '';
     description = description.trim();
     var logMsg = {
         operator: req.session.user.username,
-        operation: '创建项目',
+        operation: '创建或修改项目',
         target: name,
         comment: '数据库访问失败',
         status: '失败'
@@ -87,24 +87,50 @@ router.post('/createProject', function(req, res) {
             tool.log(db, logMsg,'数据库查询失败');
             return;
         }
-        if (doc) {
+        if (doc && req.body.option != 'arbitrary') {
             res.send({status: 'duplicate', message: '系统中已存在此项目'});
             tool.log(db, logMsg, '项目已经存在');
             return;
         }
-        db.save('project', {name: name},
-            {id: Date.now(), name: name, description: description},
-            function(err) {
-                if (err) {
-                    console.log('Db error: ' + JSON.stringify(err));
-                    res.send({status: 'dbErr', message: '数据保存失败'});
-                    tool.log(db, logMsg, '数据保存失败');
-                } else{
-                    res.send({status: 'ok', message: '创建项目成功'});
-                    tool.log(db, logMsg, '创建项目成功', '成功');
-                }
+        var data = {name: name, description: description};
+        var id = req.body.id;
+        // use UTC seconds to create ID if no id was supplied
+        data.id = id ? id.trim() : Date.now().toString(36).toUpperCase();
+        db.save('project', {name: name}, data, function(err) {
+            if (err) {
+                console.log('Db error: ' + JSON.stringify(err));
+                res.send({status: 'dbErr', message: '数据保存失败'});
+                tool.log(db, logMsg, '数据保存失败');
+            } else{
+                res.send({status: 'ok', message: '创建项目成功'});
+                tool.log(db, logMsg, '创建项目成功', '成功');
             }
-        );
+        });
+    });
+});
+
+router.post('/removeProject', function(req, res) {
+    var name = req.body.name;
+    if (!name) {
+        res.send({status: 'nameErr', message: '项目名称不能为空'});
+        return;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '删除项目',
+        target: name,
+        comment: '数据库操作失败',
+        status: '失败'
+    };
+    name = name.trim();
+    db.remove('project', {name: name}, function(err) {
+        if (err) {
+            res.send({status: 'dbErr', message: '数据库操作失败'});
+            tool.log(db, logMsg);
+        } else {
+            res.send({status: 'ok', message: '删除项目成功'});
+            tool.log(db, logMsg, '删除项目成功', '成功');
+        }
     });
 });
 
@@ -114,24 +140,6 @@ router.post('/logReport', function(req, res) {
     var condition = tool.period(req.body.startDate, req.body.endDate,
         delta, req.body.timezone);
     condition = condition ? {time: condition} : {};
-    /*
-    var start, end;
-    if (req.body.startDate) {
-        debug('startDate: ' + req.body.startDate);
-        start = req.body.startDate.split('-');
-        start = new Date(start[0], start[1] -1, start[2], 0, 0, 0, 0);
-        condition.time = {$gte: start};
-    }
-    if (req.body.endDate) {
-        debug('endDate: ' + req.body.endDate);
-        end = req.body.endDate.split('-');
-        end = new Date(end[0], end[1] - 1, end[2], 23, 59, 59, 999);
-        if (condition.time) {
-            condition.time.$lte = end;
-        } else {
-            condition.time = {$lte: end};
-        }
-    }    */
     debug('date: ' + JSON.stringify(condition));
 
     if (req.body.operator) {
@@ -163,7 +171,7 @@ router.post('/logReport', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        res.send(docs);
+        res.send({logs: docs});
         tool.log(db, logMsg, '从数据库成功获取日志信息', '成功');
     });
 });
@@ -172,10 +180,13 @@ router.post('/logReport', function(req, res) {
 router.post('/queryProject', function(req, res) {
     var condition = {};
     if (req.body.name) {
-        condition.name = new RegExp(req.body.comment.trim());
+        condition.name = new RegExp(req.body.name.trim());
     }
-    if (req.body.comment) {
-        condition.comment = new RegExp(req.body.comment.trim());
+    if (req.body.id) {
+        condition.id = new RegExp(req.body.id.trim());
+    }
+    if (req.body.description) {
+        condition.description = new RegExp(req.body.description.trim());
     }
     var logMsg = {
         operator: req.session.user.username,
@@ -187,13 +198,38 @@ router.post('/queryProject', function(req, res) {
     db.query('project', condition, function(err, docs) {
         if (err) {
             console.log('Db error: ' + JSON.stringify(err));
-            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            res.send({status: 'dbReadErr', message: '数据库查询访问失败'});
             tool.log(db, logMsg);
             return;
         }
-        res.send(docs);
+        res.send({projects: docs});
         tool.log(db, logMsg, '从数据库成功获取日志信息', '成功');
     });
+});
+
+router.post('/importFigure', function(req, res) {
+    var style = req.body.style,
+        filePath = req.body.path,
+        projectName = req.body.projectName,
+        year = req.body.year;
+    debug('style: %s, filePath: %s, year: %s', style, filePath, year);
+    if (!style || !filePath  || !year) {
+        res.send({status: 'parameterErr', message: '提供处理的信息不完整'});
+        return;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '财务凭证数据导入',
+        target: '财务凭证数据库',
+        comment: '',
+        status: '失败'
+    };
+    if (style == 'server') {
+        tool.importFigures(db, filePath, projectName, year, function(msg) {
+            res.send(msg);
+            tool.log(db, logMsg, msg.comment, msg.result);
+        });
+    }
 });
 
 module.exports = router;

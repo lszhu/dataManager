@@ -28,4 +28,4 @@ db.createUser(
 
 db.project.ensureIndex({name: 1}, {unique: true});
 
-db.project.ensureIndex({id: 1}, {unique: true});
+db.project.ensureIndex({id: 1});

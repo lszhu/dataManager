@@ -8,11 +8,17 @@ var runningEnvironment = 'development';
 // 此处设置系统唯一标识，可用于一个服务器安装多个服务
 var sysId = 'chequeSys01';
 
-// 存放合同文件的路径
+// 存放合同文件的路径，建议用相对路径
 var contractPath = '../contract';
 
-// 存放支票文件的路径
+// 存放支票文件的路径，建议用相对路径
 var chequePath = '../cheque';
+
+// 存放普通文件的路径，建议用相对路径
+var filePath = '../file';
+
+// 存放用于导入系统数据库的凭证数据文件的根目录，建议用绝对路径
+var importPath = 'E:/web/chequeSysDev/voucher';
 
 // 此处修改内置管理员账号的名称和密码等信息
 var builtinAccount = {
@@ -47,6 +53,8 @@ module.exports = {
     sysId: sysId,
     contractPath: contractPath,
     chequePath: chequePath,
+    filePath: filePath,
+    importPath: importPath,
     builtinAccount: builtinAccount,
     db: {
         server: dbServer,

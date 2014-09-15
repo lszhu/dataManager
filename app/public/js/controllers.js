@@ -31,9 +31,105 @@ mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('ProjectCtrl', ['$scope',
-    function($scope) {
-        $scope.tmp = '';
+mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.line = -1;
+        $scope.msgClass = 'alert-success';
+
+        $scope.queryProject = function() {
+            $scope.line = -1;
+            $http.post('/queryProject', {
+                name: $scope.name,
+                id: $scope.id,
+                description: $scope.description
+            }).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.projects = res.projects;
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.modify = function(event) {
+            var data = $scope.projects;
+            if ($scope.line > -1) {
+                data[$scope.line].name = $scope.oldName;
+                data[$scope.line].id = $scope.oldId;
+                data[$scope.line].description = $scope.oldDescription;
+            }
+            var target = event.target.parentNode.parentNode;
+            var line = target.firstElementChild.textContent - 1;
+            if ($scope.line == line) {
+                $scope.line = -1;
+                return;
+            }
+            $scope.line = line;
+            $scope.oldName = data[$scope.line].name;
+            $scope.oldId = data[$scope.line].id;
+            $scope.oldDescription = data[$scope.line].description;
+        };
+
+        $scope.confirm = function(event) {
+            console.log('project: ' +
+                JSON.stringify($scope.projects[$scope.line]));
+            var target = event.target.parentNode.parentNode;
+            var line = target.firstElementChild.textContent - 1;
+            if ($scope.line != line) {
+                return;
+            }
+            var data = $scope.projects;
+            $http.post('/createProject', {
+                name: data[line].name,
+                id: data[line].id,
+                description: data[line].description,
+                option: 'arbitrary'
+            }).success(function(res) {
+                if (res.status != 'ok') {
+                    alert('系统原因，未能成功修改项目信息。\n' + res.message);
+                    data[line].name = $scope.oldName;
+                    data[line].description = $scope.oldDescription;
+                }
+                $scope.line = -1;
+            }).error(function(err) {
+                data[line].name = $scope.oldName;
+                data[line].description = $scope.oldDescription;
+                $scope.line = -1;
+                console.log('project update error: ' + JSON.stringify(err));
+                alert('未知外界原因，未能成功修改项目信息');
+            });
+        };
+
+        $scope.remove = function(event) {
+            var data = $scope.projects;
+            if ($scope.line > -1) {
+                data[$scope.line].name = $scope.oldName;
+                data[$scope.line].description = $scope.oldDescription;
+            }
+            $scope.line = -1;
+            var target = event.target.parentNode.parentNode;
+            var  line = target.firstElementChild.textContent - 1;
+            if (data[line].contrack || data[line].file) {
+                alert('项目下面有关联的合同或文档, 无法删除该项目。')
+            }
+            if (!confirm('你确定要删除项目：\n' + data[line].name)) {
+                return;
+            }
+            $http.post('/removeProject', {
+                name: data[line].name
+            }).success(function(res) {
+                if (res.status == 'ok') {
+                    $scope.projects.splice(line, 1);
+                } else {
+                    alert('系统原因，无法删除该项目。\n' + res.message);
+                }
+            }).error(function(err) {
+                alert('未知外界原因，无法删除该项目');
+                console.log('project remove error: ' + JSON.stringify(err));
+            });
+        };
     }
 ]);
 
@@ -75,24 +171,25 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
         $scope.name = '';
         $scope.description = '';
         $scope.createProject = function() {
-            $http.post('/createProject',
-                {name: $scope.name,
+            console.log('description: ' + $scope.description);
+            $http.post('/createProject', {
+                name: $scope.name,
+                id: $scope.id,
                 description: $scope.description,
-                option: 'notArbitrary'})
-                .success(function(res) {
-                    if (res.status == 'ok') {
-                        $scope.name = '';
-                        $scope.description = '';
-                        $scope.msgClass = 'alert-success';
-                    } else {
-                        $scope.msgClass = 'alert-danger';
-                    }
-                    $scope.message = res.message;
-                })
-                .error(function(res) {
-                    $scope.message = 'system error: ' +
-                        JSON.stringify(res);
-                });
+                option: 'notArbitrary'
+            }).success(function(res) {
+                if (res.status == 'ok') {
+                    $scope.name = '';
+                    $scope.id = '';
+                    $scope.description = '';
+                    $scope.msgClass = 'alert-success';
+                } else {
+                    $scope.msgClass = 'alert-danger';
+                }
+                $scope.message = res.message;
+            }).error(function(res) {
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
         };
     }
 ]);
@@ -109,9 +206,67 @@ mainFrameCtrl.controller('AddFigureCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('ImportFigureCtrl', ['$scope',
-    function($scope) {
-        $scope.tmp = '';
+mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        // 已导入文件条目列表
+        $scope.importedList = [];
+        // 有错误的凭证数据
+        $scope.errLines = '以下表格栏目格式有误：';
+        // 初始化年份数据，从1990年开始至当前
+        $scope.years = [];
+        for (var i = (new Date()).getFullYear(); i >= 1990; i--) {
+            $scope.years.push(i);
+        }
+        $scope.year = $scope.years[0];
+        // 默认导入方式为服务器端本地模式
+        $scope.style = 'server';
+        // 初始化$scope.projects
+        $http.post('/queryProject', {}).success(function(res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projects = res.projects;
+        }).error(function(res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
+        // 返回是否已选择批量处理模式
+        $scope.batchMode = function() {
+            return $scope.style == 'serverBatch' ||
+                $scope.style == 'clientBatch';
+        };
+
+        // 服务器端本地模式
+        $scope.serverModeImport = function() {
+            $http.post('/importFigure', {
+                style: 'server',
+                path: $scope.path,
+                projectName: $scope.projectName,
+                year: $scope.year
+            }).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                if (res.errLines) {
+
+                    $scope.errLines += ' #文件名: ' + res.filename + ', ' +
+                        '错误位置: ' + JSON.stringify(res.errLines);
+                }
+
+                $scope.importedList.push({
+                    projectName:res.projectName,
+                    year:res.year,
+                    path:res.path,
+                    filename:res.filename,
+                    comment:res.comment,
+                    result:res.result
+                });
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
     }
 ]);
 
@@ -154,6 +309,7 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
         $scope.name = '';
         $scope.description = '';
         $scope.logReport = function() {
+            //console.log('startDate: ' + $scope.startDate);
             $http.post('/logReport',{
                 startDate: $scope.startDate,
                 endDate: $scope.endDate,
@@ -165,12 +321,12 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
                 status: $scope.status
             }).success(function(res) {
                 $scope.msgClass =
-                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                $scope.message = '';
-                $scope.logMsgs = res;
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.logMsgs = res.logs;
             }).error(function(res) {
-                $scope.message = 'system error: ' +
-                    JSON.stringify(res);
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
             });
         };
         $scope.toLocalTime = function(time) {

@@ -14,7 +14,8 @@
     "serve-favicon": "~2.1",
     "debug": "~1.0",
     "ejs": "~1.0",
-    "mongoose": "~3.8"
+    "mongoose": "~3.8",
+    "j": "~0.3"
   },
   "devDependencies": {
     "karma": "^0.12.16",

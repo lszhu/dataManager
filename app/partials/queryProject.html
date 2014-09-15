@@ -2,7 +2,7 @@
   <h1 class="page-header">项目查看</h1>
 
   <h3>查询条件：</h3>
-  <form class="form-horizontal" role="form" ng-submit="logReport()">
+  <form class="form-horizontal" role="form" ng-submit="queryProject()">
     <div class="form-group">
       <label for="name" class="col-sm-2 control-label">项目名称</label>
       <div class="col-sm-8">
@@ -10,9 +10,15 @@
       </div>
     </div>
     <div class="form-group">
-      <label for="comment" class="col-sm-2 control-label">项目概要</label>
+      <label for="id" class="col-sm-2 control-label">项目编号</label>
       <div class="col-sm-8">
-        <input type="text" class="form-control" name="comment" ng-model="comment" id="comment" placeholder="输入项目概要">
+        <input type="text" class="form-control" name="id" ng-model="id" id="id" placeholder="输入项目编号">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description" class="col-sm-2 control-label">项目概要</label>
+      <div class="col-sm-8">
+        <input type="text" class="form-control" name="description" ng-model="description" id="description" placeholder="输入项目概要">
       </div>
     </div>
     <div class="form-group">
@@ -32,23 +38,34 @@
     <thead>
     <tr>
       <th>序号</th>
-      <th>时间</th>
-      <th>操作账号</th>
-      <th>操作名称</th>
-      <th>操作对象</th>
-      <th>操作描述</th>
-      <th>操作结果</th>
+      <th>名称</th>
+      <th>编号</th>
+      <th>摘要</th>
+      <th>详情</th>
+      <th>编辑</th>
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="log in logMsgs">
-      <td>{{$index}}</td>
-      <td>{{log.time}}</td>
-      <td>{{log.operator}}</td>
-      <td>{{log.operation}}</td>
-      <td>{{log.target}}</td>
-      <td>{{log.comment}}</td>
-      <td>{{log.status}}</td>
+    <tr ng-repeat="project in projects">
+      <td>{{$index + 1}}</td>
+      <td>
+        <span ng-hide="$index == line">{{project.name}}</span>
+        <input ng-show="$index == line" type="text" ng-model="projects[$index].name">
+      </td>
+      <td>
+        <span ng-hide="$index == line">{{project.id}}</span>
+        <input ng-show="$index == line" type="text" ng-model="projects[$index].id">
+      </td>
+      <td>
+        <span ng-hide="$index == line">{{project.description}}</span>
+        <textarea ng-show="$index == line" ng-model="projects[$index].description"></textarea>
+      </td>
+      <td><button class="btn btn-xs btn-default">&nbsp;详 情&nbsp;</button></td>
+      <td>
+        <span ng-click="modify($event)" class="glyphicon glyphicon-pencil"></span>
+        <span ng-click="confirm($event)" class="glyphicon glyphicon-ok"></span>
+        <span ng-click="remove($event)" class="glyphicon glyphicon-remove"></span>
+      </td>
     </tr>
     </tbody>
   </table>

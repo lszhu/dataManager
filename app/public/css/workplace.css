@@ -1,3 +1,23 @@
 textarea {
     resize: none;
 }
+
+span.glyphicon {
+    cursor: pointer;
+}
+
+span.glyphicon-pencil {
+    color: blue;
+}
+
+span.glyphicon-ok {
+    color: green;
+}
+
+span.glyphicon-remove {
+    color: red;
+}
+
+tr textarea, tr input[type=text] {
+    width: 100%;
+}
