@@ -62,10 +62,10 @@ function period(start, end, delta, timezone) {
 // 返回格式为{$gte: from, $lte: to}，如果给定参数无效，则返回空
 function interval(from, to) {
     var span = {};
-    if (!isNaN(from) && frome != 0) {
+    if (!isNaN(parseFloat(from))) {
         span.$gte = from;
     }
-    if (!isNaN(to && to != 0)) {
+    if (!isNaN(parseFloat(to))) {
         span.$lte = to;
     }
     if (span.hasOwnProperty('$gte') || span.hasOwnProperty('$lte')) {

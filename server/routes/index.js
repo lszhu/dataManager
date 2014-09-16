@@ -218,6 +218,7 @@ router.post('/queryVoucher', function(req, res) {
     var interval = tool.interval(req.body.amountFrom, req.body.amountTo);
     if (interval) {
         condition.$or = [{debit: interval}, {credit: interval}];
+        debug('condition: %j', condition);
     }
 
     if (req.body.voucherId) {

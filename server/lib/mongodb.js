@@ -98,10 +98,10 @@ function createModels() {
         subjectId: String,
         subjectName: String,
         description: String,
-        debit: String,
-        credit: String,
+        debit: Number,
+        credit: Number,
         direction: String,
-        balance: String,
+        balance: Number,
         deleted: Boolean
     });
 
