@@ -95,8 +95,9 @@ function createModels() {
             path: String,
             store: String
         },
-        subject: String,
-        comment: String,
+        subjectId: String,
+        subjectName: String,
+        description: String,
         debit: String,
         credit: String,
         direction: String,
@@ -269,7 +270,8 @@ function batchSaveFigures(docs, callback) {
             debug('a row of figures was saved to db');
             count--;
             if (count == 0) {
-                callback(error.length ? error : undefined);
+                callback(error.length ? error : undefined,
+                        docs.length - error.length);
             }
         });
     }

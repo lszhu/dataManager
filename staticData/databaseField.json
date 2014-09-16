@@ -66,7 +66,7 @@
             "store": "原始凭证位置"
         },
         "subject": "科目编号",
-        "comment": "摘要",
+        "description": "摘要",
         "debit": "借方",
         "credit": "贷方",
         "direction": "方向",

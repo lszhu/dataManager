@@ -139,9 +139,43 @@ mainFrameCtrl.controller('SubjectCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('VoucherCtrl', ['$scope',
-    function($scope) {
-        $scope.tmp = '';
+mainFrameCtrl.controller('VoucherCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.message = '';
+        $scope.msgClass = 'alert-success';
+        $scope.description = '';
+
+        $scope.queryVoucher = function() {
+            //console.log('startDate: ' + $scope.startDate);
+            $http.post('/queryVoucher',{
+                dateFrom: $scope.dateFrom,
+                dateTo: $scope.dateTo,
+                timezone: (new Date()).getTimezoneOffset(),
+                amountFrom: $scope.amountFrom,
+                amountTo: $scope.amountTo,
+                voucherId: $scope.voucherId,
+                project: $scope.project,
+                subjectName: $scope.subjectName,
+                description: $scope.description
+            }).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.figures = res.figures;
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.toLocalDate = function(time) {
+            return (new Date(time)).toLocaleDateString();
+        };
+
+        $scope.buttonDisabled = function() {
+            return !$scope.queryCondition.amountFrom.$valid ||
+                !$scope.queryCondition.amountTo.$valid;
+        }
     }
 ]);
 
@@ -211,7 +245,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
         // 已导入文件条目列表
         $scope.importedList = [];
         // 有错误的凭证数据
-        $scope.errLines = '以下表格栏目格式有误：';
+        $scope.errLines = '';
         // 初始化年份数据，从1990年开始至当前
         $scope.years = [];
         for (var i = (new Date()).getFullYear(); i >= 1990; i--) {
@@ -249,7 +283,6 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
                 $scope.message = res.message;
                 if (res.errLines) {
-
                     $scope.errLines += ' #文件名: ' + res.filename + ', ' +
                         '错误位置: ' + JSON.stringify(res.errLines);
                 }

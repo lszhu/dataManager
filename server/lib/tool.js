@@ -1,6 +1,21 @@
 var debug = require('debug')('tool');
 var path = require('path');
-var excel = require('j');
+//var excel = require('j');
+var xlsx = require('xlsx');
+var fs = require('fs');
+
+var dictionary = readJsonFile(
+    path.join(__dirname, '../../staticData/dictionary.json'));
+
+// 解析读入并解析JSON文件
+function readJsonFile(filePath) {
+    try {
+        var data = fs.readFileSync(filePath, 'utf8');
+        return JSON.parse(data);
+    } catch (e) {
+        console.log('read file %j error', filePath);
+    }
+}
 
 // 向db指定的数据库中写入日志信息
 function log(db, doc, comment, status) {
@@ -39,10 +54,23 @@ function period(start, end, delta, timezone) {
             span.$lte = new Date(to.getTime() + timezone * 60000 + delta);
         }
     }
-    if (!span.hasOwnProperty('$gte') && !span.hasOwnProperty('$lte')) {
-        return undefined;
+    if (span.hasOwnProperty('$gte') || span.hasOwnProperty('$lte')) {
+        return span;
     }
-    return span;
+}
+
+// 返回格式为{$gte: from, $lte: to}，如果给定参数无效，则返回空
+function interval(from, to) {
+    var span = {};
+    if (!isNaN(from) && frome != 0) {
+        span.$gte = from;
+    }
+    if (!isNaN(to && to != 0)) {
+        span.$lte = to;
+    }
+    if (span.hasOwnProperty('$gte') || span.hasOwnProperty('$lte')) {
+        return span;
+    }
 }
 
 // 向db指定的数据库中导入财务凭证数据
@@ -61,8 +89,7 @@ function importFigures(db, filePath, projectName, year, callback) {
     };
 
     try {
-        var data = excel.readFile(fullPath);
-        data = excel.utils.to_json(data);
+        var xlsxData = xlsx.readFile(fullPath);
     } catch (e) {
         console.log('ok here');
         //console.log('parse excel file error: ' + JSON.stringify(e));
@@ -73,7 +100,7 @@ function importFigures(db, filePath, projectName, year, callback) {
         return;
     }
 
-    var msg = figureList(data, importMsg.projectName, year);
+    var msg = figureList(xlsxData.Sheets, importMsg.projectName, year);
     if (msg.errLine.length > 0) {
         console.log('file contents illegal');
         console.log('error lines: %j', msg.errLine);
@@ -84,7 +111,7 @@ function importFigures(db, filePath, projectName, year, callback) {
         callback(importMsg);
         return;
     }
-    db.batchSaveFigures(msg.data, function(err) {
+    db.batchSaveFigures(msg.data, function(err, num) {
         if (err) {
             importMsg.status = 'dbWriteErr';
             importMsg.message = '数据库写入错误';
@@ -95,64 +122,87 @@ function importFigures(db, filePath, projectName, year, callback) {
             return;
         }
         importMsg.status = 'ok';
-        importMsg.message = '成功导入数据';
-        importMsg.comment = '成功导入数据';
+        importMsg.message = '成功导入' + num + '条凭证数据';
+        importMsg.comment = '成功导入' + num + '条凭证数据';
         importMsg.result = '成功';
         callback(importMsg);
     });
 }
 
-function figureList(data, projectName, year) {
-    var item, doc;
+function sheetRow(sheet) {
+    return sheet['!ref'].split(':')[1].match(/\d+$/)[0];
+}
+
+function figureList(sheets, projectName, year) {
+    //debug('dictionary: %j', dictionary);
+    var col = dictionary.excelColumn;
+    debug('row items: %j', col);
+    //var item, doc;
     var filter = [];
     var errLine = [];
-    for (var sheet in data) {
-        if (!data.hasOwnProperty(sheet)) {
+    var illegal = false;
+    debug('sheets: %j', Object.keys(sheets));
+    for (var sheet in sheets) {
+        if (!sheets.hasOwnProperty(sheet)) {
             continue;
         }
-        for (var i = 0; i < data[sheet].length; i++) {
-            item = data[sheet][i];
-            if (!item['凭证号数']) {
+        var maxLine = sheetRow(sheets[sheet]);
+        debug('sheet maxLine: ' + maxLine);
+        //debug('sheet: %j', sheets[sheet]);
+        for (var i = 2; i < maxLine; i++) {
+            if (!sheets[sheet][col.voucherId + i]) {
                 continue;
             }
-            if (item['月'] && item['科目编码'] && item['借方'] &&
-                item['贷方'] && item['余额']) {
-                if (!item['日']) {
-                    item['日'] = 28;
+            var row = {};
+            for (j in col) {
+                if (!col.hasOwnProperty(j)) {
+                    continue;
                 }
-                doc = {
-                    project: projectName,
-                    date: new Date(year, item['月'], item['日']),
-                    voucher: {
-                        id: item['凭证号数']
-                    },
-                    subject: item['科目编码'],
-                    comment: item['摘要'],
-                    debit: item['借方'],
-                    credit: item['贷方'],
-                    direction: (item['方向8'] ? item['方向8'] : item['方向7']),
-                    balance: item['余额']
-                };
-                doc.direction = item['方向'] ? item['方向'] : doc.direction;
-                doc.id = figureId(doc.date, doc.voucher.id, doc.subjectId);
-                filter.push(doc);
-            } else {
-                errLine.push({'工作表': sheet, '行号': i + 2});
+                if (sheets[sheet][col[j] + i]) {
+                    row[j] = sheets[sheet][col[j] + i].v
+                } else {
+                    if (j != 'description') {
+                        illegal = true;
+                        break;
+                    }
+                }
             }
+            if (illegal) {
+                illegal = false;
+                errLine.push('工作表：' + sheet + '， 第' + i + '行。');
+                continue;
+            }
+            row.project = projectName;
+            row.date = new Date(year, row.month, row.date);
+            row.month = undefined;
+            row.voucher = {id: row.voucherId};
+            row.voucherId = undefined;
+            row.id = figureId(row);
+            debug('balance: ' + row.balance);
+            debug('row id: ' + row.id);
+            filter.push(row);
         }
     }
-    debug('voucher data: %j', filter);
+    //debug('voucher data: %j', filter);
     debug('error lines: %j', errLine);
     return {data: filter, errLine: errLine};
 }
 
-function figureId(date, voucherId, subjectId) {
-    var id =  date.getTime() + voucherId.split('-')[1] + subjectId;
-    return parseInt(id).toString('36');
+function parseFinancialDigit(str) {
+
+}
+
+function figureId(row) {
+    var date = row.date.getFullYear() + '' +
+        row.date.getMonth() + row.date.getDate();
+    var p1 = date + row.voucher.id.split('-')[1] + row.subjectId;
+    p2 = Math.round(Math.abs(row.balance) * 100);
+    return parseInt(p1).toString('36') + p2.toString('36');
 }
 
 module.exports = {
     log: log,
     period: period,
-    importFigures: importFigures
+    importFigures: importFigures,
+    interval: interval
 };

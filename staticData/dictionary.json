@@ -1,0 +1,14 @@
+{
+    "excelColumn": {
+        "month": "A",
+        "date": "B",
+        "voucherId": "C",
+        "subjectId": "D",
+        "subjectName": "E",
+        "description": "F",
+        "debit": "G",
+        "credit": "H",
+        "direction": "I",
+        "balance": "J"
+    }
+}
