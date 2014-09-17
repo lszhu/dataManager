@@ -1,9 +1,8 @@
 {
-  "version": "0.1.0",
+  "version": "0.5.0",
   "private": true,
   "name": "chequeSys",
-  "description": "A tutorial application for AngularJS",
-  "repository": "https://github.com/angular/angular-phonecat",
+  "description": "A financial archive system",
   "license": "MIT",
   "dependencies": {
     "express": "~4.8",
@@ -15,7 +14,7 @@
     "debug": "~1.0",
     "ejs": "~1.0",
     "mongoose": "~3.8",
-    "j": "~0.3"
+    "xlsx": "~0.7"
   },
   "devDependencies": {
     "karma": "^0.12.16",

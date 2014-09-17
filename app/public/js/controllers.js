@@ -111,7 +111,7 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
             $scope.line = -1;
             var target = event.target.parentNode.parentNode;
             var  line = target.firstElementChild.textContent - 1;
-            if (data[line].contrack || data[line].file) {
+            if (data[line].contract || data[line].file) {
                 alert('项目下面有关联的合同或文档, 无法删除该项目。')
             }
             if (!confirm('你确定要删除项目：\n' + data[line].name)) {
@@ -130,6 +130,34 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
                 console.log('project remove error: ' + JSON.stringify(err));
             });
         };
+    }
+]);
+
+mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        // 已导入文件条目列表
+        $scope.importedList = [];
+        // 有错误的凭证数据
+        $scope.errLines = '';
+        // 初始化年份数据，从1990年开始至当前
+        $scope.years = [];
+        for (var i = (new Date()).getFullYear(); i >= 1990; i--) {
+            $scope.years.push(i);
+        }
+        $scope.year = $scope.years[0];
+        // 默认导入方式为服务器端本地模式
+        $scope.style = 'server';
+        // 初始化$scope.projects
+        $http.post('/queryProject', {}).success(function (res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projects = res.projects;
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
     }
 ]);
 
