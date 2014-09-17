@@ -1,11 +1,11 @@
 <div>
   <h1 class="page-header">项目详情</h1>
-  <form class="form-horizontal" name="project" role="form" ng-submit="createProject()">
+  <form class="form-horizontal" name="project" role="form">
 
     <div class="form-group">
       <label for="projectName" class="col-sm-2 control-label">选择项目</label>
       <div class="col-sm-6">
-        <select class="form-control" name="projectName" ng-disabled="batchMode()" ng-model="projectName" id="projectName">
+        <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
           <option ng-repeat="project in projects | filter: keys">{{project.name}}</option>
         </select>
       </div>
@@ -19,13 +19,13 @@
     <div class="form-group">
       <label for="id" class="col-sm-2 control-label">项目编号</label>
       <div class="col-sm-6">
-        <input type="text" readonly class="form-control" name="id" ng-model="id" id="id">
+        <input type="text" readonly class="form-control" name="id" ng-value="id" id="id">
       </div>
     </div>
     <div class="form-group">
       <label for="description" class="col-sm-2 control-label">项目概要</label>
       <div class="col-sm-9">
-        <textarea class="form-control" readonly name="description" ng-model="description" rows="5" cols="100" id="description"></textarea>
+        <textarea class="form-control" readonly name="description"  rows="5" cols="100" id="description">{{description}}</textarea>
       </div>
     </div>
     <div class="form-group">
@@ -43,7 +43,7 @@
             </thead>
             <tbody>
 
-            <tr ng-repeat="contract in projects[project].contract">
+            <tr ng-repeat="contract in currentProject().contract">
               <td>{{$index}}</td>
               <td>{{contract.name}}</td>
               <td>{{contract.store}}</td>
@@ -54,7 +54,7 @@
               </td>
             </tr>
             <tr>
-              <td>1</td>
+              <td>&nbsp;&nbsp;&nbsp;&nbsp;--</td>
               <td>梨树山一期</td>
               <td>原件存放位置</td>
               <td>
@@ -83,7 +83,7 @@
             </thead>
             <tbody>
 
-            <tr ng-repeat="file in projects[project].file">
+            <tr ng-repeat="file in currentProject().file">
               <td>{{$index}}</td>
               <td>{{file.name}}</td>
               <td>{{file.store}}</td>
@@ -94,7 +94,7 @@
               </td>
             </tr>
             <tr>
-              <td>1</td>
+              <td>&nbsp;&nbsp;&nbsp;&nbsp;--</td>
               <td>梨树山一期</td>
               <td>原件存放位置</td>
               <td>
@@ -106,12 +106,6 @@
             </tbody>
           </table>
         </div>
-      </div>
-    </div>
-
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-8">
-        <button type="submit" ng-disabled="!project.name.$valid" class="btn btn-primary">&nbsp;&nbsp;创 建&nbsp;&nbsp;</button>
       </div>
     </div>
   </form>

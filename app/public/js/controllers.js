@@ -133,21 +133,13 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
     }
 ]);
 
-mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http',
-    function($scope, $http) {
-        // 已导入文件条目列表
-        $scope.importedList = [];
-        // 有错误的凭证数据
-        $scope.errLines = '';
-        // 初始化年份数据，从1990年开始至当前
-        $scope.years = [];
-        for (var i = (new Date()).getFullYear(); i >= 1990; i--) {
-            $scope.years.push(i);
-        }
-        $scope.year = $scope.years[0];
-        // 默认导入方式为服务器端本地模式
-        $scope.style = 'server';
+mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
+    function($scope, $http, $location) {
+        // 载入页面时默认的项目名，由url参数获取
+        $scope.projectName = $location.search()['project'];
+        console.log('projectName: ' + $scope.projectName);
         // 初始化$scope.projects
+        $scope.projects = [];
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
@@ -157,6 +149,33 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http',
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
+
+        var currentProject = function() {
+            for (var i = 0; i < $scope.projects.length; i++) {
+                if ($scope.projects[i].name == $scope.projectName) {
+                    console.log('current project: %j', $scope.projects[i]);
+                    return $scope.projects[i];
+                }
+            }
+            return {};
+        };
+
+        $scope.$watch(
+            "projects",
+            function() {
+                var cur = currentProject();
+                $scope.id = cur.id;
+                $scope.description = cur.description;
+            }
+        );
+        $scope.$watch(
+            "projectName",
+            function() {
+                var cur = currentProject();
+                $scope.id = cur.id;
+                $scope.description = cur.description;
+            }
+        );
 
     }
 ]);
