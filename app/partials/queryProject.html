@@ -60,7 +60,7 @@
         <span ng-hide="$index == line">{{project.description}}</span>
         <textarea ng-show="$index == line" ng-model="projects[$index].description"></textarea>
       </td>
-      <td><button class="btn btn-xs btn-default">&nbsp;详 情&nbsp;</button></td>
+      <td><button ng-click="gotoProjectDetail(project.name)" class="btn btn-xs btn-default">&nbsp;详 情&nbsp;</button></td>
       <td>
         <span ng-click="modify($event)" class="glyphicon glyphicon-pencil"></span>
         <span ng-click="confirm($event)" class="glyphicon glyphicon-ok"></span>

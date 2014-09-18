@@ -31,8 +31,8 @@ mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
-    function($scope, $http) {
+mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http', '$location',
+    function($scope, $http, $location) {
         $scope.line = -1;
         $scope.msgClass = 'alert-success';
 
@@ -51,6 +51,10 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
+        };
+
+        $scope.gotoProjectDetail = function(name) {
+            $location.path('/search/queryProjectDetail').search('project', name);
         };
 
         $scope.modify = function(event) {
@@ -134,31 +138,53 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http',
 ]);
 
 mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
-    function($scope, $http, $location) {
+    'filterFilter', function($scope, $http, $location, filterFilter) {
         // 载入页面时默认的项目名，由url参数获取
         $scope.projectName = $location.search()['project'];
         console.log('projectName: ' + $scope.projectName);
-        // 初始化$scope.projects
-        $scope.projects = [];
+
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
             $scope.message = res.message;
+            $scope.projectsRaw = res.projects;
             $scope.projects = res.projects;
+            if (!$scope.projectName &&
+                $scope.projectsRaw && $scope.projectsRaw.length) {
+                $scope.projectName = $scope.projectsRaw[0].name;
+            }
         }).error(function (res) {
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
 
         var currentProject = function() {
+            if (!$scope.projects) {
+                return {};
+            }
             for (var i = 0; i < $scope.projects.length; i++) {
                 if ($scope.projects[i].name == $scope.projectName) {
-                    console.log('current project: %j', $scope.projects[i]);
+                    //console.log('current project: %j', $scope.projects[i]);
                     return $scope.projects[i];
                 }
             }
             return {};
         };
+
+        $scope.$watch(
+            'filterKey',
+            function (newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.projects = $scope.filterKey ?
+                    filterFilter($scope.projectsRaw, newValue) :
+                    $scope.projectsRaw;
+                if ($scope.projects && $scope.projects.length) {
+                    $scope.projectName = $scope.projects[0].name;
+                }
+            }
+        );
 
         $scope.$watch(
             "projects",
@@ -168,6 +194,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
                 $scope.description = cur.description;
             }
         );
+
         $scope.$watch(
             "projectName",
             function() {

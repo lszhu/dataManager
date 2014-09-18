@@ -2,17 +2,20 @@
   <h1 class="page-header">项目详情</h1>
   <form class="form-horizontal" name="project" role="form">
 
-    <div class="form-group">
-      <label for="projectName" class="col-sm-2 control-label">选择项目</label>
-      <div class="col-sm-6">
+    <div class="form-group col-sm-6">
+      <label for="projectName" class="col-sm-4 control-label">选择项目</label>
+      <div class="col-sm-8">
         <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
-          <option ng-repeat="project in projects | filter: keys">{{project.name}}</option>
+          <option ng-repeat="project in projects">{{project.name}}</option>
         </select>
       </div>
-      <div class="col-sm-3">
-        <input type="text" class="form-control" name="keys" ng-model="keys" id="keys" placeholder="项目过滤关键词">
-      </div>
     </div>
+    <div class="col-sm-3">
+      <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="项目过滤关键词">
+    </div>
+
+    <div class="col-sm-12"></div>
+
     <div>
       <hr>
     </div>
