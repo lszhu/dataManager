@@ -134,6 +134,40 @@ router.post('/removeProject', function(req, res) {
     });
 });
 
+router.post('/pisTable', function(req, res) {
+    var project = req.body.projectName;
+    if (!project) {
+        res.send({status: 'projectErr', message: '请准确输入合法项目名称'});
+        return;
+    }
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+    var condition = tool.period(req.body.startDate, req.body.endDate,
+        delta, req.body.timezone);
+    condition = condition ? {time: condition} : {};
+    condition.name = project;
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: 'pis财务报表创建',
+        target: '凭证数据库',
+        comment: '数据库查询访问失败',
+        status: '失败'
+    };
+
+    db.query('figure', condition, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send({psi: tool.psiList(docs)});
+        tool.log(db, logMsg, '成功获取财务凭证数据', 'ok');
+    });
+
+});
+
 router.post('/logReport', function(req, res) {
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;

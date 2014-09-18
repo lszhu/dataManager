@@ -93,6 +93,11 @@ function importFigures(db, filePath, projectName, year, callback) {
 
     try {
         var xlsxData = xlsx.readFile(fullPath);
+        var sheetName = xlsxData.SheetNames[0];
+        xlsxData = xlsx.utils.sheet_to_json(
+            xlsxData.Sheets[sheetName],
+            {raw: true}
+        );
     } catch (e) {
         console.log('ok here');
         //console.log('parse excel file error: ' + JSON.stringify(e));
@@ -103,7 +108,8 @@ function importFigures(db, filePath, projectName, year, callback) {
         return;
     }
 
-    var msg = figureList(xlsxData.Sheets, importMsg.projectName, year);
+    //var msg = figureList(xlsxData.Sheets, importMsg.projectName, year);
+    var msg = figureList(xlsxData, importMsg.projectName, year);
     if (msg.errLine.length > 0) {
         console.log('file contents illegal');
         console.log('error lines: %j', msg.errLine);
@@ -132,7 +138,7 @@ function importFigures(db, filePath, projectName, year, callback) {
     });
 }
 
-function sheetRow(sheet) {
+function countRow(sheet) {
     return sheet['!ref'].split(':')[1].match(/\d+$/)[0];
 }
 
@@ -144,16 +150,69 @@ function figureList(sheets, projectName, year) {
     var filter = [];
     var errLine = [];
     var illegal = false;
-    debug('sheets: %j', Object.keys(sheets));
+    for (var i = 0; i < sheets.length; i++) {
+        var row = {};
+        if (!sheets[i][col.subjectId] && !sheets[i][col.subjectName]) {
+            continue;
+        }
+        row.project = projectName;
+
+        row.voucher = {id: sheets[i][col.voucherId]};
+        row.subjectId = sheets[i][col.subjectId];
+        row.subjectName = sheets[i][col.subjectName];
+        row.description = sheets[i][col.description];
+        row.debit = sheets[i][col.debit];
+        row.credit = sheets[i][col.credit];
+        row.direction = sheets[i][col.direction];
+        if (!row.direction) {
+            row.direction = sheets[i][col.direction + 8];
+            if (!row.direction) {
+                row.direction = sheets[i][col.direction + 7];
+            }
+        }
+        row.balance = sheets[i][col.balance];
+
+        if (!row.voucher.id) {
+            if (row.description && row.description.trim() != '上年结转') {
+                errLine.push(i + 2);
+                debug('errLine: %j', row);
+                continue;
+            }
+            // 令上年结转数据条目的凭证号为10000，不同于任何普通凭证号
+            row.voucher = {id: '10000'};
+            // 令上年结转数据条目产生日期为年度1月1日0时（当地时间）
+            row.date = new Date(year.toString());
+            debug('row: %j', row);
+        } else if (!sheets[i][col.month] || !sheets[i][col.date]) {
+            errLine.push(i + 2);
+            //debug('errLine: %j', row);
+            continue;
+        } else {
+            row.date = new Date(
+                year, sheets[i][col.month] - 1, sheets[i][col.date]);
+        }
+        if (isNaN(row.debit) || isNaN(row.credit) || isNaN(row.balance)) {
+            errLine.push(i + 2);
+            //debug('errLine: %j', row);
+            continue;
+        }
+        row.id = figureId(row);
+        filter.push(row);
+    }
+    /*
     for (var sheet in sheets) {
         if (!sheets.hasOwnProperty(sheet)) {
             continue;
         }
-        var maxLine = sheetRow(sheets[sheet]);
+        var maxLine = countRow(sheets[sheet]);
         debug('sheet maxLine: ' + maxLine);
         //debug('sheet: %j', sheets[sheet]);
         for (var i = 2; i < maxLine; i++) {
             if (!sheets[sheet][col.voucherId + i]) {
+                // 记录上年结转的数据
+                if (sheets[sheet][col.subjectId + i]) {
+
+                }
                 continue;
             }
             var row = {};
@@ -186,26 +245,33 @@ function figureList(sheets, projectName, year) {
             filter.push(row);
         }
     }
+    */
     //debug('voucher data: %j', filter);
     debug('error lines: %j', errLine);
     return {data: filter, errLine: errLine};
 }
 
-function parseFinancialDigit(str) {
-
+function psiList(figures) {
+    var subject = {};
+    var id, init, end;
+    for (var i = 0; i < figures.length; i++) {
+        id = figures[i].subjectId;
+    }
 }
 
 function figureId(row) {
     var date = row.date.getFullYear() + '' +
         row.date.getMonth() + row.date.getDate();
-    var p1 = date + row.voucher.id.split('-')[1] + row.subjectId;
-    p2 = Math.round(Math.abs(row.balance) * 100);
-    return parseInt(p1).toString('36') + p2.toString('36');
+    var p1 = row.voucher.id.toString().split('-');
+    p1 = date + (p1[1] === undefined ? p1[0] : p1[1]);
+    var p2 = row.subjectId + '' + Math.round(Math.abs(row.balance) * 100);
+    return parseInt(p1).toString(36) + parseInt(p2).toString(36);
 }
 
 module.exports = {
     log: log,
     period: period,
     importFigures: importFigures,
-    interval: interval
+    interval: interval,
+    psiList: psiList
 };

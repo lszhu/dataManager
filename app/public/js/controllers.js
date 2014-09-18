@@ -244,7 +244,7 @@ mainFrameCtrl.controller('KeyCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('PisCtrl', ['$scope', '$http', 'filterFilter',
+mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
     function($scope, $http, filterFilter) {
         $scope.grade = 1;
         $scope.hide = false;

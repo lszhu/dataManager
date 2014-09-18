@@ -100,23 +100,23 @@ appService.provider('AppMenu', function() {
                 subMenu: [
                     {
                         name: '项目 - 时段 - 科目',
-                        link: 'report/pis',
-                        controller: 'PisCtrl'
+                        link: 'report/pisTable',
+                        controller: 'PisTableCtrl'
                     },
                     {
                         name: '项目 - 科目 * 时间',
-                        link: 'report/pst',
-                        controller: 'PstCtrl'
+                        link: 'report/pstTable',
+                        controller: 'PstTableCtrl'
                     },
                     {
                         name: '科目 - 时间 * 项目',
-                        link: 'report/stp',
-                        controller: 'StpCtrl'
+                        link: 'report/stpTable',
+                        controller: 'StpTableCtrl'
                     },
                     {
                         name: '时段 - 科目 * 项目',
-                        link: 'report/isp',
-                        controller: 'IspCtrl'
+                        link: 'report/ispTable',
+                        controller: 'IspTableCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-list-alt'

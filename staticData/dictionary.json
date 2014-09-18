@@ -1,14 +1,14 @@
 {
     "excelColumn": {
-        "month": "A",
-        "date": "B",
-        "voucherId": "C",
-        "subjectId": "D",
-        "subjectName": "E",
-        "description": "F",
-        "debit": "G",
-        "credit": "H",
-        "direction": "I",
-        "balance": "J"
+        "month": "月",
+        "date": "日",
+        "voucherId": "凭证号数",
+        "subjectId": "科目编码",
+        "subjectName": "科目名称",
+        "description": "摘要",
+        "debit": "借方",
+        "credit": "贷方",
+        "direction": "方向",
+        "balance": "余额"
     }
 }
