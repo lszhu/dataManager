@@ -21,3 +21,16 @@ span.glyphicon-remove {
 tr textarea, tr input[type=text] {
     width: 100%;
 }
+
+table .pis .grade {
+    width: 10%;
+}
+
+
+table .pis .init {
+    width: 20%;
+}
+
+table .pis .end {
+    width: 20%;
+}

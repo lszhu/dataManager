@@ -7,6 +7,9 @@ var fs = require('fs');
 var dictionary = readJsonFile(
     path.join(__dirname, '../../staticData/dictionary.json'));
 
+var subjectMap = readJsonFile(
+    path.join(__dirname, '../../staticData/subjectMap.json'));
+
 // 解析读入并解析JSON文件
 function readJsonFile(filePath) {
     try {

@@ -65,7 +65,8 @@
             "path": "电子凭证位置",
             "store": "原始凭证位置"
         },
-        "subject": "科目编号",
+        "subjectId": "科目编号",
+        "subjectName": "科目名称",
         "description": "摘要",
         "debit": "借方",
         "credit": "贷方",

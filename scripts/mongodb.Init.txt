@@ -26,6 +26,11 @@ db.createUser(
 	}
 );
 
-db.project.ensureIndex({name: 1}, {unique: true});
+db.projects.ensureIndex({name: 1}, {unique: true});
+db.projects.ensureIndex({id: 1});
 
-db.project.ensureIndex({id: 1});
+db.figures.ensureIndex({id: 1}, {unique: true});
+db.figures.ensureIndex({project: 1});
+db.figures.ensureIndex({date: 1});
+db.figures.ensureIndex({subjectId: 1});
+db.figures.ensureIndex({project: 1, subjectId: 1});

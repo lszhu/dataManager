@@ -1,0 +1,84 @@
+<div>
+  <h1 class="page-header">特定项目-特定时间段 分科目汇总</h1>
+  <form class="form-horizontal" name="project" role="form">
+
+    <div class="form-group col-sm-6">
+      <label for="projectName" class="col-sm-4 control-label">选择项目</label>
+      <div class="col-sm-8">
+        <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
+          <option ng-repeat="project in projects">{{project.name}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-sm-3">
+      <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="项目过滤关键词">
+    </div>
+
+    <div class="col-sm-12"></div>
+
+    <div class="form-group col-sm-6">
+      <label for="dateFrom" class="col-sm-4 control-label">起始时间</label>
+      <div class="col-sm-8">
+        <input type="date" class="form-control" name="dateFrom" ng-model="dateFrom" id="dateFrom" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+    <div class="form-group col-sm-6">
+      <label for="dateTo" class="col-sm-4 control-label">结束时间</label>
+      <div class="col-sm-8">
+        <input type="date" class="form-control" name="dateTo" ng-model="dateTo" id="dateTo" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+    <div class="form-group col-sm-6">
+      <label for="style" class="col-sm-4 control-label">汇总级别</label>
+      <div class="col-sm-8">
+        <select class="form-control" name="style" ng-model="grade" id="style">
+          <option value="1">汇总到一级科目</option>
+          <option value="2" ng-hide="false">汇总到二级科目</option>
+          <option value="3" ng-hide="false">汇总到三级科目</option>
+          <option value="4" ng-hide="false">汇总到四级科目</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="col-sm-12">
+      <div class="col-sm-offset-3 col-sm-6">
+        <button type="submit" class="btn btn-primary btn-block">生成报表</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="col-sm-12"><br></div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <table class="table">
+        <thead>
+        <tr class="active pis">
+          <th class="grade">科目级别</th><th>科目名称</th><th class="init">期初数</th><th class="end">期末数</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr class="info">
+          <td class="">一级</td><td>财政应返额度</td><td>期初</td><td>期末</td>
+        </tr>
+        <tr class="success">
+          <td>二级</td><td>征地和拆迁补偿支出</td><td>期初</td><td>期末</td>
+        </tr>
+        <tr class="warning">
+          <td>三级</td><td>市国庆路香雪路飞虹路改造工程建设领导小组</td><td>期初</td><td>期末</td>
+        </tr>
+        <tr class="">
+          <td>四级</td><td>水利建设基金</td><td>期初</td><td>期末</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+
+  <div class="col-md-8 col-md-offset-2" ng-show="message">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
+</div>

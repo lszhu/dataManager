@@ -244,6 +244,51 @@ mainFrameCtrl.controller('KeyCtrl', ['$scope',
     }
 ]);
 
+mainFrameCtrl.controller('PisCtrl', ['$scope', '$http', 'filterFilter',
+    function($scope, $http, filterFilter) {
+        $scope.grade = 1;
+        $scope.hide = false;
+
+        $http.post('/queryProject', {}).success(function (res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projectsRaw = res.projects;
+            $scope.projects = res.projects;
+            $scope.projectName = $scope.projectsRaw[0].name;
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
+        $scope.$watch(
+            'filterKey',
+            function (newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.projects = $scope.filterKey ?
+                    filterFilter($scope.projectsRaw, newValue) :
+                    $scope.projectsRaw;
+                if ($scope.projects && $scope.projects.length) {
+                    $scope.projectName = $scope.projects[0].name;
+                }
+            }
+        );
+
+        $scope.$watch(
+            'dateFrom',
+            function (newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                var date = new Date(oldValue);
+                $scope.hide = date.getFullYear < 2010;
+            }
+        )
+    }
+
+]);
 
 mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
     function($scope, $http) {
