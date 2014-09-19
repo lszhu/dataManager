@@ -274,7 +274,8 @@ mainFrameCtrl.controller('KeyCtrl', ['$scope',
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
     function($scope, $http, filterFilter) {
         $scope.grade = 1;
-        $scope.hide = false;
+        $scope.showSubject = true;
+        $scope.showMsg = false;
 
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
@@ -287,6 +288,36 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
+
+        $scope.queryData = function() {
+            $http.post('/pisTable', {
+                projectName: $scope.projectName,
+                dateFrom: $scope.dateFrom,
+                dateTo: $scope.dateTo
+            }).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                //console.log('msgClass: ' + $scope.msgClass);
+                $scope.message = res.message;
+                $scope.subjects = res.data;
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.colorLevel = function(id) {
+            var len = id.toString().length - 3;
+            var color = ['info', 'success', 'warning', ''];
+            return color[len / 2];
+        };
+
+        $scope.$watch(
+            'msgClass',
+            function(newValue) {
+                $scope.showMsg = (newValue == 'alert-danger');
+            }
+        );
 
         $scope.$watch(
             'filterKey',
@@ -309,8 +340,12 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 if (newValue === oldValue) {
                     return;
                 }
-                var date = new Date(oldValue);
-                $scope.hide = date.getFullYear < 2010;
+                var date = new Date(newValue);
+                $scope.showSubject = (date.toString() == 'Invalid Date' ||
+                    date.getFullYear() >= 2010);
+                if (!$scope.showSubject) {
+                    $scope.grade = 1;
+                }
             }
         )
     }

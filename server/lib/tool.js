@@ -138,7 +138,7 @@ function importFigures(db, filePath, projectName, year, callback) {
     });
 }
 
-function countRow(sheet) {
+function countSheetRow(sheet) {
     return sheet['!ref'].split(':')[1].match(/\d+$/)[0];
 }
 
@@ -149,7 +149,7 @@ function figureList(sheets, projectName, year) {
     //var item, doc;
     var filter = [];
     var errLine = [];
-    var illegal = false;
+
     for (var i = 0; i < sheets.length; i++) {
         var row = {};
         if (!sheets[i][col.subjectId] && !sheets[i][col.subjectName]) {
@@ -251,12 +251,61 @@ function figureList(sheets, projectName, year) {
     return {data: filter, errLine: errLine};
 }
 
-function psiList(figures) {
-    var subject = {};
+function pisList(figures, startDate) {
+    var subjects = {};
     var id, init, end;
-    for (var i = 0; i < figures.length; i++) {
-        id = figures[i].subjectId;
+
+    function classifyRow(row, date) {
+        var sum;
+        if (row.direction == '借') {
+            sum = row.debit - row.credit;
+        } else if (row.direction == '贷') {
+            sum = row.credit - row.debit;
+        } else if (row.direction == '平') {
+            if (row.credit != 0 && row.debit != 0) {
+                return {status: 'errEqual', message: '平帐数据有误'};
+            }
+            sum = row.credit + row.debit;
+        } else {
+            return {status: 'errDirection', message: '借贷方向有误'};
+        }
+        var point = row.date < date ? 'init' : 'end';
+        return {status: 'ok', type: point, value: sum};
     }
+
+    for (var i = 0, len = figures.length; i < len; i++) {
+        id = figures[i].subjectId;
+        if (!subjects.hasOwnProperty(id)) {
+            subjects[id] = {id: id, name: figures[i].subjectName,
+                init: 0, end: 0};
+        }
+        if (figures[i].voucher.id == '10000') {
+            subjects[id].init += figures[i].balance;
+            continue;
+        }
+        var result = classifyRow(figures[i], startDate);
+        if (result.status != 'ok') {
+            return result;
+        }
+        subjects[id][result.type] += result.value;
+        debug('subjects row: %j', subjects[i]);
+    }
+
+    subjects = objectToSortedArray(subjects);
+    for (i = 0; i < subjects.length; i++) {
+        subjects[i].end += subjects[i].init;
+    }
+    return {data: subjects, status: 'ok', message: '成功生成pis报表'};
+}
+
+function objectToSortedArray(obj, compareFunc) {
+    var keys = Object.keys(obj);
+    keys = keys.sort(compareFunc);
+    var a = [];
+    for (var i = 0, len = keys.length; i < len; i++) {
+        a.push(obj[keys[i]]);
+    }
+    return a;
 }
 
 function figureId(row) {
@@ -273,5 +322,5 @@ module.exports = {
     period: period,
     importFigures: importFigures,
     interval: interval,
-    psiList: psiList
+    pisList: pisList
 };

@@ -135,17 +135,26 @@ router.post('/removeProject', function(req, res) {
 });
 
 router.post('/pisTable', function(req, res) {
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+
+    var condition = tool.period(req.body.dateFrom, req.body.dateTo,
+        delta, req.body.timezone);
+    // so as to use the balance from previous year,
+    // query should start from the beginning of the year
+    var startDate = new Date(0);
+    if (condition && condition.$gte) {
+        startDate = condition.$gte;
+        condition.$gte = new Date(startDate.getFullYear().toString());
+    }
+    condition = condition ? {date: condition} : {};
+
     var project = req.body.projectName;
     if (!project) {
         res.send({status: 'projectErr', message: '请准确输入合法项目名称'});
         return;
     }
-    // milliseconds in a day minus one;
-    var delta = 24 * 60 * 60 * 1000 - 1;
-    var condition = tool.period(req.body.startDate, req.body.endDate,
-        delta, req.body.timezone);
-    condition = condition ? {time: condition} : {};
-    condition.name = project;
+    condition.project = project;
 
     var logMsg = {
         operator: req.session.user.username,
@@ -155,6 +164,7 @@ router.post('/pisTable', function(req, res) {
         status: '失败'
     };
 
+    debug('condition: %j', condition);
     db.query('figure', condition, function(err, docs) {
         if (err) {
             console.log('Db error: ' + JSON.stringify(err));
@@ -162,8 +172,11 @@ router.post('/pisTable', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        res.send({psi: tool.psiList(docs)});
-        tool.log(db, logMsg, '成功获取财务凭证数据', 'ok');
+        debug('docs from db: %j', docs);
+        var pisList = tool.pisList(docs, startDate);
+        debug('pisList: %j', pisList);
+        res.send(pisList);
+        tool.log(db, logMsg, pisList.message, pisList.status);
     });
 
 });
@@ -236,7 +249,7 @@ router.post('/queryProject', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        res.send({projects: docs});
+        res.send({status: 'ok', projects: docs});
         tool.log(db, logMsg, '从数据库成功获取日志信息', '成功');
     });
 });
