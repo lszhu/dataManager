@@ -54,7 +54,8 @@ mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http', '$location',
         };
 
         $scope.gotoProjectDetail = function(name) {
-            $location.path('/search/queryProjectDetail').search('project', name);
+            $location.path('/search/queryProjectDetail')
+                .search('project', name);
         };
 
         $scope.modify = function(event) {
@@ -249,6 +250,24 @@ mainFrameCtrl.controller('VoucherCtrl', ['$scope', '$http',
         $scope.buttonDisabled = function() {
             return !$scope.queryCondition.amountFrom.$valid ||
                 !$scope.queryCondition.amountTo.$valid;
+        };
+
+        $scope.showVoucher = function(index) {
+            if (!isNaN($scope.figures[index].voucher.id)) {
+                return;
+            }
+            var query = 'date=' + $scope.figures[index].date;
+            query += '&project=' + $scope.figures[index].project;
+            query += '&subjectId=' + $scope.figures[index].subjectId;
+            open('/pdfShow?' + query, 'pdfShow',
+                'width=800,height=800,toolbar=0,status=0,location=0');
+        };
+
+        $scope.isVoucher = function(id) {
+            if (isNaN(id)) {
+                return 'pointer';
+            }
+            return '';
         }
     }
 ]);

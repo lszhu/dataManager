@@ -22,15 +22,16 @@ tr textarea, tr input[type=text] {
     width: 100%;
 }
 
-table .pis .grade {
+table .pis .code {
     width: 15%;
 }
 
 
-table .pis .init {
+table .pis .figure {
     width: 20%;
 }
 
-table .pis .end {
-    width: 20%;
+
+.pointer {
+    cursor: pointer!important;
 }
