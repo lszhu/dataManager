@@ -138,10 +138,13 @@ function importFigures(db, filePath, projectName, year, callback) {
     });
 }
 
+// 获取excel表格的行数
 function countSheetRow(sheet) {
     return sheet['!ref'].split(':')[1].match(/\d+$/)[0];
 }
 
+// 分析导入excel文件的每一行数据，
+// 正确数据存入返回的data属性，非法行记录到errLine中
 function figureList(sheets, projectName, year) {
     //debug('dictionary: %j', dictionary);
     var col = dictionary.excelColumn;
@@ -174,7 +177,7 @@ function figureList(sheets, projectName, year) {
 
         if (!row.voucher.id) {
             if (row.description && row.description.trim() != '上年结转') {
-                errLine.push(i + 2);
+                errLine.push(i + 2 + '行，不确定是否是上年结转；');
                 debug('errLine: %j', row);
                 continue;
             }
@@ -184,7 +187,7 @@ function figureList(sheets, projectName, year) {
             row.date = new Date(year.toString());
             debug('row: %j', row);
         } else if (!sheets[i][col.month] || !sheets[i][col.date]) {
-            errLine.push(i + 2);
+            errLine.push(i + 2 + '行，日期数据不完整；');
             //debug('errLine: %j', row);
             continue;
         } else {
@@ -192,7 +195,7 @@ function figureList(sheets, projectName, year) {
                 year, sheets[i][col.month] - 1, sheets[i][col.date]);
         }
         if (isNaN(row.debit) || isNaN(row.credit) || isNaN(row.balance)) {
-            errLine.push(i + 2);
+            errLine.push(i + 2 + '行，财务统计数字有误；');
             //debug('errLine: %j', row);
             continue;
         }
@@ -251,10 +254,12 @@ function figureList(sheets, projectName, year) {
     return {data: filter, errLine: errLine};
 }
 
+// 生成pis报表的数据，以数组方式返回
 function pisList(figures, startDate) {
     var subjects = {};
     var id, init, end;
 
+    // 分析每行数据的内容，以适当处理
     function classifyRow(row, date) {
         var sum;
         if (row.direction == '借') {
@@ -273,6 +278,35 @@ function pisList(figures, startDate) {
         return {status: 'ok', type: point, value: sum};
     }
 
+    // 汇总子科目到上一级科目中
+    function aggregateSubject(subjects) {
+        var aggregated = {};
+        var attr, newId;
+        for (attr in subjects) {
+            if (!subjects.hasOwnProperty(attr)) {
+                continue;
+            }
+
+            for (var i = 5; i <= 9; i += 2) {
+                if (attr.length >= i) {
+                    newId = attr.slice(0, i - 2);
+                    if (aggregated.hasOwnProperty(newId)) {
+                        aggregated[newId].init += subjects[attr].init;
+                        aggregated[newId].end += subjects[attr].end;
+                    } else {
+                        aggregated[newId] = {
+                            id: newId,
+                            name: lookupSubject(newId).name,
+                            init: subjects[attr].init,
+                            end: subjects[attr].end};
+                    }
+                }
+            }
+        }
+        return aggregated;
+    }
+
+    // 计算没个子科目的期初数和积累
     for (var i = 0, len = figures.length; i < len; i++) {
         id = figures[i].subjectId;
         if (!subjects.hasOwnProperty(id)) {
@@ -288,19 +322,47 @@ function pisList(figures, startDate) {
             return result;
         }
         subjects[id][result.type] += result.value;
-        debug('subjects row: %j', subjects[i]);
     }
 
-    subjects = objectToSortedArray(subjects);
+    var aggregated = objectToArray(aggregateSubject(subjects));
+    subjects = objectToArray(subjects);
+    subjects = aggregated.concat(subjects).sort(function(a, b) {
+        return a.id < b.id ? -1 : 1;
+    });
+
+    // 将end属性保存的值由累计改为期末数
     for (i = 0; i < subjects.length; i++) {
         subjects[i].end += subjects[i].init;
     }
     return {data: subjects, status: 'ok', message: '成功生成pis报表'};
 }
 
-function objectToSortedArray(obj, compareFunc) {
+function lookupSubject(subjectId) {
+    var g1 = subjectId.slice(0, 3),
+        g2 = subjectId.slice(0, 5),
+        g3 = subjectId.slice(0, 7),
+        g4 = subjectId.slice(0, 9);
+    var subject;
+    //debug('subjectMap: %j', subjectMap);
+    if (subjectId.length >= 3) {
+        subject = subjectMap[g1];
+        debug('subject level 1: %j', subject);
+    }
+    if (subjectId.length >= 5) {
+        subject = subject[g2];
+        debug('subject level 2: %j', subject);
+    }
+    if (subjectId.length >= 7) {
+        subject = subject[g3];
+    }
+    if (subjectId.length >= 9) {
+        subject = subject[g4];
+    }
+    return {name: subject.name, direction: subject.direction};
+}
+
+function objectToArray(obj) {
     var keys = Object.keys(obj);
-    keys = keys.sort(compareFunc);
     var a = [];
     for (var i = 0, len = keys.length; i < len; i++) {
         a.push(obj[keys[i]]);

@@ -172,9 +172,9 @@ router.post('/pisTable', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        debug('docs from db: %j', docs);
+        //debug('docs from db: %j', docs);
         var pisList = tool.pisList(docs, startDate);
-        debug('pisList: %j', pisList);
+        //debug('pisList: %j', pisList);
         res.send(pisList);
         tool.log(db, logMsg, pisList.message, pisList.status);
     });

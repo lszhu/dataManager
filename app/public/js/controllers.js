@@ -274,8 +274,9 @@ mainFrameCtrl.controller('KeyCtrl', ['$scope',
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
     function($scope, $http, filterFilter) {
         $scope.grade = 1;
-        $scope.showSubject = true;
+        $scope.showSubject = false;
         $scope.showMsg = false;
+        $scope.subjectsRaw = [];
 
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
@@ -299,7 +300,10 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
                 //console.log('msgClass: ' + $scope.msgClass);
                 $scope.message = res.message;
-                $scope.subjects = res.data;
+                $scope.subjectsRaw = res.data;
+                $scope.subjects = $scope.subjectsRaw.filter(function(e) {
+                    return e.id.length <= $scope.grade * 2 + 1;
+                });
             }).error(function (res) {
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
@@ -340,14 +344,39 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 if (newValue === oldValue) {
                     return;
                 }
+                $scope.subjects = [];
+                $scope.subjectsRaw = [];
                 var date = new Date(newValue);
-                $scope.showSubject = (date.toString() == 'Invalid Date' ||
+                $scope.showSubject = (date.toString() != 'Invalid Date' &&
                     date.getFullYear() >= 2010);
                 if (!$scope.showSubject) {
                     $scope.grade = 1;
                 }
             }
-        )
+        );
+
+        $scope.$wathc(
+            'dataTo',
+            function(newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.subjects = [];
+                $scope.subjectsRaw = [];
+            }
+        );
+
+        $scope.$watch(
+            'grade',
+            function(newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.subjects = $scope.subjectsRaw.filter(function(e) {
+                    return e.id.toString().length <= newValue * 2 + 1;
+                });
+            }
+        );
     }
 
 ]);
