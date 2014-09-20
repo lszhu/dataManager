@@ -355,8 +355,19 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
             }
         );
 
-        $scope.$wathc(
-            'dataTo',
+        $scope.$watch(
+            'dateTo',
+            function(newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.subjects = [];
+                $scope.subjectsRaw = [];
+            }
+        );
+
+        $scope.$watch(
+            'projectName',
             function(newValue, oldValue) {
                 if (newValue === oldValue) {
                     return;

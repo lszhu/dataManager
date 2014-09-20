@@ -76,7 +76,7 @@
     </thead>
     <tbody>
     <tr ng-repeat="log in logMsgs">
-      <td>{{$index}}</td>
+      <td>{{$index + 1}}</td>
       <td>{{toLocalTime(log.time)}}</td>
       <td>{{log.operator}}</td>
       <td>{{log.operation}}</td>
