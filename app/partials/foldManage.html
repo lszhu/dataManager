@@ -1,0 +1,100 @@
+<div>
+  <h1 class="page-header">卷宗管理</h1>
+  <form class="form-horizontal" name="project" role="form">
+    <div class="form-group">
+      <label for="operation" class="col-sm-2 control-label">操作类型</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="operation" name="operation" id="operation">
+          <option value="add">新建卷宗</option>
+          <option value="modify">修改卷宗描述</option>
+          <option value="move">移动卷宗位置</option>
+          <option value="remove">撤销卷宗</option>
+        </select>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="nameSel" class="col-sm-2 control-label">所在档案室</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="name" name="nameSel" id="nameSel">
+          <option value="add">建立档案室</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="sourceRoomFilterKey" ng-model="sourceRoomFilterKey" id="sourceRoomFilterKey" placeholder="档案室过滤关键词">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="cabinet" class="col-sm-2 control-label">所在档案柜</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="cabinet" name="cabinet" id="cabinet">
+          <option value="add">建立档案室</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="sourceFoldFilterKey" ng-model="sourceFoldFilterKey" id="sourceFoldFilterKey" placeholder="卷宗过滤关键词">
+      </div>
+    </div>
+    <div class="form-group" ng-hide="operation == 'add'">
+      <label for="foldSel" class="col-sm-2 control-label">卷宗名称</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="fold" name="foldSel" id="foldSel">
+          <option value="add">建立档案室</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="档案柜过滤关键词">
+      </div>
+    </div>
+    <div class="form-group" ng-show="operation == 'add'">
+      <label for="fold" class="col-sm-2 control-label">卷宗名称</label>
+      <div class="col-sm-4">
+        <input type="text" class="form-control" name="fold" ng-model="fold" id="fold">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="description" class="col-sm-2 control-label">卷宗描述</label>
+      <div class="col-sm-9">
+        <textarea class="form-control" name="description" rows="5" cols="100" id="description">{{description}}</textarea>
+      </div>
+    </div>
+    <div class="form-group" ng-show="operation == 'move'">
+      <label for="targetRoomSel" class="col-sm-2 control-label">目的档案室</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="targetRoom" name="targetRoomSel" id="targetRoomSel">
+          <option value="add">建立档案室</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="targetRoomFilterKey" ng-model="targetRoomFilterKey" id="targetRoomFilterKey" placeholder="档案室过滤关键词">
+      </div>
+    </div>
+    <div class="form-group" ng-show="operation == 'move'">
+      <label for="targetCabinet" class="col-sm-2 control-label">目的档案柜</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="targetCabinet" name="targetCabinet" id="targetCabinet">
+          <option value="add">建立档案室</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="targetCabinetFilterKey" ng-model="targetCabinetFilterKey" id="targetCabinetFilterKey" placeholder="档案室过滤关键词">
+      </div>
+    </div>
+
+    <div class="col-sm-12">
+      <div class="col-sm-2 col-sm-offset-2">
+        <button type="submit" class="btn btn-primary btn-block">确 认</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="col-md-8 col-md-offset-2" ng-show="message">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
+</div>

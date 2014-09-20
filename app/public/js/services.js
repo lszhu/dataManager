@@ -12,14 +12,24 @@ appService.provider('AppMenu', function() {
                 name: '档案',
                 subMenu: [
                     {
-                        name: '库房管理',
-                        link: 'archive/storeManage',
-                        controller: 'StoreManageCtrl'
+                        name: '档案室管理',
+                        link: 'archive/storageManage',
+                        controller: 'StorageManageCtrl'
+                    },
+                    {
+                        name: '档案柜管理',
+                        link: 'archive/cabinetManage',
+                        controller: 'CabinetManageCtrl'
+                    },
+                    {
+                        name: '卷宗管理',
+                        link: 'archive/foldManage',
+                        controller: 'FoldManageCtrl'
                     },
                     {
                         name: '库房查询',
-                        link: 'archive/storeQuery',
-                        controller: 'StoreQueryCtrl'
+                        link: 'archive/queryStore',
+                        controller: 'QueryStoreCtrl'
                     },
                     {
                         name: '立卷归档',
@@ -60,7 +70,7 @@ appService.provider('AppMenu', function() {
                     {
                         name: '项目概要',
                         link: 'search/queryProject',
-                        controller: 'ProjectCtrl'
+                        controller: 'QueryProjectCtrl'
                     },
                     {
                         name: '项目详情',
@@ -70,27 +80,27 @@ appService.provider('AppMenu', function() {
                     {
                         name: '科目',
                         link: 'search/querySubject',
-                        controller: 'SubjectCtrl'
+                        controller: 'QuerySubjectCtrl'
                     },
                     {
                         name: '凭证',
                         link: 'search/queryVoucher',
-                        controller: 'VoucherCtrl'
+                        controller: 'QueryVoucherCtrl'
                     },
                     {
                         name: '合同',
                         link: 'search/queryContract',
-                        controller: 'ContractCtrl'
+                        controller: 'QueryContractCtrl'
                     },
                     {
                         name: '文件',
                         link: 'search/queryFile',
-                        controller: 'DocumentCtrl'
+                        controller: 'QueryDocumentCtrl'
                     },
                     {
                         name: '综合查询',
                         link: 'search/queryKey',
-                        controller: 'KeyCtrl'
+                        controller: 'QueryKeyCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-search'

@@ -31,7 +31,25 @@ mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('ProjectCtrl', ['$scope', '$http', '$location',
+mainFrameCtrl.controller('StorageManageCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('CabinetManageCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('FoldManageCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
         $scope.line = -1;
         $scope.msgClass = 'alert-success';
@@ -208,13 +226,13 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
     }
 ]);
 
-mainFrameCtrl.controller('SubjectCtrl', ['$scope',
+mainFrameCtrl.controller('QuerySubjectCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
 ]);
 
-mainFrameCtrl.controller('VoucherCtrl', ['$scope', '$http',
+mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
     function($scope, $http) {
         $scope.message = '';
         $scope.msgClass = 'alert-success';
@@ -272,19 +290,19 @@ mainFrameCtrl.controller('VoucherCtrl', ['$scope', '$http',
     }
 ]);
 
-mainFrameCtrl.controller('ContractCtrl', ['$scope',
+mainFrameCtrl.controller('QueryContractCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
 ]);
 
-mainFrameCtrl.controller('DocumentCtrl', ['$scope',
+mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
 ]);
 
-mainFrameCtrl.controller('KeyCtrl', ['$scope',
+mainFrameCtrl.controller('QueryKeyCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';
     }
