@@ -38,8 +38,8 @@ appService.provider('AppMenu', function() {
                     },
                     {
                         name: '电子档案管理',
-                        link: 'archive/digital',
-                        controller: 'DigitalCtrl'
+                        link: 'archive/digitalArchive',
+                        controller: 'DigitalArchiveCtrl'
                     },
                     {
                         name: '关联管理',

@@ -1,0 +1,108 @@
+<div>
+  <h1 class="page-header">库房查询</h1>
+  <form class="form-horizontal" name="project" role="form">
+    <div class="form-group">
+      <label for="nameSel" class="col-sm-2 control-label">档案室名称</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="name" name="nameSel" id="nameSel">
+          <option value="0">不限</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="sourceRoomFilterKey" ng-model="sourceRoomFilterKey" id="sourceRoomFilterKey" placeholder="档案室过滤关键词">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="roomDescription" class="col-sm-2 control-label">档案柜描述</label>
+      <div class="col-sm-9">
+        <textarea class="form-control" name="roomDescription" rows="3" cols="100" id="roomDescription">{{description}}</textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="cabinet" class="col-sm-2 control-label">档案柜名称</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="cabinet" name="cabinet" id="cabinet">
+          <option value="0">不限</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="sourceFoldFilterKey" ng-model="sourceFoldFilterKey" id="sourceFoldFilterKey" placeholder="档案柜过滤关键词">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="cabinetDescription" class="col-sm-2 control-label">档案柜描述</label>
+      <div class="col-sm-9">
+        <textarea class="form-control" name="cabinetDescription" rows="3" cols="100" id="cabinetDescription">{{description}}</textarea>
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="foldSel" class="col-sm-2 control-label">卷宗名称</label>
+      <div class="col-sm-4">
+        <select class="form-control" ng-model="fold" name="foldSel" id="foldSel">
+          <option value="add">不限</option>
+          <option value="modify">修改档案室描述</option>
+        </select>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="卷宗过滤关键词">
+      </div>
+    </div>
+    <div class="form-group">
+      <label for="foldDescription" class="col-sm-2 control-label">卷宗描述</label>
+      <div class="col-sm-9">
+        <textarea class="form-control" name="foldDescription" rows="3" cols="100" id="foldDescription">{{description}}</textarea>
+      </div>
+    </div>
+
+    <div class="col-sm-12">
+      <div class="col-sm-2 col-sm-offset-2">
+        <button type="submit" class="btn btn-primary btn-block">确 认</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="col-sm-12"><br></div>
+
+  <table class="table table-striped table-bordered" id="figures">
+    <thead>
+    <tr>
+      <th>序号</th>
+      <th>名称</th>
+      <th>类别</th>
+      <th>档案位置</th>
+      <th>电子文档</th>
+      <th>页数</th>
+      <th>特征词</th>
+      <th>描述</th>
+      <th>密级</th>
+      <th>归档日期</th>
+      <th>借阅状态</th>
+      <th>归档员</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr ng-repeat="figure in figures">
+      <td>{{$index + 1}}</td>
+      <td>{{figure.project}}</td>
+      <td>{{toLocalDate(figure.date)}}</td>
+      <td ng-click="showVoucher($index)" ng-class="isVoucher(figure.voucher.id)">{{figure.voucher.id}}</td>
+      <td>{{figure.subjectId}}</td>
+      <td>{{figure.subjectName}}</td>
+      <td>{{figure.description}}</td>
+      <td>{{figure.debit | currency:'¥'}}</td>
+      <td>{{figure.credit | currency:'¥'}}</td>
+      <td>{{figure.direction}}</td>
+      <td>{{figure.balance | currency:'¥'}}</td>
+      <td></td>
+    </tr>
+    </tbody>
+  </table>
+
+  <div class="col-md-8 col-md-offset-2" ng-show="message">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
+</div>

@@ -49,6 +49,18 @@ mainFrameCtrl.controller('FoldManageCtrl', ['$scope',
     }
 ]);
 
+mainFrameCtrl.controller('QueryStoreCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('FilingCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
 mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
         $scope.line = -1;

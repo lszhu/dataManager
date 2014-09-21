@@ -34,6 +34,7 @@ function createModels() {
         keys: String,
         page: Number,
         secret: String,
+        expiration: Number,
         path: String,
         store: Number,
         date: Date,

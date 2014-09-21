@@ -33,7 +33,7 @@
         </select>
       </div>
       <div class="col-sm-3">
-        <input type="text" class="form-control" name="sourceFoldFilterKey" ng-model="sourceFoldFilterKey" id="sourceFoldFilterKey" placeholder="卷宗过滤关键词">
+        <input type="text" class="form-control" name="sourceFoldFilterKey" ng-model="sourceFoldFilterKey" id="sourceFoldFilterKey" placeholder="档案柜过滤关键词">
       </div>
     </div>
     <div class="form-group" ng-hide="operation == 'add'">
@@ -45,7 +45,7 @@
         </select>
       </div>
       <div class="col-sm-3">
-        <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="档案柜过滤关键词">
+        <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="卷宗过滤关键词">
       </div>
     </div>
     <div class="form-group" ng-show="operation == 'add'">
@@ -57,7 +57,7 @@
     <div class="form-group">
       <label for="description" class="col-sm-2 control-label">卷宗描述</label>
       <div class="col-sm-9">
-        <textarea class="form-control" name="description" rows="5" cols="100" id="description">{{description}}</textarea>
+        <textarea class="form-control" name="description" rows="3" cols="100" id="description">{{description}}</textarea>
       </div>
     </div>
     <div class="form-group" ng-show="operation == 'move'">
@@ -81,7 +81,7 @@
         </select>
       </div>
       <div class="col-sm-3">
-        <input type="text" class="form-control" name="targetCabinetFilterKey" ng-model="targetCabinetFilterKey" id="targetCabinetFilterKey" placeholder="档案室过滤关键词">
+        <input type="text" class="form-control" name="targetCabinetFilterKey" ng-model="targetCabinetFilterKey" id="targetCabinetFilterKey" placeholder="档案柜过滤关键词">
       </div>
     </div>
 
