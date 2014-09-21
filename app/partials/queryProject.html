@@ -46,7 +46,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="project in projects">
+    <tr ng-repeat="project in projects| filter: globalFilterKey">
       <td>{{$index + 1}}</td>
       <td>
         <span ng-hide="$index == line">{{project.name}}</span>

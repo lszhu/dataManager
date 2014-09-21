@@ -42,12 +42,12 @@ appService.provider('AppMenu', function() {
                         controller: 'DigitalArchiveCtrl'
                     },
                     {
-                        name: '关联管理',
+                        name: '档案关联管理',
                         link: 'archive/bind',
-                        controller: 'BindCtrl'
+                        controller: 'ArchiveBindCtrl'
                     },
                     {
-                        name: '借阅/归还',
+                        name: '借阅 / 归还',
                         link: 'archive/borrowReturn',
                         controller: 'BorrowReturnCtrl'
                     },
@@ -78,22 +78,22 @@ appService.provider('AppMenu', function() {
                         controller: 'ProjectDetailCtrl'
                     },
                     {
-                        name: '科目',
+                        name: '科目概要',
                         link: 'search/querySubject',
                         controller: 'QuerySubjectCtrl'
                     },
                     {
-                        name: '凭证',
+                        name: '凭证查询',
                         link: 'search/queryVoucher',
                         controller: 'QueryVoucherCtrl'
                     },
                     {
-                        name: '合同',
+                        name: '合同查询',
                         link: 'search/queryContract',
                         controller: 'QueryContractCtrl'
                     },
                     {
-                        name: '文件',
+                        name: '文件查询',
                         link: 'search/queryFile',
                         controller: 'QueryDocumentCtrl'
                     },
@@ -181,29 +181,24 @@ appService.provider('AppMenu', function() {
                         controller: 'ImportFigureCtrl'
                     },
                     {
-                        name: '文档自动关联',
+                        name: '财务凭证自动关联',
+                        link: 'tool/voucherAutoBind',
+                        controller: 'VoucherAutoBindCtrl'
+                    },
+                    {
+                        name: '财务凭证手动关联',
+                        link: 'tool/voucherManualBind',
+                        controller: 'VoucherManualBindCtrl'
+                    },
+                    {
+                        name: '项目文档自动关联',
                         link: 'tool/documentAutoBind',
                         controller: 'DocumentAutoBindCtrl'
                     },
                     {
-                        name: '文档手动关联',
-                        link: 'documentManualBind',
+                        name: '项目文档手动关联',
+                        link: 'tool/documentManualBind',
                         controller: 'DocumentManualBindCtrl'
-                    },
-                    {
-                        name: '项目创建/合并/更新/删除',
-                        link: '',
-                        controller: ''
-                    },
-                    {
-                        name: '财务数据增加/修改/删除/导入',
-                        link: '',
-                        controller: ''
-                    },
-                    {
-                        name: '票据/合同/文件自动/手动关联',
-                        link: '',
-                        controller: ''
                     }
                 ],
                 icon: 'glyphicon glyphicon-wrench'

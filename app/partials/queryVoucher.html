@@ -84,7 +84,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="figure in figures">
+    <tr ng-repeat="figure in figures | filter: globalFilterKey">
       <td>{{$index + 1}}</td>
       <td>{{figure.project}}</td>
       <td>{{toLocalDate(figure.date)}}</td>

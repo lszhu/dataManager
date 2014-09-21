@@ -176,7 +176,8 @@ router.post('/pisTable', function(req, res) {
         var pisList = tool.pisList(docs, startDate);
         //debug('pisList: %j', pisList);
         res.send(pisList);
-        tool.log(db, logMsg, pisList.message, pisList.status);
+        tool.log(db, logMsg, pisList.message,
+                pisList.status == 'ok' ? '成功' : '失败');
     });
 
 });

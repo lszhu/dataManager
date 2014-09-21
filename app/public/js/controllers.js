@@ -3,8 +3,8 @@
 /* Controllers */
 
 var mainFrameCtrl = angular.module('mainFrameCtrl', []);
-mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
-    function($scope, AppMenu) {
+mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu', '$location',
+    function($scope, AppMenu, $location) {
         $scope.appMenu = AppMenu;
         for (var i = 0; i < $scope.appMenu.length; i++) {
             $scope.appMenu[i].show = 'glyphicon-chevron-down';
@@ -13,15 +13,42 @@ mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
             $scope.appMenu[i].show =
                     $scope.appMenu[i].show == 'glyphicon-chevron-up' ?
                         'glyphicon-chevron-down' : 'glyphicon-chevron-up';
-        }
+        };
+
+        $scope.$watch(
+            'globalFilterKey',
+            function(newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.$emit('globalFilterKey', {key: newValue});
+            }
+        );
+
+        $scope.$on('$locationChangeStart', function() {
+            $scope.globalFilterKey = '';
+        });
+
+        //$scope.$on('resetGlobalFilterKey', function() {
+        //    $scope.globalFilterKey = '';
+        //});
     }
 ]);
 
-mainFrameCtrl.controller('FilterKeyCtrl', ['$scope',
-    function($scope) {
-        $scope.resetKey = function() {
-            $scope.filterKey = '';
-        }
+mainFrameCtrl.controller('FilterKeyCtrl', ['$scope', '$location',
+    function($scope, $location) {
+        //$scope.$on('$locationChangeStart', function() {
+        //    $scope.$broadcast('globalFilterKey', {key: ''});
+        //});
+
+        $scope.$on('globalFilterKey', function(event, data) {
+            //$scope.$broadcast('globalFilterKey', data);
+            $scope.globalFilterKey = data.key;
+        });
+
+        //$scope.$on('resetGlobalFilterKey', function() {
+        //    $scope.$broadcast('globalFilterKey');
+        //});
     }
 ]);
 
@@ -290,7 +317,7 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
             query += '&project=' + $scope.figures[index].project;
             query += '&subjectId=' + $scope.figures[index].subjectId;
             open('/pdfShow?' + query, 'pdfShow',
-                'width=800,height=800,toolbar=0,status=0,location=0');
+                'width=800,height=600,toolbar=0,status=0,location=0');
         };
 
         $scope.isVoucher = function(id) {

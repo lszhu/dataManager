@@ -61,7 +61,7 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="subject in subjects" ng-class="colorLevel(subject.id)">
+        <tr ng-repeat="subject in subjects | filter: globalFilterKey" ng-class="colorLevel(subject.id)">
           <td>{{subject.id}}</td>
           <td>{{subject.name}}</td>
           <td>{{subject.init | currency: '¥'}}</td>
