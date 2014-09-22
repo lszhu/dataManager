@@ -55,6 +55,33 @@ router.all('/logout', function(req, res) {
     res.redirect('/login');
 });
 
+// for showing pdf in browser
+router.get('/pdfShow', function(req, res) {
+    //res.send('ok');
+    res.render('pdfShow.html');
+});
+
+router.get('/pdf', function(req, res) {
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '查看pdf文档',
+        target: '',
+        comment: '',
+        status: '成功'
+    };
+    debug('process pdf');
+    tool.readFile(req.query, function(data) {
+        logMsg.target = data.target;
+        if (data.status != 'ok') {
+            res.send('');
+            tool.log(db, logMsg, data.msg, '失败');
+            return;
+        }
+        res.send(data.data);
+        tool.log(db, logMsg, data.msg);
+    });
+});
+
 // for angular.js to get partial view file
 router.get(/\/.+\/(.+)/, function(req, res) {
     var root = path.resolve(__dirname + '/../../app/partials/');

@@ -1,110 +1,137 @@
 <div>
   <h1 class="page-header">立卷归档</h1>
   <form class="form-horizontal" name="project" role="form">
-    <h3 class="page-header">档案基本信息</h3>
-    <div class="form-group">
-      <label for="filename" class="col-sm-2 control-label">文档名称</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="filename" ng-model="filename" id="filename" placeholder="输入文件名称">
+
+    <div class="col-sm-10">
+      <div class="panel panel-info">
+        <div class="panel-heading"><strong>档案基本信息</strong></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="filename" class="col-sm-3 control-label">文档名称</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="filename" ng-model="filename" id="filename" placeholder="输入文件名称">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="category" class="col-sm-3 control-label">档案类别</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="category" ng-model="category" id="category" placeholder="输入文件名称">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="key" class="col-sm-3 control-label">主题词</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="key" ng-model="key" id="key" placeholder="输入文件名称">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="category" class="col-sm-2 control-label">档案类别</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="category" ng-model="category" id="category" placeholder="输入文件名称">
+    <div class="col-sm-10">
+      <div class="panel panel-info">
+        <div class="panel-heading"><strong>档案内容描述</strong></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="description" class="col-sm-3 control-label">详细信息</label>
+            <div class="col-sm-8">
+              <textarea class="form-control" name="description" rows="3" cols="100" id="description">{{description}}</textarea>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="form-group">
-      <label for="key" class="col-sm-2 control-label">主题词</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="key" ng-model="key" id="key" placeholder="输入文件名称">
+    <div class="col-sm-10">
+      <div class="panel panel-info">
+        <div class="panel-heading"><strong>档案存放位置</strong></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="room" class="col-sm-3 control-label">所在档案室</label>
+            <div class="col-sm-6">
+              <select class="form-control" ng-model="room" name="room" id="room">
+                <option value="add">建立档案室</option>
+                <option value="modify">修改档案室描述</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" name="roomFilterKey" ng-model="roomFilterKey" id="roomFilterKey" placeholder="档案室过滤">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="cabinet" class="col-sm-3 control-label">所在档案柜</label>
+            <div class="col-sm-6">
+              <select class="form-control" ng-model="cabinet" name="cabinet" id="cabinet">
+                <option value="add">建立档案室</option>
+                <option value="modify">修改档案室描述</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" name="cabinetFilterKey" ng-model="cabinetFilterKey" id="cabinetFilterKey" placeholder="档案柜过滤">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="fold" class="col-sm-3 control-label">卷宗名称</label>
+            <div class="col-sm-6">
+              <select class="form-control" ng-model="fold" name="fold" id="fold">
+                <option value="add">建立档案室</option>
+                <option value="modify">修改档案室描述</option>
+              </select>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" name="foldFilterKey" ng-model="foldFilterKey" id="foldFilterKey" placeholder="卷宗过滤">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <h3 class="page-header">档案内容描述</h3>
-    <div class="form-group">
-      <label for="description" class="col-sm-2 control-label">详细信息</label>
-      <div class="col-sm-8">
-        <textarea class="form-control" name="description" rows="3" cols="100" id="description">{{description}}</textarea>
+    <div class="col-sm-10">
+      <div class="panel panel-info">
+        <div class="panel-heading"><strong>档案其他信息</strong></div>
+        <div class="panel-body">
+          <div class="form-group">
+            <label for="path" class="col-sm-3 control-label">电子档位置</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="path" ng-model="path" id="path" placeholder="输入电子文档存放路径">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="page" class="col-sm-3 control-label">文档总页数</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="page" ng-model="page" id="page" placeholder="输入文档总页面数目">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="secret" class="col-sm-3 control-label">保密级别</label>
+            <div class="col-sm-6">
+              <select class="form-control" ng-model="secret" name="secret" id="secret">
+                <option>普通</option>
+                <option>秘密</option>
+                <option>机密</option>
+                <option>绝密</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="expiration" class="col-sm-3 control-label">保存年限</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="expiration" ng-model="expiration" id="expiration" placeholder="输入保存年限">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="editor" class="col-sm-3 control-label">归档人姓名</label>
+            <div class="col-sm-6">
+              <input type="text" class="form-control" name="editor" ng-model="editor" id="editor" placeholder="输入归档人姓名">
+            </div>
+          </div>
+        </div>
       </div>
     </div>
 
-    <h3 class="page-header">档案存放位置</h3>
-    <div class="form-group">
-      <label for="room" class="col-sm-2 control-label">所在档案室</label>
-      <div class="col-sm-4">
-        <select class="form-control" ng-model="room" name="room" id="room">
-          <option value="add">建立档案室</option>
-          <option value="modify">修改档案室描述</option>
-        </select>
-      </div>
-      <div class="col-sm-3">
-        <input type="text" class="form-control" name="roomFilterKey" ng-model="roomFilterKey" id="roomFilterKey" placeholder="档案室过滤关键词">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="cabinet" class="col-sm-2 control-label">所在档案柜</label>
-      <div class="col-sm-4">
-        <select class="form-control" ng-model="cabinet" name="cabinet" id="cabinet">
-          <option value="add">建立档案室</option>
-          <option value="modify">修改档案室描述</option>
-        </select>
-      </div>
-      <div class="col-sm-3">
-        <input type="text" class="form-control" name="cabinetFilterKey" ng-model="cabinetFilterKey" id="cabinetFilterKey" placeholder="档案柜过滤关键词">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="fold" class="col-sm-2 control-label">卷宗名称</label>
-      <div class="col-sm-4">
-        <select class="form-control" ng-model="fold" name="fold" id="fold">
-          <option value="add">建立档案室</option>
-          <option value="modify">修改档案室描述</option>
-        </select>
-      </div>
-      <div class="col-sm-3">
-        <input type="text" class="form-control" name="foldFilterKey" ng-model="foldFilterKey" id="foldFilterKey" placeholder="卷宗过滤关键词">
-      </div>
-    </div>
 
-    <h3 class="page-header">档案其他信息</h3>
-    <div class="form-group">
-      <label for="path" class="col-sm-2 control-label">电子档位置</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="path" ng-model="path" id="path" placeholder="输入电子文档存放路径">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="page" class="col-sm-2 control-label">文档总页数</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="page" ng-model="page" id="page" placeholder="输入文档总页面数目">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="secret" class="col-sm-2 control-label">保密级别</label>
-      <div class="col-sm-4">
-        <select class="form-control" ng-model="secret" name="secret" id="secret">
-          <option>普通</option>
-          <option>秘密</option>
-          <option>机密</option>
-          <option>绝密</option>
-        </select>
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="expiration" class="col-sm-2 control-label">保存年限</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="expiration" ng-model="expiration" id="expiration" placeholder="输入保存年限">
-      </div>
-    </div>
-    <div class="form-group">
-      <label for="editor" class="col-sm-2 control-label">归档人姓名</label>
-      <div class="col-sm-4">
-        <input type="text" class="form-control" name="editor" ng-model="editor" id="editor" placeholder="输入归档人姓名">
-      </div>
-    </div>
 
     <div class="col-sm-12">
       <div class="col-sm-2 col-sm-offset-2">

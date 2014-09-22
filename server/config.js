@@ -8,14 +8,17 @@ var runningEnvironment = 'development';
 // 此处设置系统唯一标识，可用于一个服务器安装多个服务
 var sysId = 'chequeSys01';
 
+// 常规电子档案存放位置，建议用相对路径
+var archivePath = '../../../archive';
+
 // 存放合同文件的路径，建议用相对路径
-var contractPath = '../contract';
+var contractPath = '../../../contract';
 
-// 存放支票文件的路径，建议用相对路径
-var chequePath = '../cheque';
+// 存放凭证文件的路径，建议用相对路径
+var voucherPath = '../../../voucher';
 
-// 存放普通文件的路径，建议用相对路径
-var filePath = '../file';
+// 存放普通项目文件的路径，建议用相对路径
+var filePath = '../../../file';
 
 // 存放用于导入系统数据库的凭证数据文件的根目录，建议用绝对路径
 var importPath = 'E:/web/chequeSysDev/voucher';
@@ -51,10 +54,14 @@ module.exports = {
     port: httpPort,
     runningEnv: runningEnvironment,
     sysId: sysId,
-    contractPath: contractPath,
-    chequePath: chequePath,
-    filePath: filePath,
-    importPath: importPath,
+    path: {
+        archive: archivePath,
+        contract: contractPath,
+        voucher: voucherPath,
+        file: filePath,
+        base: importPath
+    }
+,
     builtinAccount: builtinAccount,
     db: {
         server: dbServer,

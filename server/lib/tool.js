@@ -4,6 +4,8 @@ var path = require('path');
 var xlsx = require('xlsx');
 var fs = require('fs');
 
+var refPath = require('../config').path;
+
 var dictionary = readJsonFile(
     path.join(__dirname, '../../staticData/dictionary.json'));
 
@@ -337,6 +339,7 @@ function pisList(figures, startDate) {
     return {data: subjects, status: 'ok', message: '成功生成pis报表'};
 }
 
+// 由科目代码查询科目名称
 function lookupSubject(subjectId) {
     var g1 = subjectId.slice(0, 3),
         g2 = subjectId.slice(0, 5),
@@ -361,6 +364,7 @@ function lookupSubject(subjectId) {
     return {name: subject.name, direction: subject.direction};
 }
 
+// 将对象转换为由其属性值组成的数组
 function objectToArray(obj) {
     var keys = Object.keys(obj);
     var a = [];
@@ -370,6 +374,46 @@ function objectToArray(obj) {
     return a;
 }
 
+// 由指定参数获取路径，并读取文件
+function readFile(params, callback) {
+    var filePath = voucherFilePath(params);
+    debug('file path: ' + filePath);
+    if (!filePath) {
+        callback({status: 'errParameter', target: '未知文件',
+            message: '缺少足够参数，无法读取文件'});
+    }
+    fs.readFile(filePath, function(err ,data) {
+        if (err) {
+            callback({status: 'errReadFile', target: filePath,
+                message: '无法读取文件'});
+            return;
+        }
+        callback({data: data, status: 'ok', target: filePath,
+            message: '成功读取文件'});
+    });
+}
+
+// 有传入对象的date, voucher, subjectId三个属性获取对应文件路径
+function voucherFilePath(params) {
+    var date = new Date(params.date);
+    date = (date.toString != 'Invalid Date')
+        ? date.getFullYear().toString() : '';
+    debug('date: ' + date);
+    var project = params.project;
+    debug('project: ' + project);
+    var voucher = decodeURIComponent(params.voucherId);
+    debug('voucher id: ' + voucher);
+    if (!date || !project || !voucher) {
+        return '';
+    }
+    debug('path: ' + path.join(__dirname, refPath.voucher,
+        date, project, voucher + '.pdf'));
+    return path.join(__dirname, refPath.voucher,
+        date, project, voucher + '.pdf');
+    //return path.join(__dirname, refPath.voucher, 'cv1.pdf');
+}
+
+// 生成凭证唯一ID号
 function figureId(row) {
     var date = row.date.getFullYear() + '' +
         row.date.getMonth() + row.date.getDate();
@@ -379,10 +423,12 @@ function figureId(row) {
     return parseInt(p1).toString(36) + parseInt(p2).toString(36);
 }
 
+
 module.exports = {
     log: log,
     period: period,
     importFigures: importFigures,
     interval: interval,
-    pisList: pisList
+    pisList: pisList,
+    readFile: readFile
 };

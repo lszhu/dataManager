@@ -3,8 +3,8 @@
 /* Controllers */
 
 var mainFrameCtrl = angular.module('mainFrameCtrl', []);
-mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu', '$location',
-    function($scope, AppMenu, $location) {
+mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu',
+    function($scope, AppMenu) {
         $scope.appMenu = AppMenu;
         for (var i = 0; i < $scope.appMenu.length; i++) {
             $scope.appMenu[i].show = 'glyphicon-chevron-down';
@@ -35,8 +35,8 @@ mainFrameCtrl.controller('MenuCtrl', ['$scope', 'AppMenu', '$location',
     }
 ]);
 
-mainFrameCtrl.controller('FilterKeyCtrl', ['$scope', '$location',
-    function($scope, $location) {
+mainFrameCtrl.controller('FilterKeyCtrl', ['$scope',
+    function($scope) {
         //$scope.$on('$locationChangeStart', function() {
         //    $scope.$broadcast('globalFilterKey', {key: ''});
         //});
@@ -316,8 +316,10 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
             var query = 'date=' + $scope.figures[index].date;
             query += '&project=' + $scope.figures[index].project;
             query += '&subjectId=' + $scope.figures[index].subjectId;
+            query += '&voucherId=' + $scope.figures[index].voucher.id;
             open('/pdfShow?' + query, 'pdfShow',
-                'width=800,height=600,toolbar=0,status=0,location=0');
+                'width=800,height=600,toolbar=0,status=0,location=0,' +
+                    'scrollbars=1');
         };
 
         $scope.isVoucher = function(id) {

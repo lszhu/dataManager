@@ -7,6 +7,7 @@
         "keys": "主题词",
         "page": "页数",
         "secret": "密级",
+        "expiration": "保存期限"
         "path": "电子文档位置",
         "store": "原始文档位置",
         "date": "创建日期",
