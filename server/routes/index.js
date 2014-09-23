@@ -2,7 +2,6 @@ var express = require('express');
 var router = express.Router();
 var util = require('util');
 var path = require('path');
-var fs = require('fs');
 
 // for debug
 var debug = require('debug')('route');
@@ -81,25 +80,22 @@ router.get('/pdf', function(req, res) {
         if (err) {
             tool.log(db, logMsg, '数据库访问失败');
             res.send('');
-            console.log('database access error');
             return;
         }
         if (!doc || !doc.voucher || !doc.voucher.path) {
             tool.log(db, logMsg, '未找到关联的电子文档信息');
             res.send('');
-            console.log('can not fine voucher file');
             return;
         }
         debug('voucher path: ' + doc.voucher.path);
-        fs.readFile(doc.voucher.path, function(err, data) {
+        tool.readFile(doc.voucher.path, function(data) {
             logMsg.target = data.target;
-            if (err) {
+            if (data.status != 'ok') {
                 res.send('');
-                tool.log(db, logMsg, '读取凭证电子文档出错');
-                console.log('read voucher file error.');
+                tool.log(db, logMsg, data.message);
                 return;
             }
-            res.send(data);
+            res.send(data.data);
             tool.log(db, logMsg, data.message);
         });
     });

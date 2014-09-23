@@ -350,11 +350,11 @@ function lookupSubject(subjectId) {
     //debug('subjectMap: %j', subjectMap);
     if (subjectId.length >= 3) {
         subject = subjectMap[g1];
-        debug('subject level 1: %j', subject);
+        //debug('subject level 1: %j', subject);
     }
     if (subjectId.length >= 5) {
         subject = subject[g2];
-        debug('subject level 2: %j', subject);
+        //debug('subject level 2: %j', subject);
     }
     if (subjectId.length >= 7) {
         subject = subject[g3];
@@ -376,15 +376,11 @@ function objectToArray(obj) {
 }
 
 // 由指定参数获取路径，并读取文件
-function readFile(params, callback) {
-    var filePath = voucherFilePath(params);
-    var relativePath = path.relative(refPath.base + '/..', filePath);
+function readFile(relativePath, callback) {
+    //var filePath = voucherFilePath(params);
+    var filePath = path.join(__dirname, refPath.voucher, '..', relativePath);
     debug('file path: ' + filePath);
-    if (!filePath) {
-        callback({status: 'errParameter', target: '未知文件',
-            message: '缺少足够参数，无法读取文件'});
-        return;
-    }
+
     fs.readFile(filePath, function(err ,data) {
         if (err) {
             callback({status: 'errReadFile', target: relativePath,
@@ -476,7 +472,8 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
                 return;
             }
             var voucher = {id: candidates[i].voucher.id};
-            voucher.path = filePath;
+            var baseDir = path.join(__dirname, refPath.voucher, '..');
+            voucher.path = path.relative(baseDir,  filePath);
             debug('save path: ' + filePath);
             debug('voucher id: ' + candidates[i].voucher.id);
             db.save('figure', {id: candidates[i].id}, {voucher: voucher},
