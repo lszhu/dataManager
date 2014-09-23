@@ -79,8 +79,9 @@ function interval(from, to) {
 }
 
 // 向db指定的数据库中导入财务凭证数据
+// 回调函数格式为callback(message)
 function importFigures(db, filePath, projectName, year, callback) {
-    var basePath = require('../config').importPath;
+    var basePath = refPath.base;
     var fullPath = path.join(basePath, filePath);
     var filename = path.basename(fullPath, path.extname(fullPath));
     var importMsg = {
@@ -308,7 +309,7 @@ function pisList(figures, startDate) {
         return aggregated;
     }
 
-    // 计算没个子科目的期初数和积累
+    // 计算每个子科目的期初数和积累
     for (var i = 0, len = figures.length; i < len; i++) {
         id = figures[i].subjectId;
         if (!subjects.hasOwnProperty(id)) {
@@ -377,40 +378,45 @@ function objectToArray(obj) {
 // 由指定参数获取路径，并读取文件
 function readFile(params, callback) {
     var filePath = voucherFilePath(params);
+    var relativePath = path.relative(refPath.base + '/..', filePath);
     debug('file path: ' + filePath);
     if (!filePath) {
         callback({status: 'errParameter', target: '未知文件',
             message: '缺少足够参数，无法读取文件'});
+        return;
     }
     fs.readFile(filePath, function(err ,data) {
         if (err) {
-            callback({status: 'errReadFile', target: filePath,
+            callback({status: 'errReadFile', target: relativePath,
                 message: '无法读取文件'});
             return;
         }
-        callback({data: data, status: 'ok', target: filePath,
+        callback({data: data, status: 'ok', target: relativePath,
             message: '成功读取文件'});
     });
 }
 
-// 有传入对象的date, voucher, subjectId三个属性获取对应文件路径
+// 由传入对象的date, voucher, subjectId三个属性获取对应文件路径
 function voucherFilePath(params) {
     var date = new Date(params.date);
     date = (date.toString != 'Invalid Date')
         ? date.getFullYear().toString() : '';
-    debug('date: ' + date);
+    //debug('date: ' + date);
     var project = params.project;
-    debug('project: ' + project);
-    var voucher = decodeURIComponent(params.voucherId);
-    debug('voucher id: ' + voucher);
+    //debug('project: ' + project);
+    var voucherId = params.voucherId;
+    if (params.voucher && params.voucher.id) {
+        voucherId = params.voucher.id;
+    }
+    var voucher = decodeURIComponent(voucherId);
+    //debug('voucher id: ' + voucher);
     if (!date || !project || !voucher) {
         return '';
     }
-    debug('path: ' + path.join(__dirname, refPath.voucher,
-        date, project, voucher + '.pdf'));
+    //debug('path: ' + path.join(__dirname, refPath.voucher,
+    //    date, project, voucher + '.pdf'));
     return path.join(__dirname, refPath.voucher,
         date, project, voucher + '.pdf');
-    //return path.join(__dirname, refPath.voucher, 'cv1.pdf');
 }
 
 // 生成凭证唯一ID号
@@ -423,12 +429,121 @@ function figureId(row) {
     return parseInt(p1).toString(36) + parseInt(p2).toString(36);
 }
 
+// 将docs中的数据与凭证电子文件进行关联
+// 回调函数格式为callback(message)
+function voucherAutoBind(db, docs, alarm, rewrite, callback) {
+    //debug('docs: %j', docs);
+    var figures = docs.sort(function(a, b) {
+        if (a.voucher.id != b.voucher.id) {
+            return a.voucher.id > b.voucher.id ? 1 : -1;
+        }
+        if (a.date != b.date) {
+            return a.date > b.date ? 1 : -1;
+        }
+        if (a.project != b.project) {
+            return a.project > b.project ? 1 : -1;
+        }
+        if (a.subjectId != b.subjectId) {
+            return a.subjectId > b.subjectId ? 1 : -1;
+        }
+        return 0;
+    });
+    //debug('figures sorted: %j', figures);
+    figures = candidateFigure(figures);
+    //debug('figures classified: %j', figures);
+    var candidates = figures['candidates'];
+    var duplicates = figures['duplicates'];
+    var noVouchers = [];
+    var dbSaveErrs = [];
+    var count = 0;
+    var i, len, filePath;
+
+    function bindPath(i, filePath) {
+        return function(exist) {
+            if (!exist) {
+                if (!alarm || !candidates[i].voucher.path) {
+                    noVouchers.push(candidates[i]);
+                }
+                count--;
+                if (count == 0) {
+                    callback({
+                        duplicates: duplicates,
+                        noVouchers: noVouchers,
+                        dbSaveErrs: dbSaveErrs
+                    });
+                }
+                console.log('bind count without save: ' + count);
+                return;
+            }
+            var voucher = {id: candidates[i].voucher.id};
+            voucher.path = filePath;
+            debug('save path: ' + filePath);
+            debug('voucher id: ' + candidates[i].voucher.id);
+            db.save('figure', {id: candidates[i].id}, {voucher: voucher},
+                function(err) {
+                    if (err) {
+                        console.log('db write error: ' + JSON.stringify(err));
+                        if (!alarm || !candidates[i].voucher.path) {
+                            dbSaveErrs.push(candidates[i]);
+                        }
+                    }
+                    count--;
+                    console.log('bind count after save: ' + count);
+                    if (count == 0) {
+                        callback({
+                            duplicates: duplicates,
+                            noVouchers: noVouchers,
+                            dbSaveErrs: dbSaveErrs
+                        });
+                    }
+                });
+        };
+    }
+
+    for (i = 0, len = candidates.length; i < len; i++) {
+        if (candidates[i].voucher.path && !rewrite) {
+            continue;
+        }
+        filePath = voucherFilePath(candidates[i]);
+        debug('filePath: %s', filePath);
+        count++;
+        fs.exists(filePath, bindPath(i, filePath));
+    }
+    //callback({status: 'ok', message: '凭证电子文档与财务数据关联成功'});
+}
+
+function candidateFigure(figures) {
+    var candidates = [];
+    var duplicates = [];
+    var i, j;
+    var len = figures.length;
+    for (i = 0; i < len; i = j) {
+        for (j = i + 1; j < len; j++) {
+            if (figures[i].date != figures[j].date ||
+                figures[i].project != figures[j].project ||
+                figures[i].voucher.id != figures[j].voucher.id ||
+                figures[i].subjectId != figures[j].subjectId) {
+                break;
+            }
+        }
+        if (i + 1 == j) {
+            candidates.push(figures[i]);
+        } else {
+            duplicates.push(figures[i]);
+        }
+    }
+    return {candidates: candidates, duplicates: duplicates};
+}
 
 module.exports = {
+    subject: subjectMap,
     log: log,
     period: period,
     importFigures: importFigures,
     interval: interval,
+    figureId: figureId,
     pisList: pisList,
-    readFile: readFile
+    readFile: readFile,
+    objectToArray: objectToArray,
+    voucherAutoBind: voucherAutoBind
 };

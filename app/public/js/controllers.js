@@ -313,10 +313,11 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
             if (!isNaN($scope.figures[index].voucher.id)) {
                 return;
             }
-            var query = 'date=' + $scope.figures[index].date;
-            query += '&project=' + $scope.figures[index].project;
-            query += '&subjectId=' + $scope.figures[index].subjectId;
-            query += '&voucherId=' + $scope.figures[index].voucher.id;
+            //var query = 'date=' + $scope.figures[index].date;
+            //query += '&project=' + $scope.figures[index].project;
+            //query += '&subjectId=' + $scope.figures[index].subjectId;
+            //query += '&voucherId=' + $scope.figures[index].voucher.id;
+            var query = 'id=' + $scope.figures[index].id;
             open('/pdfShow?' + query, 'pdfShow',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
                     'scrollbars=1');
@@ -378,6 +379,9 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
                 //console.log('msgClass: ' + $scope.msgClass);
                 $scope.message = res.message;
+                if (!$scope.message) {
+                    $scope.message = '未知错误，请先退出后重新登录尝试';
+                }
                 $scope.subjectsRaw = res.data;
                 $scope.subjects = $scope.subjectsRaw.filter(function(e) {
                     return e.id.length <= $scope.grade * 2 + 1;
@@ -572,6 +576,72 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
         };
+    }
+]);
+
+mainFrameCtrl.controller('VoucherAutoBindCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.message = '';
+        $scope.msgClass = 'alert-success';
+        $scope.description = '';
+        $scope.onlyUnbound = true;
+        $scope.projectName = 'all';
+        $scope.subject = 'all';
+        $http.post('/queryProject', {}).success(function(res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projectsRaw = res.projects;
+            $scope.projects = res.projects;
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
+        $http.get('/subject').success(function(res) {
+            $scope.subjects = res;
+            $scope.subjectIds = Object.keys(res);
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
+        $scope.autoBind = function() {
+            //console.log('startDate: ' + $scope.startDate);
+            $http.post('/voucherAutoBind',{
+                dateFrom: $scope.dateFrom,
+                dateTo: $scope.dateTo,
+                timezone: (new Date()).getTimezoneOffset(),
+                project: $scope.projectName,
+                subject: $scope.subject,
+                onlyUnbound: $scope.onlyUnbound,
+                rewriteBound: $scope.rewriteBound
+            }).success(function(res) {
+                $scope.msgClass = res.status == 'ok' ?
+                    'alert-success' : 'alert-danger';
+                $scope.message = res.message ?
+                    res.message : '未知错误，请先退出后重新登录尝试';
+                $scope.noVouchers = res.data.noVouchers;
+                $scope.dbSaveErrs = res.data.dbSaveErrs;
+                $scope.duplicates = res.data.duplicates;
+                $scope.len1 = res.data.duplicates.length;
+                $scope.len2 = res.data.noVouchers.length;
+                $scope.len3 = res.data.dbSaveErrs.length;
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.toLocalDate = function(time) {
+            return (new Date(time)).toLocaleDateString();
+        }
+    }
+]);
+
+mainFrameCtrl.controller('VoucherManualBindCtrl', ['$scope',
+    function($scope) {
+        $scope.tmp = '';
     }
 ]);
 

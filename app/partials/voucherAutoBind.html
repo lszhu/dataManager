@@ -1,0 +1,132 @@
+<div>
+  <h1 class="page-header">财务凭证自动关联</h1>
+  <form class="form-horizontal" name="project" role="form" ng-submit="autoBind()">
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="projectName" class="col-sm-4 control-label">指定项目</label>
+        <div class="col-sm-8">
+          <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
+            <option value="all">不限</option>
+            <option ng-repeat="p in projects | filter: projectFilterKey">{{p.name}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" ng-model="projectFilterKey" placeholder="项目过滤关键词">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label for="subject" class="col-sm-4 control-label">指定科目</label>
+        <div class="col-sm-8">
+          <select class="form-control" ng-model="subject" name="subject" id="subject">
+            <option value="all">不限</option>
+            <option ng-repeat="s in subjectIds | filter: subjectFilterKey">{{s}}-{{subjects[s].name}}</option>
+          </select>
+        </div>
+      </div>
+      <div class="col-sm-3">
+        <input type="text" class="form-control" ng-model="subjectFilterKey" placeholder="科目过滤关键词">
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group col-sm-6">
+        <label class="col-sm-4 control-label">日期范围</label>
+        <label for="dateFrom" class="col-sm-1 control-label">从</label>
+        <div class="col-sm-7">
+          <input type="date" class="form-control" name="dateFrom" ng-model="dateFrom" id="dateFrom" placeholder="YYYY-MM-DD">
+        </div>
+      </div>
+      <div class="form-group col-sm-6">
+        <label for="dateTo" class="col-sm-1 control-label">到</label>
+        <div class="col-sm-7">
+          <input type="date" class="form-control" name="dateTo" ng-model="dateTo" id="dateTo" placeholder="YYYY-MM-DD">
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="form-group">
+        <label class="col-sm-2 control-label">关联控制</label>
+        <div class="checkbox col-sm-3">
+          <label>
+            <input type="checkbox" ng-model="onlyUnbound"> 不警示已关联条目
+          </label>
+        </div>
+        <div class="checkbox col-sm-3">
+          <label>
+            <input type="checkbox" ng-model="rewriteBound"> 覆盖已有关联设置
+          </label>
+        </div>
+      </div>
+    </div>
+
+
+    <div class="form-group">
+      <div class="col-sm-offset-2 col-sm-4">
+        <button type="submit" class="btn btn-primary btn-block">自动关联</button>
+      </div>
+    </div>
+
+  </form>
+
+  <div class="row">
+    <div class="col-md-8 col-md-offset-2" ng-show="message">
+      <div ng-class="msgClass" class="alert" role="alert">
+        <strong >{{message}}</strong>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel panel-danger" ng-show="len1 + len2 + len3 > 0">
+    <div class="panel-heading">
+      <h4 class="text-center">无法自动关联的凭证列表</h4>
+    </div>
+    <table class="table table-striped table-bordered" id="figures">
+      <thead>
+      <tr>
+        <th>序号</th>
+        <th>所属项目</th>
+        <th>记账日期</th>
+        <th>凭证号数</th>
+        <th>科目编码</th>
+        <th>科目名称</th>
+        <th>失败原因</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr ng-repeat="d in duplicates | filter: globalFilterKey">
+        <td>{{$index + 1}}</td>
+        <td>{{d.project}}</td>
+        <td>{{toLocalDate(d.date)}}</td>
+        <td>{{d.voucher.id}}</td>
+        <td>{{d.subjectId}}</td>
+        <td>{{d.subjectName}}</td>
+        <td>凭证号数重复</td>
+      </tr>
+      <tr ng-repeat="v in noVouchers">
+        <td>{{$index + len1 + 1}}</td>
+        <td>{{v.project}}</td>
+        <td>{{toLocalDate(v.date)}}</td>
+        <td>{{v.voucher.id}}</td>
+        <td>{{v.subjectId}}</td>
+        <td>{{v.subjectName}}</td>
+        <td>凭证电子文件不存在</td>
+      </tr>
+      <tr ng-repeat="e in dbSaveErrs | filter: globalFilterKey">
+        <td>{{$index + len1 + len2 + 1}}</td>
+        <td>{{e.project}}</td>
+        <td>{{toLocalDate(e.date)}}</td>
+        <td>{{e.voucher.id}}</td>
+        <td>{{e.subjectId}}</td>
+        <td>{{e.subjectName}}</td>
+        <td>数据库读写故障</td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>

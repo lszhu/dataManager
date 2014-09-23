@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 var util = require('util');
 var path = require('path');
+var fs = require('fs');
 
 // for debug
 var debug = require('debug')('route');
@@ -55,6 +56,11 @@ router.all('/logout', function(req, res) {
     res.redirect('/login');
 });
 
+// get subject list include id and name
+router.get('/subject', function(req, res) {
+    res.send(tool.subject);
+});
+
 // for showing pdf in browser
 router.get('/pdfShow', function(req, res) {
     //res.send('ok');
@@ -65,20 +71,37 @@ router.get('/pdf', function(req, res) {
     var logMsg = {
         operator: req.session.user.username,
         operation: '查看pdf文档',
-        target: '',
+        target: '财务凭证数据库',
         comment: '',
-        status: '成功'
+        status: '失败'
     };
     debug('process pdf');
-    tool.readFile(req.query, function(data) {
-        logMsg.target = data.target;
-        if (data.status != 'ok') {
+
+    db.queryOne('figure', {id: req.query.id}, function(err, doc) {
+        if (err) {
+            tool.log(db, logMsg, '数据库访问失败');
             res.send('');
-            tool.log(db, logMsg, data.msg, '失败');
+            console.log('database access error');
             return;
         }
-        res.send(data.data);
-        tool.log(db, logMsg, data.msg);
+        if (!doc || !doc.voucher || !doc.voucher.path) {
+            tool.log(db, logMsg, '未找到关联的电子文档信息');
+            res.send('');
+            console.log('can not fine voucher file');
+            return;
+        }
+        debug('voucher path: ' + doc.voucher.path);
+        fs.readFile(doc.voucher.path, function(err, data) {
+            logMsg.target = data.target;
+            if (err) {
+                res.send('');
+                tool.log(db, logMsg, '读取凭证电子文档出错');
+                console.log('read voucher file error.');
+                return;
+            }
+            res.send(data);
+            tool.log(db, logMsg, data.message);
+        });
     });
 });
 
@@ -352,6 +375,55 @@ router.post('/importFigure', function(req, res) {
             tool.log(db, logMsg, msg.comment, msg.result);
         });
     }
+});
+
+router.post('/voucherAutoBind', function(req, res) {
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+    var condition = tool.period(req.body.dateFrom, req.body.dateTo,
+        delta, req.body.timezone);
+    condition = condition ? condition : {};
+    if (req.body.project && req.body.project != 'all') {
+        condition.project = req.body.project;
+    }
+    if (req.body.subject && req.body.subject != 'all') {
+        condition.subjectId = req.body.subject;
+    }
+
+    var alarm = req.body.onlyUnbound;
+    var rewrite = req.body.rewriteBound;
+
+    db.query('figure', condition, function(err, docs) {
+        var logMsg = {
+            operator: req.session.user.username,
+            operation: '财务凭证电子文件关联',
+            target: '财务凭证数据库',
+            comment: '部分数据无法关联到相应凭证的电子文件',
+            status: '失败'
+        };
+        if (err) {
+            res.send({status: 'dbErr', message: '数据库访问故障'});
+            tool.log(db, logMsg, '数据库访问故障');
+        }
+        var filtered = [];
+        // filter vouche.id = 10000 whiche has no voucher
+        for (var i = 0, len = docs.length; i < len; i++) {
+            if (docs[i].voucher.id != '10000') {
+                filtered.push(docs[i]);
+            }
+        }
+        tool.voucherAutoBind(db, filtered, alarm, rewrite, function(data) {
+            if (!data.duplicates.length && !data.noVouchers.length &&
+                !data.dbSaveErrs.length) {
+                res.send({status: 'ok',
+                    message: '财务数据与凭证电子文件关联成功'});
+                tool.log(db, logMsg, '财务数据与凭证电子文件关联成功', '成功');
+                return;
+            }
+            res.send({status: 'bindErr', message: logMsg.comment, data: data});
+            tool.log(db, logMsg);
+        });
+    });
 });
 
 module.exports = router;
