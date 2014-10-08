@@ -9,8 +9,12 @@ module.exports = function(config){
       'app/bower_components/angular-resource/angular-resource.js',
       'app/bower_components/angular-animate/angular-animate.js',
       'app/bower_components/angular-mocks/angular-mocks.js',
-      'app/js/**/*.js',
+      'app/public/js/*.js',
       'test/unit/**/*.js'
+    ],
+
+    exclude: [
+      'app/public/js/pdfViewer.js'
     ],
 
     autoWatch : true,
