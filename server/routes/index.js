@@ -402,7 +402,7 @@ router.post('/voucherAutoBind', function(req, res) {
             tool.log(db, logMsg, '数据库访问故障');
         }
         var filtered = [];
-        // filter vouche.id = 10000 whiche has no voucher
+        // filter voucher.id = 10000 which has no voucher
         for (var i = 0, len = docs.length; i < len; i++) {
             if (docs[i].voucher.id != '10000') {
                 filtered.push(docs[i]);

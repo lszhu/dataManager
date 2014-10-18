@@ -392,13 +392,19 @@ function readFile(relativePath, callback) {
     });
 }
 
-// 由传入对象的date, voucher, subjectId三个属性获取对应文件路径
+// 由传入对象的date, voucher属性获取对应文件路径
 function voucherFilePath(params) {
     var date = new Date(params.date);
-    date = (date.toString != 'Invalid Date')
-        ? date.getFullYear().toString() : '';
+    if (date.toString != 'Invalid Date') {
+        var year = date.getFullYear.toString();
+        var month = date.getMonth + 1;
+        month = month > 9 ? '' + month : '0' + month;
+        date = year + '/' + month;
+    } else {
+        date = '';
+    }
     //debug('date: ' + date);
-    var project = params.project;
+    //var project = params.project;
     //debug('project: ' + project);
     var voucherId = params.voucherId;
     if (params.voucher && params.voucher.id) {
@@ -406,13 +412,14 @@ function voucherFilePath(params) {
     }
     var voucher = decodeURIComponent(voucherId);
     //debug('voucher id: ' + voucher);
-    if (!date || !project || !voucher) {
+    if (!date || !voucher) {
         return '';
     }
+    return path.join(__dirname, refPath.voucher, date, voucher + '.pdf');
     //debug('path: ' + path.join(__dirname, refPath.voucher,
     //    date, project, voucher + '.pdf'));
-    return path.join(__dirname, refPath.voucher,
-        date, project, voucher + '.pdf');
+    //return path.join(__dirname, refPath.voucher,
+    //    date, project, voucher + '.pdf');
 }
 
 // 生成凭证唯一ID号
@@ -428,6 +435,88 @@ function figureId(row) {
 // 将docs中的数据与凭证电子文件进行关联
 // 回调函数格式为callback(message)
 function voucherAutoBind(db, docs, alarm, rewrite, callback) {
+    //debug('docs: %j', docs);
+    //var figures = docs.sort(function(a, b) {
+    //    if (a.voucher.id != b.voucher.id) {
+    //        return a.voucher.id > b.voucher.id ? 1 : -1;
+    //    }
+    //    if (a.date != b.date) {
+    //        return a.date > b.date ? 1 : -1;
+    //    }
+    //    if (a.project != b.project) {
+    //        return a.project > b.project ? 1 : -1;
+    //    }
+    //    if (a.subjectId != b.subjectId) {
+    //        return a.subjectId > b.subjectId ? 1 : -1;
+    //    }
+    //    return 0;
+    //});
+    //debug('figures sorted: %j', figures);
+    //figures = candidateFigure(figures);
+    //debug('figures classified: %j', figures);
+    //var candidates = figures['candidates'];
+    //var duplicates = figures['duplicates'];
+    var noVouchers = [];
+    var dbSaveErrs = [];
+    var count = 0;
+    var i, len, filePath;
+    for (i = 0, len = docs.length; i < len; i++) {
+        if (docs[i].voucher.path && !rewrite) {
+            continue;
+        }
+        filePath = voucherFilePath(docs[i]);
+        debug('filePath: %s', filePath);
+        count++;
+        fs.exists(filePath, bindPath(i, filePath));
+    }
+
+    function bindPath(i, filePath) {
+        return function(exist) {
+            if (!exist) {
+                if (!alarm || !candidates[i].voucher.path) {
+                    noVouchers.push(candidates[i]);
+                }
+                count--;
+                if (count == 0) {
+                    callback({
+                        duplicates: duplicates,
+                        noVouchers: noVouchers,
+                        dbSaveErrs: dbSaveErrs
+                    });
+                }
+                console.log('bind count without save: ' + count);
+                return;
+            }
+            var voucher = {id: candidates[i].voucher.id};
+            var baseDir = path.join(__dirname, refPath.voucher, '..');
+            voucher.path = path.relative(baseDir,  filePath);
+            debug('save path: ' + filePath);
+            debug('voucher id: ' + candidates[i].voucher.id);
+            db.save('figure', {id: candidates[i].id}, {voucher: voucher},
+                function(err) {
+                    if (err) {
+                        console.log('db write error: ' + JSON.stringify(err));
+                        if (!alarm || !candidates[i].voucher.path) {
+                            dbSaveErrs.push(candidates[i]);
+                        }
+                    }
+                    count--;
+                    console.log('bind count after save: ' + count);
+                    if (count == 0) {
+                        callback({
+                            duplicates: duplicates,
+                            noVouchers: noVouchers,
+                            dbSaveErrs: dbSaveErrs
+                        });
+                    }
+                });
+        };
+    }
+}
+
+// 将docs中的数据与凭证电子文件进行关联
+// 回调函数格式为callback(message)
+function voucherAutoBindBk(db, docs, alarm, rewrite, callback) {
     //debug('docs: %j', docs);
     var figures = docs.sort(function(a, b) {
         if (a.voucher.id != b.voucher.id) {
@@ -509,6 +598,7 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
     //callback({status: 'ok', message: '凭证电子文档与财务数据关联成功'});
 }
 
+// 用于过滤有多个条目凭证ID相同的情况，该功能暂不使用
 function candidateFigure(figures) {
     var candidates = [];
     var duplicates = [];

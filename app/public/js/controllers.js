@@ -309,8 +309,13 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
                 !$scope.queryCondition.amountTo.$valid;
         };
 
+        $scope.hasVoucher = function(index) {
+            var voucher = $scope.figures[index].voucher.path;
+            return voucher != '' && voucher != undefined;
+        };
+
         $scope.showVoucher = function(index) {
-            if (!isNaN($scope.figures[index].voucher.id)) {
+            if (!$scope.hasVoucher(index)) {
                 return;
             }
             //var query = 'date=' + $scope.figures[index].date;
@@ -322,13 +327,6 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
                     'scrollbars=1');
         };
-
-        $scope.isVoucher = function(id) {
-            if (isNaN(id)) {
-                return 'pointer';
-            }
-            return '';
-        }
     }
 ]);
 

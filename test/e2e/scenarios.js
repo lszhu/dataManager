@@ -4,100 +4,75 @@
 
 describe('Cheque System', function() {
 
-
-  it('should redirect index.html to index.html#/phones', function() {
-    browser.get('/login');
-    browser.getLocationAbsUrl().then(function(url) {
-        expect(url.split('23456')[1]).toBe('/login');
-      });
-  });
-
-     /*
-  describe('Phone list view', function() {
-
-    beforeEach(function() {
-      browser.get('#/phones');
-    });
-
-
-    it('should filter the phone list as user types into the search box', function() {
-
-      var phoneList = element.all(by.repeater('phone in phones'));
-      var query = element(by.model('query'));
-
-      expect(phoneList.count()).toBe(20);
-
-      query.sendKeys('nexus');
-      expect(phoneList.count()).toBe(1);
-
-      query.clear();
-      query.sendKeys('motorola');
-      expect(phoneList.count()).toBe(8);
-    });
-
-
-    it('should be possible to control phone order via the drop down select box', function() {
-
-      var phoneNameColumn = element.all(by.repeater('phone in phones').column('{{phone.name}}'));
-      var query = element(by.model('query'));
-
-      function getNames() {
-        return phoneNameColumn.map(function(elm) {
-          return elm.getText();
+    it('should login ok', function() {
+        browser.driver.manage().window().setSize(1200, 900);
+        browser.get('/login');
+        $('input[name=username]').sendKeys('admin');
+        $('input[name=password]').sendKeys('admin');
+        $('button').click();
+        browser.getLocationAbsUrl().then(function(url) {
+            expect(url.split('#')[1]).toBe('/');
         });
-      }
-
-      query.sendKeys('tablet'); //let's narrow the dataset to make the test assertions shorter
-
-      expect(getNames()).toEqual([
-        "Motorola XOOM\u2122 with Wi-Fi",
-        "MOTOROLA XOOM\u2122"
-      ]);
-
-      element(by.model('orderProp')).element(by.css('option[value="name"]')).click();
-
-      expect(getNames()).toEqual([
-        "MOTOROLA XOOM\u2122",
-        "Motorola XOOM\u2122 with Wi-Fi"
-      ]);
     });
 
-
-    it('should render phone specific links', function() {
-      var query = element(by.model('query'));
-      query.sendKeys('nexus');
-      element.all(by.css('.phones li a')).first().click();
-      browser.getLocationAbsUrl().then(function(url) {
-        expect(url.split('#')[1]).toBe('/phones/nexus-s');
-      });
+    it('should open online help', function() {
+        browser.get('#/');
+        $$('a[href$=guide]').get(1).click();
+        expect($('.main h1').getText())
+            .toBe('财务档案系统操作指南');
     });
-  });
+});
 
+describe('log query', function() {
+    //beforeEach(function() {
+    //    browser.get('/login');
+    //    $('input[name=username]').sendKeys('admin');
+    //    $('input[name=password]').sendKeys('admin');
+    //    $('button').click();
+    //});
 
-  describe('Phone detail view', function() {
-
-    beforeEach(function() {
-      browser.get('#/phones/nexus-s');
-    });
-
-
-    it('should display nexus-s page', function() {
-      expect(element(by.binding('phone.name')).getText()).toBe('Nexus S');
+    it('should open log query page', function() {
+        browser.get('#/maintain/logReport');
+        expect(element.all(by.repeater('log in logMsgs')).count()).toBe(0);
     });
 
-
-    it('should display the first phone image as the main phone image', function() {
-      expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.0.jpg/);
+    it('should list many log items', function() {
+        browser.get('#/maintain/logReport');
+        //var startDate = element(by.model('startDate'));
+        //startDate.sendKeys('08-20-2014');
+        //element(by.model('startDate')).sendKeys(new Date('2014-08-20'));
+        //element(by.model('endDate')).sendKeys('2014-09-30');
+        browser.executeScript(
+            'document.getElementById("startDate").value="2014-08-15"');
+        browser.executeScript(
+            'document.getElementById("endDate").value="2014-08-20"');
+        element(by.partialButtonText('查 询')).click();
+        expect(element.all(by.repeater('log in logMsgs')).count())
+            .toBeGreaterThan(10);
     });
 
-
-    it('should swap main image if a thumbnail image is clicked on', function() {
-      element(by.css('.phone-thumbs li:nth-child(3) img')).click();
-      expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.2.jpg/);
-
-      element(by.css('.phone-thumbs li:nth-child(1) img')).click();
-      expect(element(by.css('img.phone.active')).getAttribute('src')).toMatch(/img\/phones\/nexus-s.0.jpg/);
+    it('should only list log items with ok status', function() {
+        browser.get('#/maintain/logReport');
+        element(by.model('status')).sendKeys('成功');
+        element(by.partialButtonText('查 询')).click();
+        var status = null;
+        status = element
+            .all(by.repeater('log in logMsgs').column('{{log.status}}'))
+            .filter(function(e, i) {
+                return e.getText().then(function(text) {
+                    return text != '成功';
+                });
+            });
+        expect(status[0]).toBeUndefined();
     });
-  });
-    */
+});
+
+describe('after logout cheque system', function() {
+    it('should redirect to login page', function() {
+        $('a[href$=logout]').click();
+        browser.get('#/');
+        browser.getLocationAbsUrl().then(function(url) {
+            expect(url).toMatch(/login#\/$/);
+        });
+    });
 });
