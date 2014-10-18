@@ -276,6 +276,15 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
         $scope.message = '';
         $scope.msgClass = 'alert-success';
         $scope.description = '';
+        // 将时间范围初始化为当年的1月1日至查询当天
+        var time = new Date();
+        var year = time.getFullYear();
+        $scope.dateFrom = year + '-01-01';
+        var month = time.getMonth() + 1;
+        month = month > 9 ? month : '0' + month;
+        var day = time.getDate();
+        day = day > 9 ? day : '0' + day;
+        $scope.dateTo = year + '-' + month + '-' + day;
 
         $scope.queryVoucher = function() {
             //console.log('startDate: ' + $scope.startDate);
@@ -351,9 +360,18 @@ mainFrameCtrl.controller('QueryKeyCtrl', ['$scope',
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
     function($scope, $http, filterFilter) {
         $scope.grade = 1;
-        $scope.showSubject = false;
+        $scope.showSubject = true;
         $scope.showMsg = false;
         $scope.subjectsRaw = [];
+        // 将时间范围初始化为当年的1月1日至查询当天
+        var time = new Date();
+        var year = time.getFullYear();
+        $scope.dateFrom = year + '-01-01';
+        var month = time.getMonth() + 1;
+        month = month > 9 ? month : '0' + month;
+        var day = time.getDate();
+        day = day > 9 ? day : '0' + day;
+        $scope.dateTo = year + '-' + month + '-' + day;
 
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
@@ -579,6 +597,16 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
 
 mainFrameCtrl.controller('VoucherAutoBindCtrl', ['$scope', '$http',
     function($scope, $http) {
+        // 将时间范围初始化为当年的1月1日至查询当天
+        var time = new Date();
+        var year = time.getFullYear();
+        $scope.dateFrom = year + '-01-01';
+        var month = time.getMonth() + 1;
+        month = month > 9 ? month : '0' + month;
+        var day = time.getDate();
+        day = day > 9 ? day : '0' + day;
+        $scope.dateTo = year + '-' + month + '-' + day;
+
         $scope.message = '';
         $scope.msgClass = 'alert-success';
         $scope.description = '';

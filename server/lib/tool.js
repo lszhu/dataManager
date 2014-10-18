@@ -260,7 +260,7 @@ function figureList(sheets, projectName, year) {
 // 生成pis报表的数据，以数组方式返回
 function pisList(figures, startDate) {
     var subjects = {};
-    var id, init, end;
+    var id, init, end, amount, credit, debit;
 
     // 分析每行数据的内容，以适当处理
     function classifyRow(row, date) {
@@ -281,7 +281,7 @@ function pisList(figures, startDate) {
         return {status: 'ok', type: point, value: sum};
     }
 
-    // 汇总子科目到上一级科目中
+    // 汇总子科目到上一级科目中，直到一级科目，生成科目列表并初始化或汇总相关数据
     function aggregateSubject(subjects) {
         var aggregated = {};
         var attr, newId;
@@ -296,12 +296,17 @@ function pisList(figures, startDate) {
                     if (aggregated.hasOwnProperty(newId)) {
                         aggregated[newId].init += subjects[attr].init;
                         aggregated[newId].end += subjects[attr].end;
+                        aggregated[newId].credit += subjects[attr].credit;
+                        aggregated[newId].debit += subjects[attr].debit;
                     } else {
                         aggregated[newId] = {
                             id: newId,
                             name: lookupSubject(newId).name,
                             init: subjects[attr].init,
-                            end: subjects[attr].end};
+                            end: subjects[attr].end,
+                            credit: subjects[attr].credit,
+                            debit: subjects[attr].debit
+                        };
                     }
                 }
             }
@@ -309,14 +314,16 @@ function pisList(figures, startDate) {
         return aggregated;
     }
 
-    // 计算每个子科目的期初数和积累
+    // 计算每个子科目的期初数、积累、借方累计、贷方累计
     for (var i = 0, len = figures.length; i < len; i++) {
         id = figures[i].subjectId;
         if (!subjects.hasOwnProperty(id)) {
             subjects[id] = {id: id, name: figures[i].subjectName,
-                init: 0, end: 0};
+                init: 0, end: 0, credit: 0, debit: 0};
         }
-        if (figures[i].voucher.id == '10000') {
+        if (figures[i].voucher.id == '10000' &&
+            figures[i].date.getFullYear() == startDate.getFullYear()) {
+            debug('add balance from last year');
             subjects[id].init += figures[i].balance;
             continue;
         }
@@ -325,10 +332,14 @@ function pisList(figures, startDate) {
             return result;
         }
         subjects[id][result.type] += result.value;
+        subjects[id]['credit'] += figures[i]['credit'];
+        subjects[id]['debit'] += figures[i]['debit'];
     }
 
     var aggregated = objectToArray(aggregateSubject(subjects));
+    //debug('aggregated: ' + JSON.stringify(aggregated));
     subjects = objectToArray(subjects);
+    //debug('subjects: ' + JSON.stringify(subjects));
     subjects = aggregated.concat(subjects).sort(function(a, b) {
         return a.id < b.id ? -1 : 1;
     });
