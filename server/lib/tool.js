@@ -477,6 +477,8 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
 
     function bindPath(i, filePath) {
         return function(exist) {
+            var voucher = {id: docs[i].voucher.id};
+            voucher.path = '';
             if (!exist) {
                 if (!alarm || !docs[i].voucher.path) {
                     noVouchers.push(docs[i]);
@@ -488,12 +490,12 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
                         dbSaveErrs: dbSaveErrs
                     });
                 }
-                console.log('bind count without save: ' + count);
-                return;
+                console.log('bind count without vouchers: ' + count);
+            } else {
+                var baseDir = path.join(__dirname, refPath.voucher, '..');
+                voucher.path = path.relative(baseDir,  filePath);
             }
-            var voucher = {id: docs[i].voucher.id};
-            var baseDir = path.join(__dirname, refPath.voucher, '..');
-            voucher.path = path.relative(baseDir,  filePath);
+
             debug('save path: ' + filePath);
             debug('voucher id: ' + docs[i].voucher.id);
             db.save('figure', {id: docs[i].id}, {voucher: voucher},
