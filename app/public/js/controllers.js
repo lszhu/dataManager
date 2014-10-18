@@ -621,8 +621,8 @@ mainFrameCtrl.controller('VoucherAutoBindCtrl', ['$scope', '$http',
                     res.message : '未知错误，请先退出后重新登录尝试';
                 $scope.noVouchers = res.data.noVouchers;
                 $scope.dbSaveErrs = res.data.dbSaveErrs;
-                $scope.duplicates = res.data.duplicates;
-                $scope.len1 = res.data.duplicates.length;
+                //$scope.duplicates = res.data.duplicates;
+                //$scope.len1 = res.data.duplicates.length;
                 $scope.len2 = res.data.noVouchers.length;
                 $scope.len3 = res.data.dbSaveErrs.length;
             }).error(function(res) {

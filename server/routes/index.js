@@ -378,13 +378,14 @@ router.post('/voucherAutoBind', function(req, res) {
     var delta = 24 * 60 * 60 * 1000 - 1;
     var condition = tool.period(req.body.dateFrom, req.body.dateTo,
         delta, req.body.timezone);
-    condition = condition ? condition : {};
+    condition = condition ? {date: condition} : {};
     if (req.body.project && req.body.project != 'all') {
         condition.project = req.body.project;
     }
     if (req.body.subject && req.body.subject != 'all') {
         condition.subjectId = req.body.subject;
     }
+    debug('condition: ' + JSON.stringify(condition));
 
     var alarm = req.body.onlyUnbound;
     var rewrite = req.body.rewriteBound;
@@ -400,6 +401,7 @@ router.post('/voucherAutoBind', function(req, res) {
         if (err) {
             res.send({status: 'dbErr', message: '数据库访问故障'});
             tool.log(db, logMsg, '数据库访问故障');
+            return;
         }
         var filtered = [];
         // filter voucher.id = 10000 which has no voucher
@@ -409,8 +411,7 @@ router.post('/voucherAutoBind', function(req, res) {
             }
         }
         tool.voucherAutoBind(db, filtered, alarm, rewrite, function(data) {
-            if (!data.duplicates.length && !data.noVouchers.length &&
-                !data.dbSaveErrs.length) {
+            if (!data.noVouchers.length && !data.dbSaveErrs.length) {
                 res.send({status: 'ok',
                     message: '财务数据与凭证电子文件关联成功'});
                 tool.log(db, logMsg, '财务数据与凭证电子文件关联成功', '成功');

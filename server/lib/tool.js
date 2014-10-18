@@ -393,13 +393,16 @@ function readFile(relativePath, callback) {
 }
 
 // 由传入对象的date, voucher属性获取对应文件路径
+// 路径格式为：配置的凭证路径/年/月/凭证对于pdf文件
 function voucherFilePath(params) {
     var date = new Date(params.date);
-    if (date.toString != 'Invalid Date') {
-        var year = date.getFullYear.toString();
-        var month = date.getMonth + 1;
+    var year = '';
+    var month = '';
+    if (date.toString() != 'Invalid Date') {
+        year = date.getFullYear().toString();
+        month = date.getMonth() + 1;
         month = month > 9 ? '' + month : '0' + month;
-        date = year + '/' + month;
+        date = year + month;
     } else {
         date = '';
     }
@@ -411,11 +414,13 @@ function voucherFilePath(params) {
         voucherId = params.voucher.id;
     }
     var voucher = decodeURIComponent(voucherId);
+    voucher = voucher.replace('-', '');
     //debug('voucher id: ' + voucher);
     if (!date || !voucher) {
         return '';
     }
-    return path.join(__dirname, refPath.voucher, date, voucher + '.pdf');
+    return path.join(__dirname, refPath.voucher, year, month,
+        date + '-' + voucher + '.pdf');
     //debug('path: ' + path.join(__dirname, refPath.voucher,
     //    date, project, voucher + '.pdf'));
     //return path.join(__dirname, refPath.voucher,
@@ -473,13 +478,12 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
     function bindPath(i, filePath) {
         return function(exist) {
             if (!exist) {
-                if (!alarm || !candidates[i].voucher.path) {
-                    noVouchers.push(candidates[i]);
+                if (!alarm || !docs[i].voucher.path) {
+                    noVouchers.push(docs[i]);
                 }
                 count--;
                 if (count == 0) {
                     callback({
-                        duplicates: duplicates,
                         noVouchers: noVouchers,
                         dbSaveErrs: dbSaveErrs
                     });
@@ -487,24 +491,23 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
                 console.log('bind count without save: ' + count);
                 return;
             }
-            var voucher = {id: candidates[i].voucher.id};
+            var voucher = {id: docs[i].voucher.id};
             var baseDir = path.join(__dirname, refPath.voucher, '..');
             voucher.path = path.relative(baseDir,  filePath);
             debug('save path: ' + filePath);
-            debug('voucher id: ' + candidates[i].voucher.id);
-            db.save('figure', {id: candidates[i].id}, {voucher: voucher},
+            debug('voucher id: ' + docs[i].voucher.id);
+            db.save('figure', {id: docs[i].id}, {voucher: voucher},
                 function(err) {
                     if (err) {
                         console.log('db write error: ' + JSON.stringify(err));
-                        if (!alarm || !candidates[i].voucher.path) {
-                            dbSaveErrs.push(candidates[i]);
+                        if (!alarm || !docs[i].voucher.path) {
+                            dbSaveErrs.push(docs[i]);
                         }
                     }
                     count--;
                     console.log('bind count after save: ' + count);
                     if (count == 0) {
                         callback({
-                            duplicates: duplicates,
                             noVouchers: noVouchers,
                             dbSaveErrs: dbSaveErrs
                         });
