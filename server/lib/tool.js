@@ -494,13 +494,13 @@ function voucherAutoBind(db, docs, alarm, rewrite, callback) {
                 if (!alarm || !docs[i].voucher.path) {
                     noVouchers.push(docs[i]);
                 }
-                count--;
-                if (count == 0) {
-                    callback({
-                        noVouchers: noVouchers,
-                        dbSaveErrs: dbSaveErrs
-                    });
-                }
+                //count--;
+                //if (count == 0) {
+                //    callback({
+                //        noVouchers: noVouchers,
+                //        dbSaveErrs: dbSaveErrs
+                //    });
+                //}
                 console.log('bind count without vouchers: ' + count);
             } else {
                 var baseDir = path.join(__dirname, refPath.voucher, '..');
