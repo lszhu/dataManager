@@ -359,7 +359,7 @@ mainFrameCtrl.controller('QueryKeyCtrl', ['$scope',
 
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
     function($scope, $http, filterFilter) {
-        $scope.grade = 1;
+        $scope.grade = 4;
         $scope.showSubject = true;
         $scope.showMsg = false;
         $scope.subjectsRaw = [];
@@ -705,6 +705,16 @@ mainFrameCtrl.controller('groupManageCtrl', ['$scope',
 
 mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
     function($scope, $http) {
+        // 将时间范围初始化为当年的1月1日至查询当天
+        var time = new Date();
+        var year = time.getFullYear();
+        $scope.dateFrom = year + '-01-01';
+        var month = time.getMonth() + 1;
+        month = month > 9 ? month : '0' + month;
+        var day = time.getDate();
+        day = day > 9 ? day : '0' + day;
+        $scope.dateTo = year + '-' + month + '-' + day;
+
         $scope.message = '';
         $scope.msgClass = 'alert-success';
         $scope.name = '';
@@ -712,8 +722,8 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
         $scope.logReport = function() {
             //console.log('startDate: ' + $scope.startDate);
             $http.post('/logReport',{
-                startDate: $scope.startDate,
-                endDate: $scope.endDate,
+                startDate: $scope.dateFrom,
+                endDate: $scope.dateTo,
                 timezone: (new Date()).getTimezoneOffset(),
                 operator: $scope.operator,
                 operation: $scope.operation,

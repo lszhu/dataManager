@@ -69,6 +69,8 @@ function createModels() {
         id: String,
         name: String,
         description: String,
+        parent: String,
+        children: [String],
         contract: [{
             id: String,
             name: String,

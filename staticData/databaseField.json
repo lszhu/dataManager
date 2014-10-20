@@ -40,6 +40,8 @@
         "id": "项目编号",
         "name": "项目名称",
         "description": "项目摘要",
+        "parent": "父项目名",
+        "children": "子项目名称列表",
         "contract": {
             "id": "合同编号",
             "name": "合同名称",
