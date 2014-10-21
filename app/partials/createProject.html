@@ -33,30 +33,59 @@
       <div class="panel panel-info">
         <div class="panel-heading"><strong>项目隶属关系</strong></div>
         <div class="panel-body">
-          <div class="row">
-            <div class="form-group col-sm-7">
-              <label for="parentProject" class="col-sm-4 control-label">父项目名称</label>
-              <div class="col-sm-8">
-                <select class="form-control" ng-model="parentProject" name="parentProject" id="parentProject">
-                  <option value="all">不限</option>
-                  <option ng-repeat="p in projects | filter: projectFilterKey">{{p.name}}</option>
-                </select>
-              </div>
-            </div>
-            <div class="col-sm-3">
-              <input type="text" class="form-control" ng-model="parentFilterKey" placeholder="项目过滤关键词">
+          <div class="form-group col-sm-8">
+            <label for="parentProject" class="col-sm-4 control-label">父项目名称</label>
+            <div class="col-sm-8">
+              <select class="form-control" ng-model="parentProject" name="parentProject" id="parentProject">
+                <option value="">无</option>
+                <option ng-repeat="p in projects | filter: parentFilterKey">{{p.name}}</option>
+              </select>
             </div>
           </div>
-          <div class="row">
-            <div class="form-group col-sm-7">
-              <label class="col-sm-4 control-label">子项目名称</label>
-              <div class="col-sm-8">
-                <button type="button" class="btn btn-default btn-block">
-                  选择子项目
-                  <span class="caret"></span>
-                </button>
-              </div>
+          <div class="col-sm-3">
+            <input type="text" class="form-control" ng-model="parentFilterKey" placeholder="项目过滤关键词">
+          </div>
+          <div class="form-group col-sm-8">
+            <label class="col-sm-4 control-label">子项目名称</label>
+            <div class="col-sm-8">
+              <!-- 用于打开模式对话框 -->
+              <button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#projectList">
+                选择子项目
+                <span class="caret"></span>
+              </button>
             </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 选择子项目模式对话框 -->
+    <div class="modal fade" id="projectList" tabindex="-1" role="dialog" aria-labelledby="projectListLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" ng-click="cancelSelection()" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <div class="col-sm-6 col-sm-offset-2 text-center" id="projectListLabel">
+              <h4><strong>项目列表</strong></h4>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" ng-model="childrenFilterKey" placeholder="项目过滤关键词">
+            </div>
+            <div><br></div>
+          </div>
+          <div class="modal-body">
+            <div class="col-sm-4" ng-repeat="project in projects | filter: childrenFilterKey">
+              <label><input type="checkbox" ng-model="childrenProject[project.name]">&nbsp;{{project.name}}</label>
+            </div>&nbsp;
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-2 col-sm-offset-8">
+              <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="selectChildren()">确&nbsp;定</button>
+            </div>
+            <div class="col-sm-2">
+              <button type="button" class="btn btn-primary btn-block" data-dismiss="modal" ng-click="cancelSelection()">取&nbsp;消</button>
+            </div>
+
           </div>
         </div>
       </div>
@@ -64,7 +93,7 @@
 
     <div class="form-group">
       <div class="col-sm-offset-3 col-sm-4">
-        <button type="button" ng-disabled="!project.name.$valid" class="btn btn-primary btn-block">创&nbsp;&nbsp;建</button>
+        <button type="submit" class="btn btn-primary btn-block" ng-disabled="!project.name.$valid">创&nbsp;&nbsp;建</button>
       </div>
     </div>
 

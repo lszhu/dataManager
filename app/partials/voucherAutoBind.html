@@ -2,42 +2,44 @@
   <h1 class="page-header">财务凭证自动关联</h1>
   <form class="form-horizontal" name="project" role="form" ng-submit="autoBind()">
 
-
-      <div class="form-group col-sm-12">
-        <label for="projectName" class="col-sm-2 control-label">指定项目</label>
-        <div class="col-sm-4">
+    <div class="form-group col-sm-12">
+      <label for="projectName" class="col-sm-2 control-label">指定项目</label>
+      <div class="col-sm-9">
+        <div class="col-sm-6">
           <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
             <option value="all">不限</option>
             <option ng-repeat="p in projects | filter: projectFilterKey">{{p.name}}</option>
           </select>
         </div>
-      <div class="col-sm-3 col-sm-offset-1">
-        <input type="text" class="form-control" ng-model="projectFilterKey" placeholder="项目过滤关键词">
-      </div>
-</div>
-
-      <div class="form-group col-sm-12">
-        <label for="subject" class="col-sm-2 control-label">指定科目</label>
         <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="projectFilterKey" placeholder="项目过滤关键词">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group col-sm-12">
+      <label for="subject" class="col-sm-2 control-label">指定科目</label>
+      <div class="col-sm-9">
+        <div class="col-sm-6">
           <select class="form-control" ng-model="subject" name="subject" id="subject">
             <option value="all">不限</option>
             <option ng-repeat="s in subjectIds | filter: subjectFilterKey">{{s}}-{{subjects[s].name}}</option>
           </select>
         </div>
-      <div class="col-sm-3 col-sm-offset-1">
-        <input type="text" class="form-control" ng-model="subjectFilterKey" placeholder="科目过滤关键词">
+        <div class="col-sm-4">
+          <input type="text" class="form-control" ng-model="subjectFilterKey" placeholder="科目过滤关键词">
+        </div>
       </div>
     </div>
 
-
-      <div class="form-group col-sm-12">
-        <label class="col-sm-2 control-label">日期范围</label>
-        <div class="col-sm-5">
+    <div class="form-group col-sm-12">
+      <label class="col-sm-2 control-label">日期范围</label>
+      <div class="col-sm-5">
         <label for="dateFrom" class="col-sm-1 control-label">从</label>
         <div class="col-sm-10">
           <input type="date" class="form-control" name="dateFrom" ng-model="dateFrom" id="dateFrom" placeholder="YYYY-MM-DD">
         </div>
-        </div>
+      </div>
       <div class="form-group col-sm-5">
         <label for="dateTo" class="col-sm-1 control-label">到</label>
         <div class="col-sm-10">
@@ -46,22 +48,19 @@
       </div>
     </div>
 
-
-      <div class="form-group col-sm-12">
-        <label class="col-sm-2 control-label">关联控制</label>
-        <div class="checkbox col-sm-4">
-          <label>
-            <input type="checkbox" ng-model="onlyUnbound"> 不警示已关联条目
-          </label>
-        </div>
-        <div class="checkbox col-sm-4">
-          <label>
-            <input type="checkbox" ng-model="rewriteBound"> 覆盖已有关联设置
-          </label>
-        </div>
+    <div class="form-group col-sm-12">
+      <label class="col-sm-2 control-label">关联控制</label>
+      <div class="checkbox col-sm-4">
+        <label>
+          <input type="checkbox" ng-model="onlyUnbound"> 不警示已关联条目
+        </label>
       </div>
-
-
+      <div class="checkbox col-sm-4">
+        <label>
+          <input type="checkbox" ng-model="rewriteBound"> 覆盖已有关联设置
+        </label>
+      </div>
+    </div>
 
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-4">

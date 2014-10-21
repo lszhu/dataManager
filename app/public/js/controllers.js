@@ -496,15 +496,39 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
         $scope.msgClass = 'alert-success';
         $scope.name = '';
         $scope.description = '';
+        $scope.projectsRaw = [];
+        $scope.projects = [];
+        $scope.parentProject = '';
+        // 用于临时保存选中项目
+        $scope.childrenProject = {};
+        // 当前已确认选中的项目
+        $scope.childrenList = [];
+
+        $http.post('/queryProject', {}).success(function(res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projectsRaw = res.projects.sort();
+            console.log('projects\n' + JSON.stringify($scope.projectsRaw));
+            $scope.projects = $scope.projectsRaw.slice(0);
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
         $scope.createProject = function() {
             console.log('description: ' + $scope.description);
             $http.post('/createProject', {
                 name: $scope.name,
                 id: $scope.id,
                 description: $scope.description,
+                parent: $scope.parentProject,
+                children: $scope.childrenList,
                 option: 'notArbitrary'
             }).success(function(res) {
                 if (res.status == 'ok') {
+                    $scope.projectsRaw.push({name: $scope.name});
+                    $scope.projects.push({name: $scope.name});
                     $scope.name = '';
                     $scope.id = '';
                     $scope.description = '';
@@ -514,9 +538,53 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
                 }
                 $scope.message = res.message;
             }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
         };
+
+        $scope.cancelSelection = function() {
+            $scope.childrenProject = {};
+            for (var i = 0; i < $scope.childrenList.length; i++) {
+                $scope.childrenProject[$scope.childrenList[i]] = true;
+            }
+            console.log('childrenProject: %o', $scope.childrenProject);
+            console.log('childrenList: %o', $scope.childrenList);
+        };
+
+        $scope.selectChildren = function() {
+            $scope.childrenList = [];
+            for (var i in $scope.childrenProject) {
+                if (!$scope.childrenProject.hasOwnProperty(i) ||
+                    $scope.childrenProject[i] == false) {
+                    continue;
+                }
+                if (i == $scope.parentProject) {
+                    $scope.childrenProject[i] = false;
+                    continue;
+                }
+                $scope.childrenList.push(i);
+            }
+            console.log('childrenProject: %o', $scope.childrenProject);
+            console.log('childrenList: %o', $scope.childrenList);
+        };
+
+        $scope.$watch(
+            'parentProject',
+            function(newValue, oldValue) {
+                if (newValue === oldValue ||
+                    !$scope.childrenProject[newValue]) {
+                    return;
+                }
+                $scope.childrenProject[newValue] = false;
+                for (var i = 0; i < $scope.childrenList.length; i++) {
+                    if ($scope.childrenList[i] == newValue) {
+                        $scope.childrenList.splice(i, 1);
+                        break;
+                    }
+                }
+            }
+        )
     }
 ]);
 

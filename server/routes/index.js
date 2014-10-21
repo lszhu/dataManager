@@ -119,6 +119,11 @@ router.post('/createProject', function(req, res) {
     name = name.trim();
     var description = req.body.description ? req.body.description : '';
     description = description.trim();
+    var parent = req.body.parent ? req.body.parent : '';
+    parent = parent.trim();
+    debug('parent: ' + parent);
+    var children = req.body.children ? req.body.children: [];
+    debug('children: ' + JSON.stringify(children));
     var logMsg = {
         operator: req.session.user.username,
         operation: '创建或修改项目',
@@ -126,32 +131,131 @@ router.post('/createProject', function(req, res) {
         comment: '数据库访问失败',
         status: '失败'
     };
-    db.queryOne('project', {name: name}, function(err, doc) {
+    db.query('project', {}, function(err, docs) {
         if (err) {
             console.log('Db error: ' + JSON.stringify(err));
             res.send({status: 'dbErr', message: '数据库查询失败'});
             tool.log(db, logMsg,'数据库查询失败');
             return;
         }
-        if (doc && req.body.option != 'arbitrary') {
+
+        if (docs.some(function(e) {return e.name == name;}) &&
+            req.body.option != 'arbitrary') {
             res.send({status: 'duplicate', message: '系统中已存在此项目'});
             tool.log(db, logMsg, '项目已经存在');
             return;
         }
-        var data = {name: name, description: description};
+
+        // check recursive descendant
+        if (tool.recursiveSubProject(docs, parent, children)) {
+            res.send({status: 'recursive', message: '存在循环子项目'});
+            tool.log(db, logMsg, '存在循环子项目');
+            return;
+        }
+
+        // create data for new project
+        var data = {
+            name: name,
+            description: description,
+            parent: parent,
+            children: children
+        };
         var id = req.body.id;
         // use UTC seconds to create ID if no id was supplied
         data.id = id ? id.trim() : Date.now().toString(36).toUpperCase();
-        db.save('project', {name: name}, data, function(err) {
-            if (err) {
-                console.log('Db error: ' + JSON.stringify(err));
-                res.send({status: 'dbErr', message: '数据保存失败'});
-                tool.log(db, logMsg, '数据保存失败');
-            } else{
-                res.send({status: 'ok', message: '创建项目成功'});
-                tool.log(db, logMsg, '创建项目成功', '成功');
+
+
+        // filter out parent project
+        var parentData;
+        if (parent) {
+            parentData = docs
+                .filter(function(e) {return e.name == parent;})[0];
+            if (parentData) {
+                if (!parentData.children) {
+                    parentData.children = [name];
+                } else {
+                    parentData.children.push(name);
+                }
+            } else {
+                res.send({status: 'dbErr', message: '父项目数据一致性错误'});
+                tool.log(db, logMsg, '数据一致性错误');
+                return;
             }
-        });
+        }
+
+        // old parent project
+        var oldParentData = [];
+        // filter out children project
+        var childrenData = [];
+        var i;
+        if (children.length > 0) {
+            childrenData = docs.filter(function(e) {
+                return children.some(function(el) {return el == e.name;});
+            });
+            debug('childrenData: ' + JSON.stringify(childrenData));
+            oldParentData = docs.filter(function(e) {
+                return childrenData.some(function(el) {
+                    return el.parent == e.name;
+                });
+            });
+            for (i = 0; i < oldParentData.length; i++) {
+                if (oldParentData[i].children.length == 0) {
+                    res.send({status: 'dbErr', message: '项目数据一致性错误'});
+                    tool.log(db, logMsg, '数据一致性错误');
+                    return;
+                }
+                oldParentData[i].children = oldParentData[i].children
+                    .filter(function(e) {
+                        return children.every(function(el) {return el != e;});
+                    });
+            }
+
+            if (children.length == childrenData.length) {
+                for (i = 0; i < children.length; i++) {
+                    childrenData[i].parent = name;
+                }
+            } else {
+                res.send({status: 'dbErr', message: '子项目数据一致性错误'});
+                tool.log(db, logMsg, '数据一致性错误');
+                return;
+            }
+        }
+        // collect saving errors
+        var errors = [];
+        // to count running saving procedures
+        var count = 1;
+        for (i = 0; i < oldParentData.length; i++) {
+            count++;
+            db.save('project', {name: oldParentData[i].name},
+                oldParentData[i], saveCallback);
+        }
+        for (i = 0; i < childrenData.length; i++) {
+            count++;
+            db.save('project', {name: childrenData[i].name},
+                childrenData[i], saveCallback);
+        }
+        if (parent) {
+            count++;
+            db.save('project', {name: parent}, parentData, saveCallback);
+        }
+        db.save('project', {name: name}, data, saveCallback);
+
+        function saveCallback(err) {
+            count--;
+            if (err) {
+                errors.push(err);
+                console.log('Db error: ' + JSON.stringify(err));
+            }
+            if (count == 0) {
+                if (errors.length > 0) {
+                    res.send({status: 'dbErr', message: '数据保存失败'});
+                    tool.log(db, logMsg, '数据保存失败');
+                } else {
+                    res.send({status: 'ok', message: '创建项目成功'});
+                    tool.log(db, logMsg, '创建项目成功', '成功');
+                }
+            }
+        }
     });
 });
 
