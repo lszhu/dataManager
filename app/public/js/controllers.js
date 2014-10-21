@@ -115,82 +115,86 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                 .search('project', name);
         };
 
-        $scope.modify = function(event) {
-            var data = $scope.projects;
-            if ($scope.line > -1) {
-                data[$scope.line].name = $scope.oldName;
-                data[$scope.line].id = $scope.oldId;
-                data[$scope.line].description = $scope.oldDescription;
+        $scope.modify = function(name) {
+            var oldProject = $scope.projects
+                .filter(function(e) {return e.edit;})[0];
+            if (oldProject) {
+                oldProject.name = $scope.oldName;
+                oldProject.id = $scope.oldId;
+                oldProject.description = $scope.oldDescription;
+                oldProject.edit = false;
             }
-            var target = event.target.parentNode.parentNode;
-            var line = target.firstElementChild.textContent - 1;
-            if ($scope.line == line) {
-                $scope.line = -1;
+
+            var project = $scope.projects
+                .filter(function(e) {return e.name == name;})[0];
+            if (!project) {
+                alert('项目名称有误！');
                 return;
             }
-            $scope.line = line;
-            $scope.oldName = data[$scope.line].name;
-            $scope.oldId = data[$scope.line].id;
-            $scope.oldDescription = data[$scope.line].description;
+            project.edit = true;
+            $scope.oldName = project.name;
+            $scope.oldId = project.id;
+            $scope.oldDescription = project.description;
         };
 
-        $scope.confirm = function(event) {
-            console.log('project: ' +
-                JSON.stringify($scope.projects[$scope.line]));
-            var target = event.target.parentNode.parentNode;
-            var line = target.firstElementChild.textContent - 1;
-            if ($scope.line != line) {
-                return;
-            }
-            var data = $scope.projects;
-            $http.post('/createProject', {
-                name: data[line].name,
-                id: data[line].id,
-                description: data[line].description,
-                option: 'arbitrary'
-            }).success(function(res) {
-                if (res.status != 'ok') {
-                    alert('系统原因，未能成功修改项目信息。\n' + res.message);
-                    data[line].name = $scope.oldName;
-                    data[line].description = $scope.oldDescription;
-                }
-                $scope.line = -1;
-            }).error(function(err) {
-                data[line].name = $scope.oldName;
-                data[line].description = $scope.oldDescription;
-                $scope.line = -1;
-                console.log('project update error: ' + JSON.stringify(err));
-                alert('未知外界原因，未能成功修改项目信息');
-            });
+        $scope.confirm = function(name) {
+            var project = $scope.projects
+                .filter(function(e) {return e.name == name;})[0];
+            project.edit = false;
+            project.option = 'arbitrary';
+            project.newName = project.name;
+            project.name = $scope.oldName;
+            console.log('project: %o', project);
+
+            //console.log('project: ' +
+            //    JSON.stringify($scope.projects[$scope.line]));
+            //var target = event.target.parentNode.parentNode;
+            //var line = target.firstElementChild.textContent - 1;
+            //if ($scope.line != line) {
+            //    return;
+            //}
+            //var data = $scope.projects;
+            $http.post('/createProject', project)
+                .success(function(res) {
+                    if (res.status != 'ok') {
+                        alert('系统原因，未能成功修改成功：\n' + res.message);
+                        project.name = $scope.oldName;
+                        project.description = $scope.oldDescription;
+                    }
+                    $scope.line = -1;
+                }).error(function(err) {
+                    project.name = $scope.oldName;
+                    project.description = $scope.oldDescription;
+                    $scope.line = -1;
+                    console.log('project update error: %o', err);
+                    alert('未知外界原因，未能成功修改项目信息');
+                });
         };
 
-        $scope.remove = function(event) {
-            var data = $scope.projects;
-            if ($scope.line > -1) {
-                data[$scope.line].name = $scope.oldName;
-                data[$scope.line].description = $scope.oldDescription;
-            }
-            $scope.line = -1;
-            var target = event.target.parentNode.parentNode;
-            var  line = target.firstElementChild.textContent - 1;
-            if (data[line].contract || data[line].file) {
-                alert('项目下面有关联的合同或文档, 无法删除该项目。')
-            }
-            if (!confirm('你确定要删除项目：\n' + data[line].name)) {
+        $scope.remove = function(name) {
+            var project = $scope.projects
+                .filter(function(e) {return e.name == name;})[0];
+            if (!project) {
+                alert('项目名称有误！');
                 return;
             }
-            $http.post('/removeProject', {
-                name: data[line].name
-            }).success(function(res) {
-                if (res.status == 'ok') {
-                    $scope.projects.splice(line, 1);
-                } else {
-                    alert('系统原因，无法删除该项目。\n' + res.message);
-                }
-            }).error(function(err) {
-                alert('未知外界原因，无法删除该项目');
-                console.log('project remove error: ' + JSON.stringify(err));
-            });
+
+            if (!confirm('你确定要删除项目：\n' + project.name)) {
+                return;
+            }
+            $http.post('/removeProject', project)
+                .success(function(res) {
+                    if (res.status == 'ok') {
+                        $scope.projects = $scope.projects.filter(function(e) {
+                            return e.name != project.name;
+                        })
+                    } else {
+                        alert('系统原因，无法删除该项目。\n' + res.message);
+                    }
+                }).error(function(err) {
+                    alert('未知外界原因，无法删除该项目');
+                    console.log('project remove error: %o', err);
+                });
         };
     }
 ]);

@@ -49,22 +49,22 @@
     <tr ng-repeat="project in projects| filter: globalFilterKey">
       <td>{{$index + 1}}</td>
       <td>
-        <span ng-hide="$index == line">{{project.name}}</span>
-        <input ng-show="$index == line" type="text" ng-model="projects[$index].name">
+        <span ng-hide="project.edit">{{project.name}}</span>
+        <input ng-show="project.edit" type="text" ng-model="project.name">
       </td>
       <td>
-        <span ng-hide="$index == line">{{project.id}}</span>
-        <input ng-show="$index == line" type="text" ng-model="projects[$index].id">
+        <span ng-hide="project.edit">{{project.id}}</span>
+        <input ng-show="project.edit" type="text" ng-model="project.id">
       </td>
       <td>
-        <span ng-hide="$index == line">{{project.description}}</span>
-        <textarea ng-show="$index == line" ng-model="projects[$index].description"></textarea>
+        <span ng-hide="project.edit">{{project.description}}</span>
+        <textarea ng-show="project.edit" ng-model="project.description"></textarea>
       </td>
       <td><button ng-click="gotoProjectDetail(project.name)" class="btn btn-xs btn-default">&nbsp;详 情&nbsp;</button></td>
       <td>
-        <span ng-click="modify($event)" class="glyphicon glyphicon-pencil"></span>
-        <span ng-click="confirm($event)" class="glyphicon glyphicon-ok"></span>
-        <span ng-click="remove($event)" class="glyphicon glyphicon-remove"></span>
+        <span ng-click="modify(project.name)" class="glyphicon glyphicon-pencil"></span>
+        <span ng-click="confirm(project.name)" class="glyphicon glyphicon-ok"></span>
+        <span ng-click="remove(project.name)" class="glyphicon glyphicon-remove"></span>
       </td>
     </tr>
     </tbody>

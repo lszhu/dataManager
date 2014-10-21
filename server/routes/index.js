@@ -111,6 +111,9 @@ router.get(/\/.+\/(.+)/, function(req, res) {
 });
 
 router.post('/createProject', function(req, res) {
+    var id = req.body.id;
+    // use UTC seconds to create ID if no id was supplied
+    id = id ? id.trim() : Date.now().toString(36).toUpperCase();
     var name =  req.body.name;
     if (!name) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
@@ -126,7 +129,7 @@ router.post('/createProject', function(req, res) {
     debug('children: ' + JSON.stringify(children));
     var logMsg = {
         operator: req.session.user.username,
-        operation: '创建或修改项目',
+        operation: '创建项目',
         target: name,
         comment: '数据库访问失败',
         status: '失败'
@@ -155,15 +158,12 @@ router.post('/createProject', function(req, res) {
 
         // create data for new project
         var data = {
+            id: id,
             name: name,
             description: description,
             parent: parent,
             children: children
         };
-        var id = req.body.id;
-        // use UTC seconds to create ID if no id was supplied
-        data.id = id ? id.trim() : Date.now().toString(36).toUpperCase();
-
 
         // filter out parent project
         var parentData;
@@ -257,6 +257,178 @@ router.post('/createProject', function(req, res) {
                     tool.log(db, logMsg, '创建项目成功', '成功');
                 }
             }
+        }
+    });
+});
+
+function parseProject(req) {
+    var project = {};
+    var id = req.body.id;
+    // use UTC seconds to create ID if no id was supplied
+    project.id = id ? id.trim() : Date.now().toString(36).toUpperCase();
+    var name =  req.body.name;
+    name = name.trim();
+    var newName =  req.body.newName;
+    newName = newName.trim();
+    var description = req.body.description ? req.body.description : '';
+    description = description.trim();
+    var parent = req.body.parent ? req.body.parent : '';
+    parent = parent.trim();
+    debug('parent: ' + parent);
+    var children = req.body.children ? req.body.children : [];
+    debug('children: ' + JSON.stringify(children));
+    return {
+        id: id,
+        name: name,
+        newName: newName,
+        description: description,
+        parent: parent,
+        children: children
+        //contract: contract,
+        //file: file
+    };
+}
+
+router.post('/updateProject', function(req, res) {
+    var project = parseProject(req);
+    if (!project.name) {
+        res.send({status: 'nameErr', message: '项目名称不能为空'});
+        return;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '修改项目',
+        target: name,
+        comment: '数据库访问失败',
+        status: '失败'
+    };
+
+    db.query('project', {}, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询失败'});
+            tool.log(db, logMsg,'数据库查询失败');
+            return;
+        }
+
+        // check recursive descendant
+        if (tool.recursiveSubProject(docs, project.parent, project.children)) {
+            res.send({status: 'recursive', message: '存在循环父子项目'});
+            tool.log(db, logMsg, '存在循环父子项目');
+            return;
+        }
+
+        if (project.newName && project.newName != project.name) {
+            renameProject(docs, project);
+        } else {
+            updateProject(docs, project);
+        }
+
+        function renameProject(docs, project) {
+
+        }
+
+        // filter out projects should be update passively
+        function relatedProject(docs, project) {
+            // filter out parent project
+            var parentData;
+            if (project.parent) {
+                parentData = docs
+                    .filter(function(e) {return e.name == project.parent;})[0];
+                if (parentData) {
+                    if (!parentData.children) {
+                        parentData.children = [project.name];
+                    } else {
+                        parentData.children.push(project.name);
+                    }
+                }
+            }
+
+            // old parent project
+            var oldParentData = [];
+            // filter out children project
+            var childrenData = [];
+            var i;
+            if (parentData.children.length > 0) {
+                childrenData = docs.filter(function(e) {
+                    return parentData.children
+                        .some(function(el) {return el == e.name;});
+                });
+                debug('childrenData: ' + JSON.stringify(childrenData));
+                oldParentData = docs.filter(function(e) {
+                    return childrenData.some(function(el) {
+                        return el.parent == e.name;
+                    });
+                });
+                for (i = 0; i < oldParentData.length; i++) {
+                    if (oldParentData[i].children.length == 0) {
+                        continue;
+                    }
+                    oldParentData[i].children = oldParentData[i].children
+                        .filter(function(e) {
+                            return project.children
+                                .every(function(el) {return el != e;});
+                        });
+                }
+
+                for (i = 0; i < project.children.length; i++) {
+                    childrenData[i].parent = project.name;
+                }
+            }
+
+            return {
+                parentData: parentData,
+                oldParentData: oldParentData,
+                childrenData: childrenData
+            };
+        }
+
+        // update project but Not change project name
+        function updateProject(docs, project) {
+            var data = relatedProject(docs, project);
+            var counter = {};
+            // to count running saving procedures
+            counter.count = 1;
+            db.save('project', {name: project.name},
+                project, saveCallback(counter));
+            for (i = 0; i < oldParentData.length; i++) {
+                counter.count++;
+                db.save('project', {name: data.oldParentData[i].name},
+                    data.oldParentData[i], saveCallback(counter));
+            }
+            for (i = 0; i < childrenData.length; i++) {
+                counter.count++;
+                db.save('project', {name: data.childrenData[i].name},
+                    data.childrenData[i], saveCallback(counter));
+            }
+            if (parent) {
+                counter.count++;
+                db.save('project', {name: project.parent},
+                    data.parentData, saveCallback(counter));
+            }
+        }
+
+        function saveCallback(counter) {
+            return function(err) {
+                counter.count--;
+                // collect saving errors
+                var errors = [];
+                if (err) {
+                    errors.push(err);
+                    console.log('Db error: ' + JSON.stringify(err));
+                }
+                if (counter.count == 0) {
+                    if (errors.length > 0) {
+                        res.send({status: 'dbErr',
+                            message: '项目数据保存失败'});
+                        tool.log(db, logMsg, '数据保存失败');
+                        console.log('project saving error: %o', errors);
+                    } else {
+                        res.send({status: 'ok', message: '创建项目成功'});
+                        tool.log(db, logMsg, '创建项目成功', '成功');
+                    }
+                }
+            };
         }
     });
 });
