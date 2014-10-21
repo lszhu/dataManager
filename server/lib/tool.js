@@ -639,12 +639,14 @@ function candidateFigure(figures) {
 }
 
 function recursiveSubProject(docs, parent, children) {
-    var len = children.length;
+    var len = docs.length;
     for (var i = 0, p = parent; i < len && p != ''; i++) {
-        if (children.some(function(e) {return e.name == p;})) {
+        if (children.some(function(e) {return e == p;})) {
+            debug('recursion occurred.');
             return true;
         }
         p = parentProject(docs, p);
+        debug('parent project: ' + p);
     }
     return false;
 

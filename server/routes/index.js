@@ -148,8 +148,8 @@ router.post('/createProject', function(req, res) {
 
         // check recursive descendant
         if (tool.recursiveSubProject(docs, parent, children)) {
-            res.send({status: 'recursive', message: '存在循环子项目'});
-            tool.log(db, logMsg, '存在循环子项目');
+            res.send({status: 'recursive', message: '存在循环父子项目'});
+            tool.log(db, logMsg, '存在循环父子项目');
             return;
         }
 
@@ -220,6 +220,7 @@ router.post('/createProject', function(req, res) {
                 return;
             }
         }
+
         // collect saving errors
         var errors = [];
         // to count running saving procedures
@@ -250,6 +251,7 @@ router.post('/createProject', function(req, res) {
                 if (errors.length > 0) {
                     res.send({status: 'dbErr', message: '数据保存失败'});
                     tool.log(db, logMsg, '数据保存失败');
+                    console.log('project saving error: %o', errors);
                 } else {
                     res.send({status: 'ok', message: '创建项目成功'});
                     tool.log(db, logMsg, '创建项目成功', '成功');

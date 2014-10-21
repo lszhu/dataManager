@@ -541,6 +541,12 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
+            // 将设置清空
+            $scope.parentProject = '';
+            $scope.childrenProject = {};
+            $scope.childrenList = [];
+            $scope.parentFilterKey = '';
+            $scope.childrenFilterKey = '';
         };
 
         $scope.cancelSelection = function() {
