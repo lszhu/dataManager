@@ -229,6 +229,15 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             return {};
         };
 
+        var updateShowing = function(curProject) {
+            $scope.id = curProject.id;
+            $scope.description = curProject.description;
+            $scope.parent = curProject && curProject.parent ?
+                curProject.parent : '';
+            $scope.children = curProject && curProject.children ?
+                curProject.children.join('\n') : '';
+        };
+
         $scope.$watch(
             'filterKey',
             function (newValue, oldValue) {
@@ -244,21 +253,24 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             }
         );
 
+        // 用于从服务器获取到项目数据后更新显示
         $scope.$watch(
             "projects",
-            function() {
+            function (newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
                 var cur = currentProject();
-                $scope.id = cur.id;
-                $scope.description = cur.description;
+                updateShowing(cur);
             }
         );
 
+        // 用于跟踪选的项目变更后更新显示
         $scope.$watch(
             "projectName",
             function() {
                 var cur = currentProject();
-                $scope.id = cur.id;
-                $scope.description = cur.description;
+                updateShowing(cur);
             }
         );
 
