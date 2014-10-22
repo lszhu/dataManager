@@ -638,28 +638,6 @@ function candidateFigure(figures) {
     return {candidates: candidates, duplicates: duplicates};
 }
 
-function recursiveSubProject(docs, parent, children) {
-    var len = docs.length;
-    for (var i = 0, p = parent; i < len && p != ''; i++) {
-        if (children.some(function(e) {return e == p;})) {
-            debug('recursion occurred.');
-            return true;
-        }
-        p = parentProject(docs, p);
-        //debug('parent project: ' + p);
-    }
-    return false;
-
-    function parentProject(docs, p) {
-        for (var i = 0, len = docs.length; i < len; i++) {
-            if (docs[i].name == p) {
-                return docs[i].parent ? docs[i].parent : '';
-            }
-        }
-        return '';
-    }
-}
-
 module.exports = {
     subject: subjectMap,
     log: log,
@@ -671,5 +649,4 @@ module.exports = {
     readFile: readFile,
     objectToArray: objectToArray,
     voucherAutoBind: voucherAutoBind,
-    recursiveSubProject: recursiveSubProject
 };

@@ -160,6 +160,9 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
         $scope.confirm = function(name) {
             var project = $scope.projects
                 .filter(function(e) {return e.name == name;})[0];
+            if (!project.edit) {
+                return;
+            }
             project.edit = false;
             $scope.tmpProject.option = 'arbitrary';
             $scope.tmpProject.newName = $scope.tmpProject.name;
