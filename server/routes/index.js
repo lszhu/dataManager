@@ -262,10 +262,10 @@ router.post('/createProject', function(req, res) {
 });
 
 function parseProject(req) {
-    var project = {};
+    //var project = {};
     var id = req.body.id;
     // use UTC seconds to create ID if no id was supplied
-    project.id = id ? id.trim() : Date.now().toString(36).toUpperCase();
+    id = id ? id.trim() : Date.now().toString(36).toUpperCase();
     var name =  req.body.name;
     name = name.trim();
     var newName =  req.body.newName;
@@ -295,10 +295,11 @@ router.post('/updateProject', function(req, res) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
         return;
     }
+    debug('project: ' + JSON.stringify(project));
     var logMsg = {
         operator: req.session.user.username,
         operation: '修改项目',
-        target: name,
+        target: project.name,
         comment: '数据库访问失败',
         status: '失败'
     };
@@ -321,6 +322,7 @@ router.post('/updateProject', function(req, res) {
         if (project.newName && project.newName != project.name) {
             renameProject(docs, project);
         } else {
+            debug('update project without changing name.');
             updateProject(docs, project);
         }
 
@@ -335,73 +337,79 @@ router.post('/updateProject', function(req, res) {
             if (project.parent) {
                 parentData = docs
                     .filter(function(e) {return e.name == project.parent;})[0];
-                if (parentData) {
-                    if (!parentData.children) {
-                        parentData.children = [project.name];
-                    } else {
-                        parentData.children.push(project.name);
-                    }
-                }
             }
-
             // old parent project
-            var oldParentData = [];
+            var oldParentData;
             // filter out children project
-            var childrenData = [];
-            var i;
-            if (parentData.children.length > 0) {
-                childrenData = docs.filter(function(e) {
-                    return parentData.children
-                        .some(function(el) {return el == e.name;});
+            var childrenData;
+            childrenData = docs.filter(function(e) {
+                return project.children && project.children
+                    .some(function(el) {return el == e.name;})
+            });
+            debug('childrenData: ' + JSON.stringify(childrenData));
+            oldParentData = docs.filter(function(e) {
+                return childrenData.some(function(el) {
+                    return el.parent == e.name;
                 });
-                debug('childrenData: ' + JSON.stringify(childrenData));
-                oldParentData = docs.filter(function(e) {
-                    return childrenData.some(function(el) {
-                        return el.parent == e.name;
-                    });
-                });
-                for (i = 0; i < oldParentData.length; i++) {
-                    if (oldParentData[i].children.length == 0) {
-                        continue;
-                    }
-                    oldParentData[i].children = oldParentData[i].children
-                        .filter(function(e) {
-                            return project.children
-                                .every(function(el) {return el != e;});
-                        });
-                }
+            });
 
-                for (i = 0; i < project.children.length; i++) {
-                    childrenData[i].parent = project.name;
+            var projects = {};
+            // update parentData to conform change
+            if (parentData && parentData.name) {
+                if (!parentData.children) {
+                    parentData.children = [project.name];
+                    projects.parentData = parentData;
+                } else if (parentData.children.every(function(e) {
+                    return e != project.name
+                })) {
+                    parentData.children.push(project.name);
+                    projects.parentData = parentData;
                 }
             }
+            var i;
+            // update oldParentData to conform change
+            for (i = 0; i < oldParentData.length; i++) {
+                if (!oldParentData[i].children
+                    || oldParentData[i].children.length == 0) {
+                    continue;
+                }
+                oldParentData[i].children = oldParentData[i].children
+                    .filter(function(e) {
+                        return project.children || project.children
+                            .every(function(el) {return el != e;});
+                    });
+            }
+            // update childrenData to conform change
+            for (i = 0; i < childrenData.length; i++) {
+                childrenData[i].parent = project.name;
+            }
 
-            return {
-                parentData: parentData,
-                oldParentData: oldParentData,
-                childrenData: childrenData
-            };
+            projects.oldParentData = oldParentData;
+            projects.childrenData = childrenData;
+
+            return projects;
         }
 
         // update project but Not change project name
         function updateProject(docs, project) {
             var data = relatedProject(docs, project);
+            debug('related project: ' + JSON.stringify(data));
             var counter = {};
             // to count running saving procedures
             counter.count = 1;
             db.save('project', {name: project.name},
                 project, saveCallback(counter));
-            for (i = 0; i < oldParentData.length; i++) {
+            for (i = 0; i < data.oldParentData.length; i++) {
                 counter.count++;
                 db.save('project', {name: data.oldParentData[i].name},
                     data.oldParentData[i], saveCallback(counter));
             }
-            for (i = 0; i < childrenData.length; i++) {
+            for (i = 0; i < data.childrenData.length; i++) {
                 counter.count++;
                 db.save('project', {name: data.childrenData[i].name},
                     data.childrenData[i], saveCallback(counter));
             }
-            if (parent) {
+            if (project.parent) {
                 counter.count++;
                 db.save('project', {name: project.parent},
                     data.parentData, saveCallback(counter));

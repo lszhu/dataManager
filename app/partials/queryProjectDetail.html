@@ -22,19 +22,21 @@
     <div class="form-group">
       <label for="id" class="col-sm-2 control-label">项目编号</label>
       <div class="col-sm-6">
-        <input type="text" readonly class="form-control" name="id" ng-value="id" id="id">
+        <input type="text" readonly class="form-control" name="id" ng-value="tmpProject.id" id="id">
       </div>
     </div>
     <div class="form-group">
       <label for="description" class="col-sm-2 control-label">项目概要</label>
       <div class="col-sm-8">
-        <textarea class="form-control" readonly name="description"  rows="5" cols="100" id="description">{{description}}</textarea>
+        <textarea class="form-control" readonly name="description"  rows="5" cols="100" id="description">{{tmpProject.description}}</textarea>
       </div>
     </div>
     <div class="form-group">
       <label for="parent" class="col-sm-2 control-label">隶属父项目</label>
       <div class="col-sm-5">
-        <input type="text" readonly class="form-control" name="parent" ng-value="parent" id="parent">
+        <select class="form-control" disabled ng-model="tmpProject.parent" name="parent" id="parent">
+          <option ng-repeat="project in projects">{{project.name}}</option>
+        </select>
       </div>
       <div class="col-sm-2">
         <button class="btn btn-default btn-block">修改父项目</button>
@@ -43,7 +45,7 @@
     <div class="form-group">
       <label for="children" class="col-sm-2 control-label">包含子项目</label>
       <div class="col-sm-5">
-        <textarea class="form-control" readonly name="children"  rows="5" cols="100" id="children">{{children}}</textarea>
+        <textarea class="form-control" readonly name="children"  rows="5" cols="100" id="children">{{tmpProject.children.join('\n')}}</textarea>
       </div>
       <div class="col-sm-2">
         <button class="btn btn-default btn-block">修改子项目</button>
@@ -66,8 +68,8 @@
 
             <tr ng-repeat="contract in currentProject().contract">
               <td>{{$index}}</td>
-              <td>{{contract.name}}</td>
-              <td>{{contract.store}}</td>
+              <td>{{tmpProject.contract.name}}</td>
+              <td>{{tmpProject.contract.store}}</td>
               <td>
                 <span ng-click="modify($event)" class="glyphicon glyphicon-pencil"></span>
                 <span ng-click="confirm($event)" class="glyphicon glyphicon-ok"></span>
@@ -106,8 +108,8 @@
 
             <tr ng-repeat="file in currentProject().file">
               <td>{{$index}}</td>
-              <td>{{file.name}}</td>
-              <td>{{file.store}}</td>
+              <td>{{tmpProject.file.name}}</td>
+              <td>{{tmpProject.file.store}}</td>
               <td>
                 <span ng-click="modify($event)" class="glyphicon glyphicon-pencil"></span>
                 <span ng-click="confirm($event)" class="glyphicon glyphicon-ok"></span>

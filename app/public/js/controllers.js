@@ -90,11 +90,13 @@ mainFrameCtrl.controller('FilingCtrl', ['$scope',
 
 mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
-        $scope.line = -1;
+        //$scope.line = -1;
         $scope.msgClass = 'alert-success';
+        // 用于保存临时编辑的项目
+        $scope.tmpProject = {};
 
         $scope.queryProject = function() {
-            $scope.line = -1;
+            //$scope.line = -1;
             $http.post('/queryProject', {
                 name: $scope.name,
                 id: $scope.id,
@@ -115,15 +117,32 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                 .search('project', name);
         };
 
+        var initTmpProject = function(project) {
+            $scope.tmpProject = {};
+            $scope.tmpProject.name = project.name;
+            $scope.tmpProject.id = project.id;
+            $scope.tmpProject.description = project.description;
+            $scope.tmpProject.parent = project.parent;
+            $scope.tmpProject.children = project.children ?
+                project.children.slice(0) : [];
+            $scope.tmpProject.contract = project.contract ?
+                project.contract.slice(0) : [];
+            $scope.tmpProject.file = project.file ?
+                project.file.slice(0) : [];
+        };
+
         $scope.modify = function(name) {
             var oldProject = $scope.projects
                 .filter(function(e) {return e.edit;})[0];
             if (oldProject) {
-                oldProject.name = $scope.oldName;
-                oldProject.id = $scope.oldId;
-                oldProject.description = $scope.oldDescription;
                 oldProject.edit = false;
             }
+            //if (oldProject) {
+            //    oldProject.name = $scope.oldName;
+            //    oldProject.id = $scope.oldId;
+            //    oldProject.description = $scope.oldDescription;
+            //    oldProject.edit = false;
+            //}
 
             var project = $scope.projects
                 .filter(function(e) {return e.name == name;})[0];
@@ -132,19 +151,20 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                 return;
             }
             project.edit = true;
-            $scope.oldName = project.name;
-            $scope.oldId = project.id;
-            $scope.oldDescription = project.description;
+            initTmpProject(project);
+            //$scope.oldName = project.name;
+            //$scope.oldId = project.id;
+            //$scope.oldDescription = project.description;
         };
 
         $scope.confirm = function(name) {
             var project = $scope.projects
                 .filter(function(e) {return e.name == name;})[0];
             project.edit = false;
-            project.option = 'arbitrary';
-            project.newName = project.name;
-            project.name = $scope.oldName;
-            console.log('project: %o', project);
+            $scope.tmpProject.option = 'arbitrary';
+            $scope.tmpProject.newName = $scope.tmpProject.name;
+            $scope.tmpProject.name = project.name;
+            console.log('project: %o', $scope.tmpProject);
 
             //console.log('project: ' +
             //    JSON.stringify($scope.projects[$scope.line]));
@@ -154,18 +174,25 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
             //    return;
             //}
             //var data = $scope.projects;
-            $http.post('/createProject', project)
+            $http.post('/updateProject', $scope.tmpProject)
                 .success(function(res) {
                     if (res.status != 'ok') {
-                        alert('系统原因，未能成功修改成功：\n' + res.message);
-                        project.name = $scope.oldName;
-                        project.description = $scope.oldDescription;
+                        alert('系统原因导致未能修改成功：\n' + res.message);
+                        //project.name = $scope.oldName;
+                        //project.description = $scope.oldDescription;
+                    } else {
+                        for (var i = 0; i < $scope.projects.length; i++) {
+                            if ($scope.projects[i].name == name) {
+                                $scope.projects[i] = $scope.tmpProject;
+                                break;
+                            }
+                        }
                     }
-                    $scope.line = -1;
+                    //$scope.line = -1;
                 }).error(function(err) {
-                    project.name = $scope.oldName;
-                    project.description = $scope.oldDescription;
-                    $scope.line = -1;
+                    //project.name = $scope.oldName;
+                    //project.description = $scope.oldDescription;
+                    //$scope.line = -1;
                     console.log('project update error: %o', err);
                     alert('未知外界原因，未能成功修改项目信息');
                 });
@@ -187,7 +214,7 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                     if (res.status == 'ok') {
                         $scope.projects = $scope.projects.filter(function(e) {
                             return e.name != project.name;
-                        })
+                        });
                     } else {
                         alert('系统原因，无法删除该项目。\n' + res.message);
                     }
@@ -204,6 +231,22 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
         // 载入页面时默认的项目名，由url参数获取
         $scope.projectName = $location.search()['project'];
         console.log('projectName: ' + $scope.projectName);
+        // 用于保存临时编辑的项目
+        $scope.tmpProject = {};
+
+        var initTmpProject = function(project) {
+            $scope.tmpProject = {};
+            $scope.tmpProject.name = project.name;
+            $scope.tmpProject.id = project.id;
+            $scope.tmpProject.description = project.description;
+            $scope.tmpProject.parent = project.parent;
+            $scope.tmpProject.children = project.children ?
+                project.children.slice(0) : [];
+            $scope.tmpProject.contract = project.contract ?
+                project.contract.slice(0) : [];
+            $scope.tmpProject.file = project.file ?
+                project.file.slice(0) : [];
+        };
 
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
@@ -214,6 +257,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             if (!$scope.projectName &&
                 $scope.projectsRaw && $scope.projectsRaw.length) {
                 $scope.projectName = $scope.projectsRaw[0].name;
+                initTmpProject($scope.projectsRaw[0]);
             }
         }).error(function (res) {
             $scope.msgClass = 'alert-danger';
@@ -233,14 +277,14 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             return {};
         };
 
-        var updateShowing = function(curProject) {
-            $scope.id = curProject.id;
-            $scope.description = curProject.description;
-            $scope.parent = curProject && curProject.parent ?
-                curProject.parent : '';
-            $scope.children = curProject && curProject.children ?
-                curProject.children.join('\n') : '';
-        };
+        //var updateShowing = function(curProject) {
+        //    $scope.id = curProject.id;
+        //    $scope.description = curProject.description;
+        //    $scope.parent = curProject && curProject.parent ?
+        //        curProject.parent : '';
+        //    $scope.children = curProject && curProject.children ?
+        //        curProject.children.join('\n') : '';
+        //};
 
         $scope.$watch(
             'filterKey',
@@ -265,7 +309,8 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
                     return;
                 }
                 var cur = currentProject();
-                updateShowing(cur);
+                initTmpProject(cur);
+                //updateShowing(cur);
             }
         );
 
@@ -274,7 +319,8 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             "projectName",
             function() {
                 var cur = currentProject();
-                updateShowing(cur);
+                initTmpProject(cur);
+                //updateShowing(cur);
             }
         );
 
@@ -524,7 +570,9 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
             $scope.message = res.message;
-            $scope.projectsRaw = res.projects.sort();
+            $scope.projectsRaw = res.projects.sort(function(a, b) {
+                return a.name < b.name ? -1 : 1;
+            });
             console.log('projects\n' + JSON.stringify($scope.projectsRaw));
             $scope.projects = $scope.projectsRaw.slice(0);
         }).error(function (res) {

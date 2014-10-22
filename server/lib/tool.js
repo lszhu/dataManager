@@ -646,7 +646,7 @@ function recursiveSubProject(docs, parent, children) {
             return true;
         }
         p = parentProject(docs, p);
-        debug('parent project: ' + p);
+        //debug('parent project: ' + p);
     }
     return false;
 

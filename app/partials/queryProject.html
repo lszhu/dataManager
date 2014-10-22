@@ -50,15 +50,15 @@
       <td>{{$index + 1}}</td>
       <td>
         <span ng-hide="project.edit">{{project.name}}</span>
-        <input ng-show="project.edit" type="text" ng-model="project.name">
+        <input ng-show="project.edit" type="text" ng-model="tmpProject.name">
       </td>
       <td>
         <span ng-hide="project.edit">{{project.id}}</span>
-        <input ng-show="project.edit" type="text" ng-model="project.id">
+        <input ng-show="project.edit" type="text" ng-model="tmpProject.id">
       </td>
       <td>
         <span ng-hide="project.edit">{{project.description}}</span>
-        <textarea ng-show="project.edit" ng-model="project.description"></textarea>
+        <textarea ng-show="project.edit" ng-model="tmpProject.description"></textarea>
       </td>
       <td><button ng-click="gotoProjectDetail(project.name)" class="btn btn-xs btn-default">&nbsp;详 情&nbsp;</button></td>
       <td>
@@ -70,4 +70,9 @@
     </tbody>
   </table>
 
+  <div class="col-md-8 col-md-offset-2" ng-show="message">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
 </div>
