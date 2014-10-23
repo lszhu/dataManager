@@ -2,44 +2,43 @@
   <h1 class="page-header">项目详情</h1>
   <form class="form-horizontal" name="project" role="form">
 
-    <div class="form-group col-sm-6">
-      <label for="projectName" class="col-sm-4 control-label">选择项目</label>
-      <div class="col-sm-8">
+    <div class="form-group">
+      <label for="projectName" class="col-sm-2 control-label">选择项目</label>
+      <div class="col-sm-5">
         <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
-          <option ng-repeat="project in projects">{{project.name}}</option>
+          <option ng-repeat="project in projects | filter: filterKey">{{project.name}}</option>
         </select>
       </div>
-    </div>
-    <div class="col-sm-3">
-      <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="项目过滤关键词">
+      <div class="col-sm-3">
+        <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="项目过滤关键词">
+      </div>
     </div>
 
-    <div class="col-sm-12"></div>
-
-    <div>
-      <hr>
-    </div>
     <div class="form-group">
       <label for="id" class="col-sm-2 control-label">项目编号</label>
-      <div class="col-sm-6">
-        <input type="text" readonly class="form-control" name="id" ng-value="tmpProject.id" id="id">
+      <div class="col-sm-5">
+        <input type="text" class="form-control" name="id" ng-model="tmpProject.id" id="id">
       </div>
     </div>
     <div class="form-group">
       <label for="description" class="col-sm-2 control-label">项目概要</label>
       <div class="col-sm-8">
-        <textarea class="form-control" readonly name="description"  rows="5" cols="100" id="description">{{tmpProject.description}}</textarea>
+        <textarea class="form-control" name="description"  rows="5" cols="100" id="description" ng-model="tmpProject.description"></textarea>
       </div>
     </div>
     <div class="form-group">
       <label for="parent" class="col-sm-2 control-label">隶属父项目</label>
       <div class="col-sm-5">
-        <select class="form-control" disabled ng-model="tmpProject.parent" name="parent" id="parent">
-          <option ng-repeat="project in projects">{{project.name}}</option>
+        <select class="form-control" ng-disabled="parentReadonly" ng-model="tmpProject.parent" name="parent" id="parent">
+          <option value="">无</option>
+          <option ng-repeat="project in parentProjects">{{project.name}}</option>
         </select>
       </div>
-      <div class="col-sm-2">
-        <button class="btn btn-default btn-block">修改父项目</button>
+      <div class="col-sm-3" ng-show="parentReadonly">
+        <button class="btn btn-default btn-block" ng-click="editParent()">修改父项目</button>
+      </div>
+      <div class="col-sm-3" ng-hide="parentReadonly">
+        <input type="text" class="form-control" name="filterParentKey" ng-model="filterParentKey" id="filterParentKey" placeholder="项目过滤关键词">
       </div>
     </div>
     <div class="form-group">
@@ -47,10 +46,47 @@
       <div class="col-sm-5">
         <textarea class="form-control" readonly name="children"  rows="5" cols="100" id="children">{{tmpProject.children.join('\n')}}</textarea>
       </div>
-      <div class="col-sm-2">
-        <button class="btn btn-default btn-block">修改子项目</button>
+      <div class="col-sm-3">
+        <!-- 用于打开模式对话框 -->
+        <button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#projectList">
+          修改子项目
+          <span class="caret"></span>
+        </button>
       </div>
     </div>
+
+    <!-- 选择子项目模式对话框 -->
+    <div class="modal fade" id="projectList" tabindex="-1" role="dialog" aria-labelledby="projectListLabel" aria-hidden="true">
+      <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" ng-click="cancelSelection()" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            <div class="col-sm-6 col-sm-offset-2 text-center" id="projectListLabel">
+              <h4><strong>项目列表</strong></h4>
+            </div>
+            <div class="col-sm-3">
+              <input type="text" class="form-control" ng-model="childrenFilterKey" placeholder="项目过滤关键词">
+            </div>
+            <div><br></div>
+          </div>
+          <div class="modal-body">
+            <div class="col-sm-4" ng-repeat="project in projectsRaw | filter: childrenFilterKey">
+              <label><input type="checkbox" ng-model="childrenProject[project.name]">&nbsp;{{project.name}}</label>
+            </div>&nbsp;
+          </div>
+          <div class="modal-footer">
+            <div class="col-sm-2 col-sm-offset-8">
+              <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="selectChildren()">确&nbsp;定</button>
+            </div>
+            <div class="col-sm-2">
+              <button type="button" class="btn btn-primary btn-block" data-dismiss="modal" ng-click="cancelSelection()">取&nbsp;消</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- 子项目模式对话框结束 -->
+
     <div class="form-group">
       <label class="col-sm-2 control-label">项目合同</label>
       <div class="col-sm-9">
@@ -133,9 +169,20 @@
     </div>
   </form>
 
+  <div class="col-sm-12">
+    <div class="col-sm-3 col-sm-offset-3">
+      <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="confirmModify()">确认修改</button>
+    </div>
+    <div class="col-sm-3">
+      <button type="button" class="btn btn-primary btn-block" data-dismiss="modal" ng-click="cancelModify()">取消修改</button>
+    </div>
+  </div>
+
   <div class="col-md-8 col-md-offset-2" ng-show="message">
     <div ng-class="msgClass" class="alert" role="alert">
       <strong >{{message}}</strong>
     </div>
   </div>
+
+  <div><br></div>
 </div>

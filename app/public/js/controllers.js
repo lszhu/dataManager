@@ -236,8 +236,13 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
         console.log('projectName: ' + $scope.projectName);
         // 用于保存临时编辑的项目
         $scope.tmpProject = {};
+        // 控制修改隶属父项目
+        $scope.parentReadonly = true;
+        // 用于临时保存选中项目
+        $scope.childrenProject = {};
 
         var initTmpProject = function(project) {
+            $scope.parentReadonly = true;
             $scope.tmpProject = {};
             $scope.tmpProject.name = project.name;
             $scope.tmpProject.id = project.id;
@@ -257,6 +262,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             $scope.message = res.message;
             $scope.projectsRaw = res.projects;
             $scope.projects = res.projects;
+            $scope.parentProjects = res.projects;
             if (!$scope.projectName &&
                 $scope.projectsRaw && $scope.projectsRaw.length) {
                 $scope.projectName = $scope.projectsRaw[0].name;
@@ -280,27 +286,99 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             return {};
         };
 
-        //var updateShowing = function(curProject) {
-        //    $scope.id = curProject.id;
-        //    $scope.description = curProject.description;
-        //    $scope.parent = curProject && curProject.parent ?
-        //        curProject.parent : '';
-        //    $scope.children = curProject && curProject.children ?
-        //        curProject.children.join('\n') : '';
-        //};
+        $scope.editParent = function() {
+            $scope.parentReadonly = false;
+            $scope.filterParentKey = '';
+        };
+
+        $scope.confirmModify = function() {
+            var project = $scope.projectsRaw.filter(function(e) {
+                return e.name == $scope.tmpProject.name;
+            })[0];
+            $scope.tmpProject.option = 'arbitrary';
+            console.log('project: %o', $scope.tmpProject);
+
+            $http.post('/updateProject', $scope.tmpProject)
+                .success(function(res) {
+                    if (res.status != 'ok') {
+                        alert('系统原因导致未能修改成功：\n' + res.message);
+                        initTmpProject(project);
+                        console.log('project: %o', project);
+                    } else {
+                        for (var i = 0; i < $scope.projectsRaw.length; i++) {
+                            if ($scope.projects[i].name == project.name) {
+                                $scope.projects[i] = $scope.tmpProject;
+                                break;
+                            }
+                        }
+                        initTmpProject($scope.tmpProject);
+                    }
+
+                }).error(function(err) {
+                    console.log('project update error: %o', err);
+                    alert('未知外界原因，未能成功修改项目信息');
+                    initTmpProject(project);
+                });
+        };
+
+        $scope.cancelModify = function() {
+            var project = $scope.projectsRaw.filter(function(e) {
+                return e.name == $scope.tmpProject.name;
+            })[0];
+            initTmpProject(project);
+        };
+
+        $scope.cancelSelection = function() {
+            $scope.childrenProject = {};
+            if (!$scope.tmpProject.children) {
+                return;
+            }
+            for (var i = 0; i < $scope.tmpProject.children.length; i++) {
+                $scope.childrenProject[$scope.tmpProject.children[i]] = true;
+            }
+            console.log('tmpProject: %o', $scope.tmpProject);
+        };
+
+        $scope.selectChildren = function() {
+            $scope.tmpProject.children = [];
+            for (var i in $scope.childrenProject) {
+                if (!$scope.childrenProject.hasOwnProperty(i) ||
+                    !$scope.childrenProject[i]) {
+                    continue;
+                }
+                if (i == $scope.tmpProject.name) {
+                    $scope.childrenProject[i] = false;
+                    continue;
+                }
+                $scope.tmpProject.children.push(i);
+            }
+            console.log('tmpProject: %o', $scope.tmpProject);
+        };
 
         $scope.$watch(
             'filterKey',
             function (newValue, oldValue) {
-                if (newValue === oldValue) {
+                if (newValue == oldValue) {
                     return;
                 }
-                $scope.projects = $scope.filterKey ?
+                $scope.projects = newValue ?
                     filterFilter($scope.projectsRaw, newValue) :
                     $scope.projectsRaw;
                 if ($scope.projects && $scope.projects.length) {
                     $scope.projectName = $scope.projects[0].name;
                 }
+            }
+        );
+
+        $scope.$watch(
+            'filterParentKey',
+            function (newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.parentProjects = newValue ?
+                    filterFilter($scope.projectsRaw, newValue) :
+                    $scope.projectsRaw;
             }
         );
 
@@ -323,6 +401,13 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             function() {
                 var cur = currentProject();
                 initTmpProject(cur);
+                $scope.parentReadonly = true;
+                // 根据当前指定project初始化子项目选中情况
+                var children = $scope.tmpProject.children;
+                children = children ? children : [];
+                for (var i = 0; i < children.length; i++) {
+                    $scope.childrenProject[children[i]] = true;
+                }
                 //updateShowing(cur);
             }
         );

@@ -147,7 +147,7 @@ router.post('/createProject', function(req, res) {
         }
 
         // check recursive descendant
-        if (proj.recursiveSubProject(docs, project.parent, project.children)) {
+        if (proj.recursiveSubProject(docs, project)) {
             res.send({status: 'recursive', message: '存在循环父子项目'});
             tool.log(db, logMsg, '存在循环父子项目');
             return;
@@ -182,7 +182,7 @@ router.post('/updateProject', function(req, res) {
         }
 
         // check recursive descendant
-        if (proj.recursiveSubProject(docs, project.parent, project.children)) {
+        if (proj.recursiveSubProject(docs, project)) {
             res.send({status: 'recursive', message: '存在循环父子项目'});
             tool.log(db, logMsg, '存在循环父子项目');
             return;

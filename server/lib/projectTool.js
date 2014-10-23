@@ -29,10 +29,17 @@ function parseProject(req) {
     };
 }
 
-function recursiveSubProject(docs, parent, children) {
+function recursiveSubProject(docs, project) {
+    if (project.name == project.parent) {
+        return true;
+    }
+    if (project.children
+        && project.children.some(function(e) {return e == project;})) {
+        return true;
+    }
     var len = docs.length;
-    for (var i = 0, p = parent; i < len && p != ''; i++) {
-        if (children.some(function(e) {return e == p;})) {
+    for (var i = 0, p = project.parent; i < len && p != ''; i++) {
+        if (project.children.some(function(e) {return e == p;})) {
             debug('recursion occurred.');
             return true;
         }
