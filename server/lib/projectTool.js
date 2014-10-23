@@ -199,6 +199,12 @@ function updateProject(db, docs, project, res, logMsg) {
     counter.count = 1;
     db.save('project', {name: project.oldName},
         project, saveCallback(db, counter, res, logMsg));
+    // update financial figures
+    if (project.oldName && project.oldName != project.name) {
+        counter.count++;
+        db.save('figure', {project: project.oldName},
+            {project: project.name}, saveCallback(db, counter, res, logMsg));
+    }
     if (data.parentData && data.parentData.name) {
         counter.count++;
         db.save('project', {name: data.parentData.name},
