@@ -242,7 +242,6 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
         $scope.childrenProject = {};
 
         var initTmpProject = function(project) {
-            $scope.parentReadonly = true;
             $scope.tmpProject = {};
             $scope.tmpProject.name = project.name;
             $scope.tmpProject.id = project.id;
@@ -254,6 +253,16 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
                 project.contract.slice(0) : [];
             $scope.tmpProject.file = project.file ?
                 project.file.slice(0) : [];
+
+            $scope.parentReadonly = true;
+            // 根据当前指定project初始化子项目选中情况
+            var children = $scope.tmpProject.children;
+            children = children ? children : [];
+            for (var i = 0; i < $scope.projectsRaw.length; i++) {
+                var name = $scope.projectsRaw[i].name;
+                $scope.childrenProject[name] =
+                    children.some(function(e) {return e == name;});
+            }
         };
 
         $http.post('/queryProject', {}).success(function (res) {
