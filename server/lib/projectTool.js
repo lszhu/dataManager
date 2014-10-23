@@ -58,9 +58,9 @@ function parentProjectName(docs, projectName) {
     return '';
 }
 
-function renameProject(db, docs, project, logMsg) {
-
-}
+//function renameProject(db, docs, project, res, logMsg) {
+//
+//}
 
 // filter out projects should be update passively
 function relatedProject(docs, project) {
@@ -110,12 +110,10 @@ function relatedProject(docs, project) {
     if (parentData && parentData.name) {
         if (!parentData.children) {
             parentData.children = [project.name];
-            projects.parentData = parentData;
         } else if (parentData.children.every(function(e) {
             return e != project.name
         })) {
             parentData.children.push(project.name);
-            projects.parentData = parentData;
         }
     }
     // update target project's own old parent
@@ -150,6 +148,7 @@ function relatedProject(docs, project) {
         oldChildrenData[i].parent = '';
     }
 
+    projects.parentData = parentData;
     projects.oldParentData = oldParentData;
     projects.childrenData = childrenData;
     projects.oldChildrenData = oldChildrenData;
@@ -162,14 +161,47 @@ function updateProject(db, docs, project, res, logMsg) {
     var data = relatedProject(docs, project);
     debug('related project: ' + JSON.stringify(data));
     debug('project: ' + JSON.stringify(project));
+
+    if (project.newName && project.newName != project.name) {
+        // can not change project name to a exist name
+        var duplicate = docs
+            .filter(function(e) {return e.name == project.newName;});
+        if (duplicate.length) {
+            res.send({status: 'duplicateName',
+                message: '系统中已存在名称为' + project.newName + '的项目'});
+            tool.log(db, logMsg, '项目改名失败');
+            console.log('无法将项目改名为已存在的项目名称');
+            return;
+        }
+
+        // update related parent and children project
+        var i;
+        for (i = 0; i < data.childrenData.length; i++) {
+            data.childrenData[i].parent = project.newName;
+        }
+        if (data.parentData && data.parentData.children) {
+            for (i = 0; i < data.parentData.children.length; i++) {
+                if (data.parentData.children[i] == project.name) {
+                    data.parentData.children[i] = project.newName;
+                }
+            }
+        }
+        // store the original name
+        project.oldName = project.name;
+        // change project name to new name
+        project.name = project.newName;
+    } else {
+        project.oldName = project.name;
+    }
+
     var counter = {};
     // to count running saving procedures
     counter.count = 1;
-    db.save('project', {name: project.name},
+    db.save('project', {name: project.oldName},
         project, saveCallback(db, counter, res, logMsg));
-    if (data.parentData) {
+    if (data.parentData && data.parentData.name) {
         counter.count++;
-        db.save('project', {name: project.parent},
+        db.save('project', {name: data.parentData.name},
             data.parentData, saveCallback(db, counter, res, logMsg));
     }
     if (data.oldOwnParentData) {
@@ -220,6 +252,6 @@ function saveCallback(db, counter, res, logMsg) {
 module.exports = {
     parseProject: parseProject,
     recursiveSubProject: recursiveSubProject,
-    renameProject: renameProject,
+    //renameProject: renameProject,
     updateProject: updateProject
 };

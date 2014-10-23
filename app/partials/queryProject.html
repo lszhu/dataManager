@@ -46,11 +46,11 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="project in projects| filter: globalFilterKey">
+    <tr ng-repeat="project in projects | filter: globalFilterKey">
       <td>{{$index + 1}}</td>
       <td>
         <span ng-hide="project.edit">{{project.name}}</span>
-        <input ng-show="project.edit" type="text" ng-model="tmpProject.name">
+        <input ng-show="project.edit" type="text" ng-model="tmpProject.newName">
       </td>
       <td>
         <span ng-hide="project.edit">{{project.id}}</span>

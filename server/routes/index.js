@@ -187,13 +187,13 @@ router.post('/updateProject', function(req, res) {
             tool.log(db, logMsg, '存在循环父子项目');
             return;
         }
-
-        if (project.newName && project.newName != project.name) {
-            proj.renameProject(db, docs, project, res, logMsg);
-        } else {
-            debug('update project without changing name.');
-            proj.updateProject(db, docs, project, res, logMsg);
-        }
+        proj.updateProject(db, docs, project, res, logMsg);
+        //if (project.newName && project.newName != project.name) {
+        //    proj.renameProject(db, docs, project, res, logMsg);
+        //} else {
+        //    debug('update project without changing name.');
+        //    proj.updateProject(db, docs, project, res, logMsg);
+        //}
     });
 });
 
