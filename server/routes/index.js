@@ -253,6 +253,10 @@ router.post('/pisTable', function(req, res) {
     }
     condition.project = project;
 
+    // include sub project switch
+    var includeSubProject = req.body.includeSubProject;
+    debug('includeSubProject: ' + includeSubProject);
+
     var logMsg = {
         operator: req.session.user.username,
         operation: 'pis财务报表创建',
@@ -261,20 +265,33 @@ router.post('/pisTable', function(req, res) {
         status: '失败'
     };
 
-    debug('condition: %j', condition);
-    db.query('figure', condition, function(err, docs) {
+    db.query('project', {}, function(err, docs) {
         if (err) {
             console.log('Db error: ' + JSON.stringify(err));
             res.send({status: 'dbErr', message: '数据库查询访问失败'});
             tool.log(db, logMsg);
             return;
         }
-        //debug('docs from db: %j', docs);
-        var pisList = tool.pisList(docs, startDate);
-        //debug('pisList: %j', pisList);
-        res.send(pisList);
-        tool.log(db, logMsg, pisList.message,
-                pisList.status == 'ok' ? '成功' : '失败');
+        if (includeSubProject) {
+            var relatives = proj.getRelatives(project, docs);
+            condition.project = {$in: relatives};
+        }
+
+        debug('condition: %j', condition);
+        db.query('figure', condition, function(err, docs) {
+            if (err) {
+                console.log('Db error: ' + JSON.stringify(err));
+                res.send({status: 'dbErr', message: '数据库查询访问失败'});
+                tool.log(db, logMsg);
+                return;
+            }
+            debug('figures count: %d', docs.length);
+            var pisList = tool.pisList(docs, startDate);
+            //debug('pisList: %j', pisList);
+            res.send(pisList);
+            tool.log(db, logMsg, pisList.message,
+                    pisList.status == 'ok' ? '成功' : '失败');
+        });
     });
 
 });

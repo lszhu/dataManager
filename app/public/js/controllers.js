@@ -255,6 +255,8 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
         $scope.parentReadonly = true;
         // 用于临时保存选中项目
         $scope.childrenProject = {};
+        // 保存从服务器获取的原始资料
+        $scope.projectsRaw = [];
 
         var initTmpProject = function(project) {
             $scope.tmpProject = {};
@@ -563,10 +565,12 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
         });
 
         $scope.queryData = function() {
+            $scope.subjects = [];
             $http.post('/pisTable', {
                 projectName: $scope.projectName,
                 dateFrom: $scope.dateFrom,
-                dateTo: $scope.dateTo
+                dateTo: $scope.dateTo,
+                includeSubProject: $scope.includeSubProject
             }).success(function(res) {
                 $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
@@ -575,7 +579,13 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 if (!$scope.message) {
                     $scope.message = '未知错误，请先退出后重新登录尝试';
                 }
+                if (!res.data) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = '该项目没有任何财务数据';
+                    return;
+                }
                 $scope.subjectsRaw = res.data;
+                // 过滤出指定级别以上的科目
                 $scope.subjects = $scope.subjectsRaw.filter(function(e) {
                     return e.id.length <= $scope.grade * 2 + 1;
                 });

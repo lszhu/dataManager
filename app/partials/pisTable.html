@@ -19,7 +19,7 @@
         <label class="col-sm-2 control-label"></label>
         <div class="checkbox col-sm-4">
           <label>
-            <input type="checkbox" ng-model="includeChildren"><strong>包含子项目</strong>
+            <input type="checkbox" ng-model="includeSubProject"><strong>包含子项目</strong>
           </label>
         </div>
       </div>
@@ -62,24 +62,24 @@
       <table class="table">
         <thead>
         <tr class="active pis">
-          <th class="code">科目编码</th>
-          <th>科目名称</th>
-          <th class="figure">起始时间累计数</th>
-          <th class="figure">截止时间累计数</th>
-          <th class="figure">发生额</th>
-          <th class="figure">贷方累计发生</th>
-          <th class="figure">借方累计发生</th>
+          <th class="code text-left">科目编码</th>
+          <th class="text-left">科目名称</th>
+          <th class="figure text-right">起始时间累计数</th>
+          <th class="figure text-right">截止时间累计数</th>
+          <th class="figure text-right">发生额</th>
+          <th class="figure text-right">贷方累计发生</th>
+          <th class="figure text-right">借方累计发生</th>
         </tr>
         </thead>
         <tbody>
         <tr ng-repeat="subject in subjects | filter: globalFilterKey" ng-class="colorLevel(subject.id)">
-          <td>{{subject.id}}</td>
-          <td>{{subject.name}}</td>
-          <td>{{subject.init | currency: '¥'}}</td>
-          <td>{{subject.end | currency: '¥'}}</td>
-          <td>{{(subject.end - subject.init) | currency: '¥'}}</td>
-          <td>{{subject.credit | currency: '¥'}}</td>
-          <td>{{subject.debit | currency: '¥'}}</td>
+          <td class="text-left">{{subject.id}}</td>
+          <td class="text-left">{{subject.name}}</td>
+          <td class="text-right">{{subject.init | currency: '¥'}}</td>
+          <td class="text-right">{{subject.end | currency: '¥'}}</td>
+          <td class="text-right">{{(subject.end - subject.init) | currency: '¥'}}</td>
+          <td class="text-right">{{subject.credit | currency: '¥'}}</td>
+          <td class="text-right">{{subject.debit | currency: '¥'}}</td>
         </tr>
         <!--
         <tr class="info">
