@@ -255,9 +255,69 @@ function saveCallback(db, counter, res, logMsg) {
     };
 }
 
+function deleteProject(db, doc, res, logMsg) {
+    // a counter to record concurrent db operations
+    var counter = {count: 0};
+    // error container
+    var error = [];
+    if (doc.parent) {
+        counter.count++;
+        db.queryOne('project', {name: doc.parent}, function(err, parent) {
+            if (err) {
+                error.push(err);
+                tool.log(db, logMsg);
+                projectDeleteReply(db, counter, error, res, logMsg);
+                return;
+            }
+            debug('parent project: ' + JSON.stringify(parent));
+            if (!parent || !parent.children || !parent.children.length) {
+                console.log('project information not consistence');
+                error.push({status: 'dbErr', message: '数据库信息存在不一致'});
+                tool.log(db, logMsg);
+                projectDeleteReply(db, counter, error, res, logMsg);
+                return;
+            }
+            parent.children = parent.children
+                .filter(function(e) {return e != doc.name});
+            debug('parent children: ' + parent.children);
+            db.save('project', {name: parent.name}, parent,
+                projectDeleteReply(db, counter, error, res, logMsg));
+        });
+    }
+    counter.count++;
+    db.remove('project', {name: doc.name},
+        projectDeleteReply(db, counter, error, res, logMsg));
+    counter.count++;
+    db.remove('figure', {project: doc.name},
+        projectDeleteReply(db, counter, error, res, logMsg));
+}
+
+function projectDeleteReply(db, counter, error, res, logMsg) {
+    return function(err) {
+        counter.count--;
+        debug('counter.count: ' + counter.count);
+        if (err) {
+            error.push(err);
+            console.log('db error: %o', err);
+        }
+        if (counter.count) {
+            return
+        }
+        if (error.length) {
+            res.send({status: 'dbErr',
+                message: '数据库操作失败', error: error});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send({status: 'ok', message: '删除项目成功'});
+        tool.log(db, logMsg, '删除项目成功', '成功');
+    }
+}
+
 module.exports = {
     parseProject: parseProject,
     recursiveSubProject: recursiveSubProject,
     //renameProject: renameProject,
-    updateProject: updateProject
+    updateProject: updateProject,
+    deleteProject: deleteProject
 };

@@ -231,8 +231,10 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                         $scope.projects = $scope.projects.filter(function(e) {
                             return e.name != project.name;
                         });
+                    } else if (res.status == 'parentProject') {
+                        alert('删除项目失败：\n' + res.message);
                     } else {
-                        alert('系统原因，无法删除该项目。\n' + res.message);
+                        alert('系统原因，无法删除该项目：\n' + res.message);
                     }
                 }).error(function(err) {
                     alert('未知外界原因，无法删除该项目');
@@ -326,7 +328,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             $http.post('/updateProject', $scope.tmpProject)
                 .success(function(res) {
                     if (res.status != 'ok') {
-                        alert('系统原因导致未能修改成功：\n' + res.message);
+                        alert('未能修改成功：\n' + res.message);
                         initTmpProject(project);
                         console.log('project: %o', project);
                     } else {
@@ -341,7 +343,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
                     queryProject();
                 }).error(function(err) {
                     console.log('project update error: %o', err);
-                    alert('未知外界原因，未能成功修改项目信息');
+                    alert('未知外界原因导致修改项目信息失败');
                     initTmpProject(project);
                 });
         };

@@ -24,6 +24,7 @@ function readJsonFile(filePath) {
 
 // 向db指定的数据库中写入日志信息
 function log(db, doc, comment, status) {
+    doc = doc ? doc : {};
     doc.time = new Date();
     if (comment) {
         doc.comment = comment;
@@ -648,5 +649,5 @@ module.exports = {
     pisList: pisList,
     readFile: readFile,
     objectToArray: objectToArray,
-    voucherAutoBind: voucherAutoBind,
+    voucherAutoBind: voucherAutoBind
 };

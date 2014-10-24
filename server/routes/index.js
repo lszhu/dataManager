@@ -211,14 +211,23 @@ router.post('/removeProject', function(req, res) {
         status: '失败'
     };
     name = name.trim();
-    db.remove('project', {name: name}, function(err) {
+    db.queryOne('project', {name: name}, function(err, doc) {
         if (err) {
             res.send({status: 'dbErr', message: '数据库操作失败'});
             tool.log(db, logMsg);
-        } else {
-            res.send({status: 'ok', message: '删除项目成功'});
-            tool.log(db, logMsg, '删除项目成功', '成功');
+            return;
+        } else if (!doc) {
+            res.send({status: 'noProject', message: '未找到相应相应项目'});
+            tool.log(db, logMsg, '未找到相应相应项目', '失败');
+            return;
         }
+        if (doc.children && doc.children.length) {
+            res.send({status: 'parentProject',
+                message: '该项目含有子项目，无法删除'});
+            tool.log(db, logMsg, '试图删除父项目', '失败');
+            return;
+        }
+        proj.deleteProject(db, doc, res, logMsg);
     });
 });
 
