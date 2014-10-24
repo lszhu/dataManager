@@ -87,8 +87,8 @@ function listFiles(res, relativePath, callback) {
     fs.readdir(fullPath, function (err, files) {
         debug('files' + JSON.stringify(files));
         //categoryFiles(relativePath, files, err, res, callback);
-        if (err) {
-            callback(err, {dirs: [], stdFiles: [], path: relativePath}, res);
+        if (err || files.length == 0) {
+            callback(err, {dirs: [], files: [], path: relativePath}, res);
             return;
         }
         var dirs = [];
@@ -104,15 +104,13 @@ function listFiles(res, relativePath, callback) {
                     }
                     if (stats.isDirectory()) {
                         dirs.push(file);
-                        return;
-                    }
-                    if (stats.isFile()) {
+                    } else if (stats.isFile()) {
                         stdFiles.push(file);
                     }
                     if (!counter.count) {
                         var data = {
-                            dirs: dirs,
-                            files: stdFiles,
+                            dirs: dirs.sort(),
+                            files: stdFiles.sort(),
                             path: relativePath
                         };
                         debug('file data: ' + JSON.stringify(data));

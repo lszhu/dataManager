@@ -821,27 +821,44 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
+
+        $scope.openDir = function(path) {
+            if (path == '..') {
+                $scope.path = $scope.path.split('/').slice(0, -1).join('/');
+                path = '';
+            }
+            $scope.path = path ? $scope.path + '/' + path : $scope.path;
+            $http.post('/queryFile', {path: $scope.path}).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.fileData = res.fileData;
+                if (!path) {
+                    $scope.dataBackup = $scope.fileData;
+                }
+                console.log('file data: %o', $scope.fileData);
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
         // 初始化$scope.files，保存文件列表
-        $http.post('/queryFile', {path: $scope.path}).success(function(res) {
-            $scope.msgClass =
-                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
-            $scope.message = res.message;
-            $scope.fileData = res.fileData;
-            console.log('file data: %o', $scope.fileData);
-        }).error(function(res) {
-            $scope.msgClass = 'alert-danger';
-            $scope.message = 'system error: ' + JSON.stringify(res);
-        });
+        $scope.openDir();
 
         $scope.cancelSelection = function() {
             $scope.fileFilterKey = '';
             $scope.selectedFile = '';
+            $scope.path = '';
+            $scope.fileData = $scope.dataBackup;
             console.log('selected file name: %o', $scope.selectedFile);
         };
 
         $scope.selectFile = function() {
             $scope.fileFilterKey = '';
+            //$scope.fileData = $scope.dataBackup;
             console.log('selected file name: %o', $scope.selectedFile);
+            console.log('selected file name: %o', $scope.path);
         };
 
         // 返回是否已选择批量处理模式
@@ -859,7 +876,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
         $scope.serverModeImport = function() {
             $http.post('/importFigure', {
                 style: 'server',
-                path: $scope.path,
+                path: $scope.path + '/' + $scope.selectedFile,
                 projectName: $scope.projectName,
                 year: $scope.year
             }).success(function(res) {

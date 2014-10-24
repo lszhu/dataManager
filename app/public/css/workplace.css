@@ -6,6 +6,10 @@ span.glyphicon {
     cursor: pointer;
 }
 
+span.glyphicon-folder-open {
+    color: yellowgreen;
+}
+
 span.glyphicon-pencil {
     color: blue;
 }

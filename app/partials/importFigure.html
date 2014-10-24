@@ -42,11 +42,22 @@
               <div><br></div>
             </div>
             <div class="modal-body">
-              <div class="col-sm-4" ng-repeat="file in fileData.dirs | filter: fileFilterKey">
-                <label><input type="radio" ng-model="$parent.selectedFile" ng-value="file" name="fileItems">&nbsp;{{file}}</label>
+              <div class="col-sm-4">
+                <label ng-click="openDir('..')">
+                  <span class="glyphicon glyphicon-folder-open"></span>
+                  <span>&nbsp;返回上级目录</span>
+                  <span class="caret"></span>
+                </label>
               </div>
-              <div class="col-sm-4" ng-repeat="dir in fileData.files | filter: fileFilterKey">
-                <label><input type="radio" ng-model="$parent.selectedFile" ng-value="dir" name="fileItems">&nbsp;{{dir}}</label>
+              <div class="col-sm-4" ng-repeat="dir in fileData.dirs | filter: fileFilterKey">
+                <label ng-click="openDir(dir)">
+                  <span class="glyphicon glyphicon-folder-open"></span>
+                  <span>&nbsp;{{dir}}</span>
+                  <span class="caret"></span>
+                </label>
+              </div>
+              <div class="col-sm-4" ng-repeat="file in fileData.files | filter: fileFilterKey">
+                <label><input type="radio" ng-model="$parent.selectedFile" ng-value="file">&nbsp;{{file}}</label>
               </div>&nbsp;
             </div>
             <div class="modal-footer">
@@ -87,7 +98,7 @@
     </div>
     <div class="form-group">
       <div class="col-sm-offset-2 col-sm-2">
-        <button type="submit" class="btn btn-primary btn-block">导 入</button>
+        <button type="submit" ng-disabled="!selectedFile" class="btn btn-primary btn-block">导 入</button>
       </div>
     </div>
   </form>

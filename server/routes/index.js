@@ -349,7 +349,9 @@ router.post('/queryFile', function(req, res) {
     };
     tool.listFiles(res, relativePath, function(err, data, res) {
         if (err) {
-            res.send({status: 'listFileErr', message: '获取文件列表失败'});
+            res.send({
+                status: 'listFileErr',
+                message: '获取文件列表失败，路径：' + data.path});
             tool.log(db, logMsg);
             return;
         }
@@ -453,6 +455,15 @@ router.post('/importFigure', function(req, res) {
         status: '失败'
     };
     if (style == 'server') {
+        var filename = path.basename(filePath);
+        filename = filename ? filename.split('.').slice(0, -1) : '';
+        debug('filename: ' + filename);
+        debug('projectName: ' + projectName);
+        if (filename && filename != projectName) {
+            res.send({status: 'nameErr', message: '文件名与项目名称不一致'});
+            tool.log(db, logMsg, '文件名与项目名称不一致', '失败');
+            return;
+        }
         tool.importFigures(db, filePath, projectName, year, function(msg) {
             res.send(msg);
             tool.log(db, logMsg, msg.comment, msg.result);
