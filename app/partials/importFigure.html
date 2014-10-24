@@ -4,7 +4,7 @@
     <div class="form-group">
       <label for="style" class="col-sm-2 control-label">导入模式</label>
       <div class="col-sm-5">
-        <select class="form-control" name="style" ng-model="style" id="style">
+        <select class="form-control" disabled name="style" ng-model="style" id="style">
           <option value="server">服务器端本地模式</option>
           <option value="serverBatch">服务器端本地批量模式</option>
           <option value="client">客户端远程模式</option>
@@ -13,10 +13,55 @@
       </div>
     </div>
     <div class="form-group">
-      <label for="path" class="col-sm-2 control-label">文件路径</label>
+      <label class="col-sm-2 control-label">数据文件</label>
+      <!--
       <div class="col-sm-5">
         <input type="text" class="form-control" name="path" ng-model="path" id="path" placeholder="输入文件路径" required>
       </div>
+      -->
+      <!-- 用于打开模式对话框 -->
+      <div class="col-sm-5">
+        <button type="button" class="btn btn-default btn-block" data-toggle="modal" data-target="#projectList">
+          {{buttonName()}}
+          <span class="caret"></span>
+        </button>
+      </div>
+
+      <!-- 选择子项目模式对话框 -->
+      <div class="modal fade" id="projectList" tabindex="-1" role="dialog" aria-labelledby="projectListLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" ng-click="cancelSelection()" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+              <div class="col-sm-6 col-sm-offset-2 text-center" id="projectListLabel">
+                <h4><strong>文件列表</strong></h4>
+              </div>
+              <div class="col-sm-3">
+                <input type="text" class="form-control" ng-model="fileFilterKey" placeholder="文件过滤关键词">
+              </div>
+              <div><br></div>
+            </div>
+            <div class="modal-body">
+              <div class="col-sm-4" ng-repeat="file in fileData.dirs | filter: fileFilterKey">
+                <label><input type="radio" ng-model="$parent.selectedFile" ng-value="file" name="fileItems">&nbsp;{{file}}</label>
+              </div>
+              <div class="col-sm-4" ng-repeat="dir in fileData.files | filter: fileFilterKey">
+                <label><input type="radio" ng-model="$parent.selectedFile" ng-value="dir" name="fileItems">&nbsp;{{dir}}</label>
+              </div>&nbsp;
+            </div>
+            <div class="modal-footer">
+              <div class="col-sm-2 col-sm-offset-8">
+                <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="selectFile()">确&nbsp;定</button>
+              </div>
+              <div class="col-sm-2">
+                <button type="button" class="btn btn-primary btn-block" data-dismiss="modal" ng-click="cancelSelection()">取&nbsp;消</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <!-- 子项目模式对话框结束 -->
+
     </div>
     <div class="form-group">
       <label for="projectName" class="col-sm-2 control-label">所属项目</label>
@@ -41,8 +86,8 @@
       </div>
     </div>
     <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-8">
-        <button type="submit" ng-disabled="!importFigure.path.$valid" class="btn btn-primary">&nbsp;&nbsp;导 入&nbsp;&nbsp;</button>
+      <div class="col-sm-offset-2 col-sm-2">
+        <button type="submit" class="btn btn-primary btn-block">导 入</button>
       </div>
     </div>
   </form>

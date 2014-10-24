@@ -79,6 +79,52 @@ function interval(from, to) {
     }
 }
 
+// 列出指定目录中的文件列表
+// 回调函数为callback(err, data, res)
+function listFiles(res, relativePath, callback) {
+    var fullPath = path.join(__dirname, refPath.voucher, relativePath);
+    debug('fullPath: ' + fullPath);
+    fs.readdir(fullPath, function (err, files) {
+        debug('files' + JSON.stringify(files));
+        //categoryFiles(relativePath, files, err, res, callback);
+        if (err) {
+            callback(err, {dirs: [], stdFiles: [], path: relativePath}, res);
+            return;
+        }
+        var dirs = [];
+        var stdFiles = [];
+        var counter = {count: 0};
+        for (var i = 0; i < files.length; i++) {
+            counter.count++;
+            fs.stat(fullPath + '/' + files[i], function(file) {
+                return function (err, stats) {
+                    counter.count--;
+                    if (err && counter.count) {
+                        return;
+                    }
+                    if (stats.isDirectory()) {
+                        dirs.push(file);
+                        return;
+                    }
+                    if (stats.isFile()) {
+                        stdFiles.push(file);
+                    }
+                    if (!counter.count) {
+                        var data = {
+                            dirs: dirs,
+                            files: stdFiles,
+                            path: relativePath
+                        };
+                        debug('file data: ' + JSON.stringify(data));
+                        callback(null, data, res);
+                    }
+                    debug('counter.count: ' + counter.count);
+                }
+            }(files[i]));
+        }
+    });
+}
+
 // 向db指定的数据库中导入财务凭证数据
 // 回调函数格式为callback(message)
 function importFigures(db, filePath, projectName, year, callback) {
@@ -649,5 +695,6 @@ module.exports = {
     pisList: pisList,
     readFile: readFile,
     objectToArray: objectToArray,
-    voucherAutoBind: voucherAutoBind
+    voucherAutoBind: voucherAutoBind,
+    listFiles: listFiles
 };

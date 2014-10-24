@@ -698,7 +698,7 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
             $scope.projectsRaw = res.projects.sort(function(a, b) {
                 return a.name < b.name ? -1 : 1;
             });
-            console.log('projects\n' + JSON.stringify($scope.projectsRaw));
+            //console.log('projects\n' + JSON.stringify($scope.projectsRaw));
             $scope.projects = $scope.projectsRaw.slice(0);
         }).error(function (res) {
             $scope.msgClass = 'alert-danger';
@@ -797,6 +797,8 @@ mainFrameCtrl.controller('AddFigureCtrl', ['$scope',
 
 mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
     function($scope, $http) {
+        //$scope.selectedFile = '2011';
+        $scope.path = '';
         // 已导入文件条目列表
         $scope.importedList = [];
         // 有错误的凭证数据
@@ -809,7 +811,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
         $scope.year = $scope.years[0];
         // 默认导入方式为服务器端本地模式
         $scope.style = 'server';
-        // 初始化$scope.projects
+        // 初始化$scope.projects，保存项目列表
         $http.post('/queryProject', {}).success(function(res) {
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
@@ -819,11 +821,38 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
+        // 初始化$scope.files，保存文件列表
+        $http.post('/queryFile', {path: $scope.path}).success(function(res) {
+            $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.fileData = res.fileData;
+            console.log('file data: %o', $scope.fileData);
+        }).error(function(res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
+
+        $scope.cancelSelection = function() {
+            $scope.fileFilterKey = '';
+            $scope.selectedFile = '';
+            console.log('selected file name: %o', $scope.selectedFile);
+        };
+
+        $scope.selectFile = function() {
+            $scope.fileFilterKey = '';
+            console.log('selected file name: %o', $scope.selectedFile);
+        };
 
         // 返回是否已选择批量处理模式
         $scope.batchMode = function() {
             return $scope.style == 'serverBatch' ||
                 $scope.style == 'clientBatch';
+        };
+
+        $scope.buttonName = function() {
+            return $scope.selectedFile ?
+                $scope.selectedFile : "从系统指定的文件夹中选择文件";
         };
 
         // 服务器端本地模式

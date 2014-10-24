@@ -338,6 +338,25 @@ router.post('/logReport', function(req, res) {
     });
 });
 
+router.post('/queryFile', function(req, res) {
+    var relativePath = req.body.path;
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '获取文件列表',
+        target: '原始财务数据文件存放目录',
+        comment: '获取文件列表失败',
+        status: '失败'
+    };
+    tool.listFiles(res, relativePath, function(err, data, res) {
+        if (err) {
+            res.send({status: 'listFileErr', message: '获取文件列表失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send({status: 'ok', fileData: data});
+        tool.log(db, logMsg, '文件获取成功', '成功');
+    });
+});
 
 router.post('/queryProject', function(req, res) {
     var condition = {};

@@ -261,22 +261,23 @@ function getAccount(username, callback) {
 }
 
 function batchSaveFigures(docs, callback) {
-    var count = 0;
+    var counter = {count: 0};
     var error = [];
     debug('there are %d rows to add.', docs.length);
     for (var i = 0; i < docs.length; i++) {
-        count++;
-        save('figure', {id: docs[i]['id']}, docs[i], function(err) {
-            if (err) {
-                error.push(err);
-            }
-            debug('a row of figures was saved to db');
-            count--;
-            if (count == 0) {
-                callback(error.length ? error : undefined,
-                        docs.length - error.length);
-            }
-        });
+        counter.count++;
+        save('figure', {id: docs[i].id, project: docs[i].project}, docs[i],
+            function(err) {
+                if (err) {
+                    error.push(err);
+                }
+                debug('a row of figures was saved to db');
+                counter.count--;
+                if (!counter.count) {
+                    callback(error.length ? error : undefined,
+                            docs.length - error.length);
+                }
+            });
     }
 }
 
