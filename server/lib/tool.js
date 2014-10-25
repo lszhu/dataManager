@@ -302,30 +302,49 @@ function figureList(sheets, projectName, year) {
     return {data: filter, errLine: errLine};
 }
 
-// 生成pis报表的数据，以数组方式返回
-function pisList(figures, startDate) {
-    var subjects = {};
-    var id, init, end, amount, credit, debit;
-
-    // 分析每行数据的内容，以适当处理
-    function classifyRow(row, date) {
-        var sum;
-        if (row.direction == '借') {
-            sum = row.debit - row.credit;
-        } else if (row.direction == '贷') {
-            sum = row.credit - row.debit;
-        } else if (row.direction == '平') {
-            if (row.credit != 0 && row.debit != 0) {
-                return {status: 'errEqual', message: '平帐数据有误'};
-            }
-            sum = row.credit + row.debit;
-        } else {
-            return {status: 'errDirection', message: '借贷方向有误'};
+// 生成按照项目逐一汇总的数据，每个项目一条，以数组方式返回
+function projectList(figures, startDate) {
+    var projects = {};
+    for (var i = 0, len = figures.length; i < len; i++) {
+        var result = classifyRow(figures[i], startDate);
+        if (result.status != 'ok') {
+            return result;
         }
-        var point = row.date < date ? 'init' : 'end';
-        return {status: 'ok', type: point, value: sum};
+        var project = figures[i].project;
+        // 初始化项目数据
+        if (!projects.hasOwnProperty(project)) {
+            // end属性为累计发生额
+            projects[project] = {init: 0, end: 0, credit: 0, debit: 0}
+        }
+        // 处理年度结转数据
+        if (figures[i].voucher.id == '10000' &&
+            figures[i].date.getFullYear() == startDate.getFullYear()) {
+            debug('add balance from last year');
+            projects[project].init += figures[i].balance;
+            continue;
+        }
+        // 计算累计数
+        projects[project][result.type] += result.value;
+        projects[project]['credit'] += figures[i]['credit'];
+        projects[project]['debit'] += figures[i]['debit'];
     }
 
+    // 将projects改为数组形式，并在每项中加入项目名称
+    var data = [];
+    for (i in projects) {
+        if (!projects.hasOwnProperty(i)) {
+            continue;
+        }
+        projects[i].name = i;
+        // 将end属性保存的值由累计发生额改为期末数
+        projects[i].end += projects[i].init;
+        data.push(projects[i])
+    }
+    return {data: data, status: 'ok', message: '成功生成按项目逐一汇总报表'};
+}
+
+// 生成pis报表的数据，以数组方式返回
+function pisList(figures, startDate) {
     // 汇总子科目到上一级科目中，直到一级科目，生成科目列表并初始化或汇总相关数据
     function aggregateSubject(subjects) {
         var aggregated = {};
@@ -360,27 +379,33 @@ function pisList(figures, startDate) {
     }
 
     // 计算每个子科目的期初数、积累、借方累计、贷方累计
-    for (var i = 0, len = figures.length; i < len; i++) {
-        id = figures[i].subjectId;
-        if (!subjects.hasOwnProperty(id)) {
-            subjects[id] = {id: id, name: figures[i].subjectName,
-                init: 0, end: 0, credit: 0, debit: 0};
+    function subjectList(figures, startDate) {
+        var subjects = {};
+        var id;
+        for (var i = 0, len = figures.length; i < len; i++) {
+            id = figures[i].subjectId;
+            if (!subjects.hasOwnProperty(id)) {
+                subjects[id] = {id: id, name: figures[i].subjectName,
+                    init: 0, end: 0, credit: 0, debit: 0};
+            }
+            if (figures[i].voucher.id == '10000' &&
+                figures[i].date.getFullYear() == startDate.getFullYear()) {
+                debug('add balance from last year');
+                subjects[id].init += figures[i].balance;
+                continue;
+            }
+            var result = classifyRow(figures[i], startDate);
+            if (result.status != 'ok') {
+                return result;
+            }
+            subjects[id][result.type] += result.value;
+            subjects[id]['credit'] += figures[i]['credit'];
+            subjects[id]['debit'] += figures[i]['debit'];
         }
-        if (figures[i].voucher.id == '10000' &&
-            figures[i].date.getFullYear() == startDate.getFullYear()) {
-            debug('add balance from last year');
-            subjects[id].init += figures[i].balance;
-            continue;
-        }
-        var result = classifyRow(figures[i], startDate);
-        if (result.status != 'ok') {
-            return result;
-        }
-        subjects[id][result.type] += result.value;
-        subjects[id]['credit'] += figures[i]['credit'];
-        subjects[id]['debit'] += figures[i]['debit'];
+        return subjects;
     }
 
+    var subjects = subjectList(figures, startDate);
     var aggregated = objectToArray(aggregateSubject(subjects));
     //debug('aggregated: ' + JSON.stringify(aggregated));
     subjects = objectToArray(subjects);
@@ -394,6 +419,27 @@ function pisList(figures, startDate) {
         subjects[i].end += subjects[i].init;
     }
     return {data: subjects, status: 'ok', message: '成功生成pis报表'};
+}
+
+
+// 分析每行数据的内容，以适当处理
+function classifyRow(row, date) {
+    var sum;
+    if (row.direction == '借') {
+        sum = row.debit - row.credit;
+    } else if (row.direction == '贷') {
+        sum = row.credit - row.debit;
+    } else if (row.direction == '平') {
+        if (row.credit != 0 && row.debit != 0) {
+            return {status: 'errEqual', message: '平帐数据有误'};
+        }
+        sum = row.credit + row.debit;
+    } else {
+        return {status: 'errDirection', message: '借贷方向有误'};
+    }
+    // init表示对应到初始值中，end表示对应到最终累计数中
+    var point = row.date < date ? 'init' : 'end';
+    return {status: 'ok', type: point, value: sum};
 }
 
 // 由科目代码查询科目名称
@@ -694,5 +740,6 @@ module.exports = {
     readFile: readFile,
     objectToArray: objectToArray,
     voucherAutoBind: voucherAutoBind,
-    listFiles: listFiles
+    listFiles: listFiles,
+    projectList: projectList
 };

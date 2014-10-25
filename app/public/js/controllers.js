@@ -681,6 +681,75 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
 
 ]);
 
+mainFrameCtrl.controller('projectTableCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.subject = 'all';
+        initPeriod();
+        initSubject();
+
+        $scope.queryData = function() {
+            console.log('subjectId: ' + $scope.subject);
+            $scope.data = [];
+            $http.post('/projectTable', {
+                subject: $scope.subject,
+                dateFrom: $scope.dateFrom,
+                dateTo: $scope.dateTo
+            }).success(function(res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                //console.log('msgClass: ' + $scope.msgClass);
+                $scope.message = res.message;
+                if (!$scope.message) {
+                    $scope.message = '未知错误，请先退出后重新登录尝试';
+                }
+                if (!res.data) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = '没有任何财务数据';
+                    return;
+                }
+                $scope.projects = res.data;
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.$watch(
+            'subject',
+            function(newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.projects = [];
+            }
+        );
+
+        // 将时间范围初始化为当年的1月1日至查询当天
+        function initPeriod() {
+            var time = new Date();
+            var year = time.getFullYear();
+            $scope.dateFrom = year + '-01-01';
+            var month = time.getMonth() + 1;
+            month = month > 9 ? month : '0' + month;
+            var day = time.getDate();
+            day = day > 9 ? day : '0' + day;
+            $scope.dateTo = year + '-' + month + '-' + day;
+        }
+
+        // 由服务器获取科目信息并初始化控制器地变量
+        function initSubject() {
+            $http.get('/subject').success(function(res) {
+                $scope.subjects = res;
+                $scope.subjectIds = Object.keys(res);
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        }
+
+    }
+]);
+
 mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
     function($scope, $http) {
         $scope.message = '';

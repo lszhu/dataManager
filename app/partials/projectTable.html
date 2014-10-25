@@ -1,0 +1,73 @@
+<div>
+  <h1 class="page-header">按项目逐一汇总</h1>
+  <form class="form-horizontal" name="project" role="form" ng-submit="queryData()">
+
+    <div class="form-group col-sm-6">
+      <label for="dateFrom" class="col-sm-4 control-label">起始时间</label>
+      <div class="col-sm-8">
+        <input type="date" class="form-control" name="dateFrom" ng-model="dateFrom" id="dateFrom" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+    <div class="form-group col-sm-6">
+      <label for="dateTo" class="col-sm-4 control-label">截止时间</label>
+      <div class="col-sm-8">
+        <input type="date" class="form-control" name="dateTo" ng-model="dateTo" id="dateTo" placeholder="YYYY-MM-DD">
+      </div>
+    </div>
+    <div class="form-group col-sm-6">
+      <label for="subject" class="col-sm-4 control-label">指定科目</label>
+      <div class="col-sm-8">
+        <select class="form-control" ng-model="subject" name="subject" id="subject">
+          <option value="all">不限</option>
+          <option value="{{s}}" ng-repeat="s in subjectIds | filter: subjectFilterKey">{{s}}-{{subjects[s].name}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-sm-3">
+      <input type="text" class="form-control" ng-model="subjectFilterKey" placeholder="科目过滤关键词">
+    </div>
+
+    <div class="col-sm-12">
+      <div class="col-sm-offset-3 col-sm-6">
+        <button type="submit" class="btn btn-primary btn-block">生成报表</button>
+      </div>
+    </div>
+  </form>
+
+  <div class="col-sm-12"><br></div>
+
+  <div class="col-sm-12">
+    <div class="panel panel-default">
+      <table class="table table-striped">
+        <thead>
+        <tr class="active pis">
+          <th class="code text-left">序号</th>
+          <th class="text-left">项目名称</th>
+          <th class="figure text-right">起始时间累计数</th>
+          <th class="figure text-right">截止时间累计数</th>
+          <th class="figure text-right">发生额</th>
+          <th class="figure text-right" ng-hide="subject=='all'">贷方累计发生</th>
+          <th class="figure text-right" ng-hide="subject=='all'">借方累计发生</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="project in projects | filter: globalFilterKey">
+          <td class="text-left">{{$index + 1}}</td>
+          <td class="text-left">{{project.name}}</td>
+          <td class="text-right">{{project.init | currency: '¥'}}</td>
+          <td class="text-right">{{project.end | currency: '¥'}}</td>
+          <td class="text-right">{{(project.end - project.init) | currency: '¥'}}</td>
+          <td class="text-right" ng-hide="$parent.subject=='all'">{{project.credit | currency: '¥'}}</td>
+          <td class="text-right" ng-hide="$parent.subject=='all'">{{project.debit | currency: '¥'}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div class="col-md-8 col-md-offset-2" ng-show="showMsg">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
+</div>

@@ -261,7 +261,7 @@ router.post('/pisTable', function(req, res) {
 
     var logMsg = {
         operator: req.session.user.username,
-        operation: 'pis财务报表创建',
+        operation: 'pis分科目汇总报表',
         target: '凭证数据库',
         comment: '数据库查询访问失败',
         status: '失败'
@@ -297,6 +297,58 @@ router.post('/pisTable', function(req, res) {
         });
     });
 
+});
+
+
+router.post('/projectTable', function(req, res) {
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+
+    var condition = tool.period(req.body.dateFrom, req.body.dateTo,
+        delta, req.body.timezone);
+    // so as to use the balance from previous year,
+    // query should start from the beginning of the year
+    var startDate = new Date(0);
+    if (condition && condition.$gte) {
+        startDate = condition.$gte;
+        condition.$gte = new Date(startDate.getFullYear().toString());
+    }
+    condition = condition ? {date: condition} : {};
+
+    var subject = req.body.subject;
+    //if (!project) {
+    //    res.send({status: 'projectErr', message: '请准确输入合法项目名称'});
+    //    return;
+    //}
+    // use regExp to match sub-subject
+    if (subject != 'all') {
+        condition.subjectId = new RegExp(subject);
+    }
+    debug('condition: ' + JSON.stringify(condition));
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '按项目逐一汇总报表',
+        target: '凭证数据库',
+        comment: '数据库查询访问失败',
+        status: '失败'
+    };
+
+    db.query('figure', condition, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        debug('figures count: %d', docs.length);
+        //var pisList = tool.pisList(docs, startDate);
+        //debug('pisList: %j', pisList);
+        var projectList = tool.projectList(docs, startDate);
+        res.send(projectList);
+        tool.log(db, logMsg, projectList.message,
+                projectList.status == 'ok' ? '成功' : '失败');
+    });
 });
 
 router.post('/logReport', function(req, res) {

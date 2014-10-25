@@ -23,7 +23,7 @@
         <div class="col-sm-6">
           <select class="form-control" ng-model="subject" name="subject" id="subject">
             <option value="all">不限</option>
-            <option ng-repeat="s in subjectIds | filter: subjectFilterKey">{{s}}-{{subjects[s].name}}</option>
+            <option value="{{s}}" ng-repeat="s in subjectIds | filter: subjectFilterKey">{{s}}-{{subjects[s].name}}</option>
           </select>
         </div>
         <div class="col-sm-4">

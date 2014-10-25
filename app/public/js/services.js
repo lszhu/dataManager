@@ -109,7 +109,7 @@ appService.provider('AppMenu', function() {
                 name: '报表',
                 subMenu: [
                     {
-                        name: '特定项目汇总', //'项目(p) - 时段(i) - 科目(s)',
+                        name: '特定项目分科目汇总', //'项目(p) - 时段(i) - 科目(s)',
                         link: 'report/pisTable',
                         controller: 'PisTableCtrl'
                     },
@@ -119,7 +119,7 @@ appService.provider('AppMenu', function() {
                         controller: 'PisTableCtrl'
                     },
                     {
-                        name: '项目逐一汇总', //'时段 - 项目 *',
+                        name: '按项目逐一汇总', //'时段 - 项目 *',
                         link: 'report/projectTable',
                         controller: 'projectTableCtrl'
                     },
@@ -239,19 +239,3 @@ appService.provider('AppMenu', function() {
 });
 
 ///////////////////////////////////////////////////////////
-// used for phoneCat, a template app
-
-var phonecatServices = angular.module('phonecatServices',
-    ['ngResource']);
-
-phonecatServices.factory('Phone',
-    ['$resource',
-        function($resource){
-            return $resource('phones/:phoneId.json',
-                {}, {
-                    query: {method:'GET',
-                        params:{phoneId:'phones',
-                            controller: ''
-                        }, isArray:true}
-                });
-        }]);
