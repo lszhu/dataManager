@@ -121,12 +121,12 @@ appService.provider('AppMenu', function() {
                     {
                         name: '按项目逐一汇总', //'时段 - 项目 *',
                         link: 'report/projectTable',
-                        controller: 'projectTableCtrl'
+                        controller: 'ProjectTableCtrl'
                     },
                     {
                         name: '特定项目分阶段汇总', //'项目 - 时段 *',
                         link: 'report/projectGradingTable',
-                        controller: 'projectGradingTableCtrl'
+                        controller: 'ProjectGradingTableCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-list-alt'

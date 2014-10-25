@@ -681,7 +681,7 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
 
 ]);
 
-mainFrameCtrl.controller('projectTableCtrl', ['$scope', '$http',
+mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
     function($scope, $http) {
         $scope.subject = 'all';
         initPeriod();
@@ -747,6 +747,47 @@ mainFrameCtrl.controller('projectTableCtrl', ['$scope', '$http',
             });
         }
 
+    }
+]);
+
+mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        // 设定默认年度
+        $scope.yearFrom = (new Date()).getFullYear();
+        $scope.yearTo = $scope.yearFrom;
+        // 初始化年份数据，从1990年开始至当前
+        $scope.years = [];
+        for (var i = $scope.yearFrom; i >= 1990; i--) {
+            $scope.years.push(i);
+        }
+        $scope.subject = 'all';
+        $scope.granularity = 'year';
+        getProject();
+        getSubject();
+
+        function getProject() {
+            $http.post('/queryProject', {}).success(function (res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.projectsRaw = res.projects;
+                $scope.projects = res.projects;
+                $scope.projectName = $scope.projectsRaw[0].name;
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        }
+        // 由服务器获取科目信息并初始化控制器地变量
+        function getSubject() {
+            $http.get('/subject').success(function(res) {
+                $scope.subjects = res;
+                $scope.subjectIds = Object.keys(res);
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        }
     }
 ]);
 
