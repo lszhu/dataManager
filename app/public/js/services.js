@@ -109,31 +109,31 @@ appService.provider('AppMenu', function() {
                 name: '报表',
                 subMenu: [
                     {
-                        name: '项目 - 时段 - 科目',
+                        name: '特定项目汇总', //'项目(p) - 时段(i) - 科目(s)',
                         link: 'report/pisTable',
                         controller: 'PisTableCtrl'
                     },
                     {
-                        name: '项目 - 科目 * 时间',
-                        link: 'report/pstTable',
-                        controller: 'PstTableCtrl'
+                        name: '分科目汇总', //'时段 - 科目',
+                        link: 'report/subjectTable',
+                        controller: 'subjectTableCtrl'
                     },
                     {
-                        name: '科目 - 时间 * 项目',
-                        link: 'report/stpTable',
-                        controller: 'StpTableCtrl'
+                        name: '项目逐一汇总', //'时段 - 项目 *',
+                        link: 'report/projectTable',
+                        controller: 'projectTableCtrl'
                     },
                     {
-                        name: '时段 - 科目 * 项目',
-                        link: 'report/ispTable',
-                        controller: 'IspTableCtrl'
+                        name: '特定项目分阶段汇总', //'项目 - 时段 *',
+                        link: 'report/projectGradingTable',
+                        controller: 'projectGradingTableCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-list-alt'
             },
             {
                 name: '图表',
-                subMenu: [
+                subMenu: [/*
                     {
                         name: '项目 - 时段 - 科目',
                         link: 'report/pisGraph',
@@ -153,7 +153,7 @@ appService.provider('AppMenu', function() {
                         name: '时段 - 科目 * 项目',
                         link: 'report/ispGraph',
                         controller: ''
-                    }
+                    }*/
                 ],
                 icon: 'glyphicon glyphicon-signal'
             },

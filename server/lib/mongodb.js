@@ -266,7 +266,7 @@ function batchSaveFigures(docs, callback) {
     debug('there are %d rows to add.', docs.length);
     for (var i = 0; i < docs.length; i++) {
         counter.count++;
-        save('figure', {id: docs[i].id, project: docs[i].project}, docs[i],
+        save('figure', {id: docs[i].id}, docs[i],
             function(err) {
                 if (err) {
                     error.push(err);
