@@ -796,7 +796,7 @@ mainFrameCtrl.controller('AddFigureCtrl', ['$scope',
 ]);
 
 mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
-    function($scope, $http) {
+    'filterFilter', function($scope, $http, filterFilter) {
         //$scope.selectedFile = '2011';
         $scope.path = '';
         // 已导入文件条目列表
@@ -816,7 +816,9 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
             $scope.message = res.message;
+            $scope.projectsRaw = res.projects;
             $scope.projects = res.projects;
+            $scope.projectName = res.projects ? res.projects[0].name : '';
         }).error(function(res) {
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
@@ -883,6 +885,9 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
                 $scope.message = res.message;
+                if (res.status == 'nameErr') {
+                    return;
+                }
                 if (res.errLines) {
                     $scope.errLines += ' #文件名: ' + res.filename + ', ' +
                         '错误位置: ' + JSON.stringify(res.errLines);
@@ -901,6 +906,21 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
         };
+
+        $scope.$watch(
+            'filterKey',
+            function (newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.projects = newValue ?
+                    filterFilter($scope.projectsRaw, newValue) :
+                    $scope.projectsRaw;
+                if ($scope.projects && $scope.projects.length) {
+                    $scope.projectName = $scope.projects[0].name;
+                }
+            }
+        );
     }
 ]);
 
