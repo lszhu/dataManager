@@ -564,7 +564,11 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
             $scope.message = 'system error: ' + JSON.stringify(res);
         });
 
-        $scope.queryData = function() {
+        $scope.queryData = function(option) {
+            if (option == 'total') {
+                $scope.projectName = '';
+                //console.log('project name: ' + $scope.projectName);
+            }
             $scope.subjects = [];
             $http.post('/pisTable', {
                 projectName: $scope.projectName,

@@ -317,6 +317,9 @@ function projectDeleteReply(db, counter, error, res, logMsg) {
 // collect sub projects or descendent projects of a project, include itself
 function getRelatives(name, projects) {
     debug('projects.length: ' + projects.length);
+    if (!name) {
+        return [];
+    }
     var names = [name];
     for (var i = 0; names.hasOwnProperty(i); i++) {
         names = names.concat(getChildProjects(names[i], projects));

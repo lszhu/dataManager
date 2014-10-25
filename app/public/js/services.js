@@ -116,7 +116,7 @@ appService.provider('AppMenu', function() {
                     {
                         name: '分科目汇总', //'时段 - 科目',
                         link: 'report/subjectTable',
-                        controller: 'subjectTableCtrl'
+                        controller: 'PisTableCtrl'
                     },
                     {
                         name: '项目逐一汇总', //'时段 - 项目 *',

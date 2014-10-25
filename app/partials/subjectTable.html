@@ -1,28 +1,6 @@
 <div>
-  <h1 class="page-header">特定项目分科目汇总</h1>
-  <form class="form-horizontal" name="project" role="form" ng-submit="queryData()">
-
-    <div class="form-group col-sm-6">
-      <label for="projectName" class="col-sm-4 control-label">选择项目</label>
-      <div class="col-sm-8">
-        <select class="form-control" ng-model="projectName" name="projectName" id="projectName">
-          <option ng-repeat="project in projects">{{project.name}}</option>
-        </select>
-      </div>
-    </div>
-    <div class="col-sm-3">
-      <input type="text" class="form-control" name="filterKey" ng-model="filterKey" id="filterKey" placeholder="项目过滤关键词">
-    </div>
-
-
-      <div class="form-group col-sm-12">
-        <label class="col-sm-2 control-label"></label>
-        <div class="checkbox col-sm-4">
-          <label>
-            <input type="checkbox" ng-model="includeSubProject"><strong>包含子项目</strong>
-          </label>
-        </div>
-      </div>
+  <h1 class="page-header">分科目汇总</h1>
+  <form class="form-horizontal" name="project" role="form" ng-submit="queryData('total')">
 
     <div class="form-group col-sm-6">
       <label for="dateFrom" class="col-sm-4 control-label">起始时间</label>
@@ -81,20 +59,6 @@
           <td class="text-right">{{subject.credit | currency: '¥'}}</td>
           <td class="text-right">{{subject.debit | currency: '¥'}}</td>
         </tr>
-        <!--
-        <tr class="info">
-          <td class="">一级</td><td>财政应返额度</td><td>期初</td><td>期末</td>
-        </tr>
-        <tr class="success">
-          <td>二级</td><td>征地和拆迁补偿支出</td><td>期初</td><td>期末</td>
-        </tr>
-        <tr class="warning">
-          <td>三级</td><td>市国庆路香雪路飞虹路改造工程建设领导小组</td><td>期初</td><td>期末</td>
-        </tr>
-        <tr class="">
-          <td>四级</td><td>水利建设基金</td><td>期初</td><td>期末</td>
-        </tr>
-        -->
         </tbody>
       </table>
     </div>

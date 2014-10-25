@@ -247,11 +247,13 @@ router.post('/pisTable', function(req, res) {
     condition = condition ? {date: condition} : {};
 
     var project = req.body.projectName;
-    if (!project) {
-        res.send({status: 'projectErr', message: '请准确输入合法项目名称'});
-        return;
+    //if (!project) {
+    //    res.send({status: 'projectErr', message: '请准确输入合法项目名称'});
+    //    return;
+    //}
+    if (project) {
+        condition.project = project;
     }
-    condition.project = project;
 
     // include sub project switch
     var includeSubProject = req.body.includeSubProject;
@@ -272,7 +274,8 @@ router.post('/pisTable', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        if (includeSubProject) {
+
+        if (project && includeSubProject) {
             var relatives = proj.getRelatives(project, docs);
             condition.project = {$in: relatives};
         }
