@@ -1,5 +1,6 @@
 var debug = require('debug')('tool');
 var path = require('path');
+var util = require('util');
 //var excel = require('j');
 var xlsx = require('xlsx');
 var fs = require('fs');
@@ -302,6 +303,138 @@ function figureList(sheets, projectName, year) {
     return {data: filter, errLine: errLine};
 }
 
+// 分阶段汇总数据，返回数组
+function gradingList(figures, granularity, yearFrom, yearTo) {
+    var grading = initGrading(granularity, yearFrom, yearTo);
+    if (grading.length == 0) {
+        return {status: 'paramsErr', message: '查询参数错误'};
+    }
+    var startDate = new Date(yearFrom, 0, 1);
+    for (var i = 0, len = figures.length; i < len; i++) {
+        var result = classifyRow(figures[i], startDate);
+        if (result.status != 'ok') {
+            return result;
+        }
+        var index = gradingIndex(figures[i].date, granularity, yearFrom);
+        if (index == 'error') {
+            console.log('异常的财务数据：没有正确的发生时间');
+            continue;
+        }
+        // 初始化每个阶段的数据
+        //if (!grading.hasOwnProperty(index)) {
+        //    // end为累计发生额
+        //    grading[index] = {init: 0, end: 0, credit: 0, debit: 0};
+        //}
+        // 处理年度结转数据
+        if (figures[i].voucher.id == '10000' &&
+            figures[i].date.getFullYear() == yearFrom) {
+            debug('add balance from last year');
+            grading[index].init += figures[i].balance;
+            continue;
+        }
+        grading[index][result.type] += result.value;
+        grading[index]['credit'] += figures[i]['credit'];
+        grading[index]['debit'] += figures[i]['debit'];
+    }
+    // 将grading中的init值更新为上一阶段的init值与累计值之和
+    for (i = 1, len = grading.length; i < len; i++) {
+        grading[i].init = grading[i-1].init + grading[i-1].end;
+    }
+    //var data = [];
+    //for (var g in grading) {
+    //    if (!grading.hasOwnProperty(g)) {
+    //        continue;
+    //    }
+    //    grading[g].name = g;
+    //    data.push(grading[g]);
+    //}
+    //data = data.sort(function(a, b) {return a.name < b.name ? -1 : 1;});
+    return {data: grading, status: 'ok', message: '成功生成按阶段逐一汇总报表'};
+}
+
+function initGrading(granularity, yearFrom, yearTo) {
+    if (!parseInt(yearFrom) || !parseInt(yearTo)) {
+        return [];
+    }
+    var date = new Date();
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    if (yearFrom > yearTo || year < yearFrom) {
+        return [];
+    }
+    if (year < yearTo) {
+        yearTo = year;
+    }
+    var a = [];
+    if (granularity == 'year') {
+        for (var i = yearFrom; i <= yearTo; i++) {
+            a[i - yearFrom] = {name: i, init: 0, end: 0, credit: 0, debit: 0};
+        }
+    } else if (granularity == 'quarter') {
+        for (i = yearFrom; i <= yearTo; i++) {
+            for (var j = 0; j < 4; j++) {
+                // 如果是本当年度，要去除没到达的季度
+                if (i == year && j * 3 > month) {
+                    break;
+                }
+                a[(i - yearFrom) * 4 + j] = {name: i + 'Q' + (j + 1),
+                    init: 0, end: 0, credit: 0, debit: 0};
+            }
+        }
+    } else if (granularity == 'month') {
+        for (i = yearFrom; i <= yearTo; i++) {
+            for (j = 0; j < 12; j++) {
+                // 如果是本当年度，要去除没到达的季度
+                if (i == year && j > month) {
+                    break;
+                }
+                a[(i - yearFrom) * 12 + j] = {name: i + 'M' + (j + 1),
+                    init: 0, end: 0, credit: 0, debit: 0};
+            }
+        }
+    }
+    return a;
+}
+
+function gradingIndex(date, granularity, yearFrom) {
+    if (!util.isDate(date) || !parseInt(yearFrom)) {
+        return 'error';
+    }
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    if (year < yearFrom) {
+        return 'error';
+    }
+    var n = (year - yearFrom) * 12 + month;
+    if (granularity == 'year') {
+        return year - yearFrom;
+    } else if (granularity == 'quarter') {
+        return Math.floor(n / 3);
+    } else if (granularity == 'month') {
+        return n;
+    }
+    return 'error';
+}
+
+function gradingName(date, granularity) {
+    if (!util.isDate(date)) {
+        return;
+    }
+    var year = date.getFullYear();
+    var month = date.getMonth();
+    if (granularity == 'year') {
+        return year;
+    }
+    if (granularity == 'quarter') {
+        return year + 'Q' + (Math.floor(month / 3) + 1);
+    }
+    if (granularity == 'month') {
+        month++;
+        month = month < 10 ? '0' + month : '' + month;
+        return year + month;
+    }
+}
+
 // 生成按照项目逐一汇总的数据，每个项目一条，以数组方式返回
 function projectList(figures, startDate) {
     var projects = {};
@@ -340,6 +473,7 @@ function projectList(figures, startDate) {
         projects[i].end += projects[i].init;
         data.push(projects[i])
     }
+    data = data.sort(function(a, b) {return a.name < b.name ? -1 : 1;});
     return {data: data, status: 'ok', message: '成功生成按项目逐一汇总报表'};
 }
 
@@ -741,5 +875,6 @@ module.exports = {
     objectToArray: objectToArray,
     voucherAutoBind: voucherAutoBind,
     listFiles: listFiles,
-    projectList: projectList
+    projectList: projectList,
+    gradingList: gradingList
 };

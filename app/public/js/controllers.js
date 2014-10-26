@@ -574,6 +574,7 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 projectName: $scope.projectName,
                 dateFrom: $scope.dateFrom,
                 dateTo: $scope.dateTo,
+                timezone: (new Date()).getTimezoneOffset(),
                 includeSubProject: $scope.includeSubProject
             }).success(function(res) {
                 $scope.msgClass =
@@ -693,7 +694,8 @@ mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
             $http.post('/projectTable', {
                 subject: $scope.subject,
                 dateFrom: $scope.dateFrom,
-                dateTo: $scope.dateTo
+                dateTo: $scope.dateTo,
+                timezone: (new Date()).getTimezoneOffset()
             }).success(function(res) {
                 $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
@@ -751,7 +753,7 @@ mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
 ]);
 
 mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
-    function($scope, $http) {
+    'filterFilter', function($scope, $http, filterFilter) {
         // 设定默认年度
         $scope.yearFrom = (new Date()).getFullYear();
         $scope.yearTo = $scope.yearFrom;
@@ -764,6 +766,69 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
         $scope.granularity = 'year';
         getProject();
         getSubject();
+
+        $scope.queryData = function() {
+            $scope.showMsg = false;
+            console.log('subjectId: ' + $scope.subject);
+            $scope.data = [];
+            $http.post('/gradingTable', {
+                project: $scope.projectName,
+                subject: $scope.subject,
+                yearFrom: $scope.yearFrom,
+                yearTo: $scope.yearTo,
+                timezone: (new Date()).getTimezoneOffset(),
+                granularity: $scope.granularity
+            }).success(function(res) {
+                console.log('res: %o', res);
+                $scope.message = res.message;
+                if (!res.data) {
+                    $scope.msgClass = 'alert-success';
+                    $scope.message = '没有任何财务数据';
+                    $scope.showMsg = true;
+                } else if (res.status != 'ok') {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = res.message ?
+                        res.message : '未知错误，请先退出后重新登录尝试';
+                    $scope.showMsg = true;
+                }
+                $scope.grading = res.data;
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+
+        $scope.$watch(
+            'filterKey',
+            function (newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.projects = newValue ?
+                    filterFilter($scope.projectsRaw, newValue) :
+                    $scope.projectsRaw;
+                if ($scope.projects && $scope.projects.length) {
+                    $scope.projectName = $scope.projects[0].name;
+                }
+            }
+        );
+
+        $scope.$watchCollection(
+            'projectName',
+            function(newValue, oldValue) {
+                if (newValue != oldValue) {
+                    $scope.grading = [];
+                }
+            }
+        );
+        $scope.$watchCollection(
+            'subject',
+            function(newValue, oldValue) {
+                if (newValue != oldValue) {
+                    $scope.grading = [];
+                }
+            }
+        );
 
         function getProject() {
             $http.post('/queryProject', {}).success(function (res) {

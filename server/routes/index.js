@@ -303,7 +303,6 @@ router.post('/pisTable', function(req, res) {
 router.post('/projectTable', function(req, res) {
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
-
     var condition = tool.period(req.body.dateFrom, req.body.dateTo,
         delta, req.body.timezone);
     // so as to use the balance from previous year,
@@ -348,6 +347,65 @@ router.post('/projectTable', function(req, res) {
         res.send(projectList);
         tool.log(db, logMsg, projectList.message,
                 projectList.status == 'ok' ? '成功' : '失败');
+    });
+});
+
+router.post('/gradingTable', function(req, res) {
+    //debug('req.body', + JSON.stringify(req.body));
+    var condition = {};
+    if (req.body.project) {
+        condition.project = req.body.project;
+    }
+    var subject = req.body.subject;
+    if (subject && subject != 'all') {
+        condition.subjectId = new RegExp(subject);
+    }
+
+    var yearFrom = req.body.yearFrom;
+    var yearTo = req.body.yearTo;
+    var granularity = req.body.granularity;
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '特定项目分阶段汇总',
+        target: '凭证数据库',
+        comment: '数据库查询访问失败',
+        status: '失败'
+    };
+    console.log('yearFrom = %d, yearTo = %d, granularity = %s',
+        yearFrom, yearTo, granularity);
+
+    if (granularity != 'year' && granularity != 'quarter'
+        && granularity != 'month' || !(yearFrom > 1990)
+        || !(yearTo <= (new Date()).getFullYear())) {
+        res.send({status: 'paramsErr', message: '查询参数设置无效'});
+        tool.log(db, logMsg);
+        return;
+    }
+
+    var delta = 24 * 60 * 60 * 1000 - 1;
+    try {
+        var period = tool.period(new Date(yearFrom, 0, 1),
+            new Date(yearTo + 1, 0, 0), delta, req.body.timezone);
+    } catch (e) {
+        console.log('period error: %o', e);
+    }
+    //condition.date = tool.period(new Date(yearFrom, 0, 1),
+    //    new Date(yearTo + 1, 0, 0), delta, req.body.timezone);
+    debug('condition: ' + JSON.stringify(condition));
+
+    db.query('figure', condition, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询访问失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        debug('figures count: %d', docs.length);
+
+        var data = tool.gradingList(docs, granularity, yearFrom, yearTo);
+        res.send(data);
+        tool.log(db, logMsg, data.message,
+                data.status == 'ok' ? '成功' : '失败');
     });
 });
 
