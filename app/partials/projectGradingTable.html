@@ -15,6 +15,15 @@
     </div>
 
     <div class="form-group">
+      <label class="col-sm-2 control-label"></label>
+      <div class="checkbox col-sm-4">
+        <label>
+          <input type="checkbox" ng-model="includeSubProject"><strong>包含子项目</strong>
+        </label>
+      </div>
+    </div>
+
+    <div class="form-group">
       <label for="subject" class="col-sm-2 control-label">指定科目</label>
       <div class="col-sm-4">
         <select class="form-control" ng-model="subject" name="subject" id="subject">

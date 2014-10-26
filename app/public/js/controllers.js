@@ -770,6 +770,7 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
         $scope.queryData = function() {
             $scope.showMsg = false;
             console.log('subjectId: ' + $scope.subject);
+            console.log('includeSubProject: ' + $scope.includeSubProject);
             $scope.data = [];
             $http.post('/gradingTable', {
                 project: $scope.projectName,
@@ -777,7 +778,8 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
                 yearFrom: $scope.yearFrom,
                 yearTo: $scope.yearTo,
                 timezone: (new Date()).getTimezoneOffset(),
-                granularity: $scope.granularity
+                granularity: $scope.granularity,
+                includeSubProject: $scope.includeSubProject
             }).success(function(res) {
                 console.log('res: %o', res);
                 $scope.message = res.message;
