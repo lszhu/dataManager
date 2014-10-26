@@ -43,6 +43,7 @@ function log(db, doc, comment, status) {
 
 // 开始时间点为start，结束时间点为end后延delta毫秒，delta可以是负数。
 // timezone为原始时间的时区偏移量，依照惯例，单位是分钟。
+// start和end为YYYY-MM-DD形式，或其他可用于正确为Date初始化的量
 // 返回格式为{$gte: from, $lte: to}，时间值为国际标准时间
 function period(start, end, delta, timezone) {
     if (isNaN(timezone) || timezone < -720 || 720 < timezone) {
@@ -316,6 +317,7 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
             return result;
         }
         var index = gradingIndex(figures[i].date, granularity, yearFrom);
+        debug('index: ' + index);
         if (index == 'error') {
             console.log('异常的财务数据：没有正确的发生时间');
             continue;

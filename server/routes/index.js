@@ -391,8 +391,10 @@ router.post('/gradingTable', function(req, res) {
     //} catch (e) {
     //    console.log('period error: %o', e);
     //}
-    condition.date = tool.period(new Date(yearFrom, 0, 1),
-        new Date(yearTo + 1, 0, 0), delta, req.body.timezone);
+    //condition.date = tool.period(new Date(yearFrom, 0, 1),
+    //    new Date(yearTo + 1, 0, 0), delta, req.body.timezone);
+    condition.date = tool.period(yearFrom, (parseInt(yearTo) + 1).toString(),
+        -1, req.body.timezone);
     debug('condition: ' + JSON.stringify(condition));
 
     db.query('project', {}, function(err, docs) {

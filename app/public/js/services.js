@@ -127,6 +127,11 @@ appService.provider('AppMenu', function() {
                         name: '特定项目分阶段汇总', //'项目 - 时段 *',
                         link: 'report/projectGradingTable',
                         controller: 'ProjectGradingTableCtrl'
+                    },
+                    {
+                        name: '分阶段汇总', //'时段 *',
+                        link: 'report/gradingTable',
+                        controller: 'ProjectGradingTableCtrl'
                     }
                 ],
                 icon: 'glyphicon glyphicon-list-alt'

@@ -767,7 +767,10 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
         getProject();
         getSubject();
 
-        $scope.queryData = function() {
+        $scope.queryData = function(option) {
+            if (option == 'all') {
+                $scope.projectName = '';
+            }
             $scope.showMsg = false;
             console.log('subjectId: ' + $scope.subject);
             console.log('includeSubProject: ' + $scope.includeSubProject);
