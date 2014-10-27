@@ -1,37 +1,56 @@
-<!-- Main jumbotron for a primary marketing message or call to action -->
-<div class="jumbotron">
-  <div class="container">
-    <h1>财务档案系统</h1>
-    <p>实现数据的跨项目、跨账套、跨年度查询检索；
-      没有局限的多角度统计报表与汇总；
-      财务凭证、合同、文档与财务统计数据的联动引用；
-      通过多级别权限控制，完备的日志记录，保障系统的安全。</p>
-    <p><a class="btn btn-primary btn-lg" href="#/help/guide" role="button">了解更多 &raquo;</a></p>
-  </div>
-</div>
-
 <div>
-  <!-- Example row of columns -->
-  <div class="col-sm-12">
-    <div class="col-sm-4">
-      <h2>档案管理</h2>
-      <p>通过库房的管理、查询、立卷归档及电子文档的管理，以及档案的借阅与归还，完整实现档案系统的核心功能。</p>
-      <p><a class="btn btn-default" href="#/help/guide" role="button">了解更多 &raquo;</a></p>
-    </div>
-    <div class="col-sm-4">
-      <h2>数据检索</h2>
-      <p>从多个角度，如项目、科目、凭证、合同、普通文档等，实现对信息的分类查询，并实现不同类信息的交叉引用。</p>
-      <p><a class="btn btn-default" href="#/help/guide" role="button">了解更多 &raquo;</a></p>
-    </div>
-    <div class="col-sm-4">
-      <h2>汇总报表</h2>
-      <p>扩展财务系统的汇总报表功能，可以不受项目、账套和时间长短的限制，从不同角度针对不同目的进行汇总报表。</p>
-      <p><a class="btn btn-default" href="#/help/guide" role="button">了解更多 &raquo;</a></p>
-    </div>
+  <h1 class="page-header">财务档案系统</h1>
+  <p>本系统具有简明的操作流程，快捷的操作方式。核心工作流程如下。</p>
+
+  <div class="col-sm-10"><h3>1. 创建项目</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>由于数据是与项目相关联的，数据必须导入到指定的项目中，这是操作的第一步。</p>
+    <button type="button" ng-click="gotoPageHash('/tool/createProject')">‘工具’ -> ‘项目创建’</button>， 进行项目的创建，考虑到有些项目有子项目，这时可以先创建父项目，
+    然后创建子项目时指定父项目名称。
   </div>
 
+  <div class="col-sm-10"><h3>2. 导入数据</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>这是进行后续查询和报表的基础。</p>
+    <h4>2.1 凭证数据导入</h4>
+    <button type="button" ng-click="gotoPageHash('/tool/importFigure')">‘工具’ -> ‘财务凭证数据导入’</button>，将excel文件中的数据批量导入系统。
+    <h4>2.2 凭证文件管理</h4>
+    <button type="button" ng-click="gotoPageHash('/tool/voucherAutoBind')">‘工具’ -> ‘财务凭证文件自动关联’</button>，将于财务数据对应的财务凭证关联起来。
+  </div>
+
+  <div class="col-sm-10"><h3>3. 查询数据</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>可查询系统中的项目信息、凭证数据信息、凭证扫描文件等等</p>
+    <h4>3.1 查看项目信息</h4>
+    <button type="button" ng-click="gotoPageHash('/search/queryProject')">‘检索’ -> ‘项目概要’</button>，可查看到系统中所有项目的概要信息，并可进行编辑保存。<br/>
+    <button type="button" ng-click="gotoPageHash('/search/queryProjectDetail')">‘检索’ -> ‘项目详情’</button>， 可查看任意项目的完整信息，并可进行编辑保存。
+    <h4>3.2 凭证数据查询</h4>
+    <button type="button" ng-click="gotoPageHash('/search/queryVoucher')">‘检索’ -> ‘凭证查询’</button>，可查看任意凭证对应的财务数据，并可进一步打开对应的凭证扫描文件
+    <h4>3.3 凭证扫描文件查看</h4>
+    先进行<button type="button" ng-click="gotoPageHash('/search/queryVoucher')">‘检索’ -> ‘凭证查询’</button>找到相应凭证数据，打开关联的扫描文件即可。
+  </div>
+
+  <div class="col-sm-10"><h3>4. 报表汇总</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>对财务数据从项目和科目等角度进行汇总</p>
+    <h4>4.1 特定项目分科目汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/pisTable')">‘报表’ -> ‘特定项目分科目汇总’</button>，按照不同科目进行汇总，支持从1到4级科目的汇总
+    <h4>4.2 分科目汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/subjectTable')">‘报表’ -> ‘分科目汇总’</button>，对所有项目数据按照不同科目进行汇总，支持从1到4级科目的汇总
+    <h4>4.3 按项目逐一汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/projectTable')">‘报表’ -> ‘按项目逐一汇总’</button>，每个项目汇总成一条数据，将所有项目数据汇总到一张表
+    <h4>4.4 特定项目分阶段汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/projectGradingTable')">‘报表’ -> ‘特定项目分阶段汇总’</button>，对某一项目，按照‘月’、‘季’或‘年’，分阶段汇总
+    <h4>4.5 分阶段汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/gradingTable')">‘报表’ -> ‘分阶段汇总’</button>，对系统中的所有项目，按照‘月’、‘季’或‘年’，分阶段汇总
+
+  </div>
   <footer class="col-sm-12">
     <hr>
     <p>&copy; 版权所有 2014</p>
   </footer>
-</div> <!-- /container -->
+</div>

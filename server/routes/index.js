@@ -384,7 +384,7 @@ router.post('/gradingTable', function(req, res) {
         return;
     }
 
-    var delta = 24 * 60 * 60 * 1000 - 1;
+    //var delta = 24 * 60 * 60 * 1000 - 1;
     //try {
     //    var period = tool.period(new Date(yearFrom, 0, 1),
     //        new Date(yearTo + 1, 0, 0), delta, req.body.timezone);

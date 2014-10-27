@@ -197,7 +197,7 @@ function countSheetRow(sheet) {
 // 正确数据存入返回的data属性，非法行记录到errLine中
 function figureList(sheets, projectName, year) {
     //debug('dictionary: %j', dictionary);
-    var col = dictionary.excelColumn;
+    var col = dictionary['excelColumn'];
     debug('row items: %j', col);
     //var item, doc;
     var filter = [];
@@ -551,7 +551,7 @@ function pisList(figures, startDate) {
     });
 
     // 将end属性保存的值由累计改为期末数
-    for (i = 0; i < subjects.length; i++) {
+    for (var i = 0; i < subjects.length; i++) {
         subjects[i].end += subjects[i].init;
     }
     return {data: subjects, status: 'ok', message: '成功生成pis报表'};

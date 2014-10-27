@@ -54,7 +54,10 @@ mainFrameCtrl.controller('FilterKeyCtrl', ['$scope',
 
 mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     function($scope) {
-        $scope.tmp = '';
+        $scope.gotoPageHash = function (hash) {
+            location.hash = hash;
+            console.log('hash: ' + hash);
+            };
     }
 ]);
 
