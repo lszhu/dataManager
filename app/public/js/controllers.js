@@ -1296,7 +1296,7 @@ mainFrameCtrl.controller('systemStatusCtrl', ['$scope', '$http',
         counter('logNum', 'log', {});
         counter('logOk', 'log', {status: '成功'});
         counter('login', 'log', {operation: '登录操作'});
-        counter('loginErr', 'figure', {operation: '登录操作', status: '成功'});
+        counter('loginErr', 'log', {operation: '登录操作', status: '成功'});
 
         var checkProject = function(projects) {
             if (!projects) {

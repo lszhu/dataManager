@@ -34,6 +34,13 @@ router.post('/login', function(req, res) {
     };
     debug('account: ' + JSON.stringify(acc));
     debug("session: " + util.inspect(req.session));
+    var logMsg = {
+        operator: acc.username,
+        operation: '登录操作',
+        target: '用户账号数据库',
+        comment: '用户名或密码错误',
+        status: '失败'
+    };
     db.getAccount(acc.username, function(error, account) {
         debug('account from DB: ' + JSON.stringify(account));
         debug('auth.auth(acc, account): ' + auth.auth(acc, account));
@@ -45,8 +52,10 @@ router.post('/login', function(req, res) {
             req.session.user = account ? account : auth.builtinUser;
             req.session.error = undefined;
             res.redirect('/');
+            tool.log(db, logMsg, '登录成功', '成功');
         } else {
-            res.render('login.html', {error: '用户名或密码错误！'})
+            res.render('login.html', {error: '用户名或密码错误！'});
+            tool.log(db, logMsg);
         }
     });
 
