@@ -1262,9 +1262,145 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
     }
 ]);
 
-mainFrameCtrl.controller('systemStatusCtrl', ['$scope',
-    function($scope) {
-        $scope.tmp = '';
+mainFrameCtrl.controller('systemStatusCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.projects = ['aaas', 'gda'];
+        $scope.consistence = '正常';
+        $scope.figureNum = 32353;
+        $scope.carryOverNum = 231;
+        $scope.boundFileNum = 12342;
+        $scope.logNum = 63421;
+        $scope.logOk = 23523;
+        $scope.login = 1233;
+        $scope.loginErr = 328;
+
+        var counter = function(parameter, collect, condition, regExp) {
+            $http.post('/counter', {
+                collect: collect,
+                regExp: regExp,
+                condition: condition
+            }).success(function(res) {
+                $scope.msgClass = res.status == 'ok' ?
+                    'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope[parameter] = res.count;
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            })
+        };
+
+        counter('figureNum', 'figure', {});
+        counter('carryOverNum', 'figure', {'voucher.id': '10000'});
+        counter('boundFileNum', 'figure', {}, {'voucher.path': '.+'});
+        counter('logNum', 'log', {});
+        counter('logOk', 'log', {status: '成功'});
+        counter('login', 'log', {operation: '登录操作'});
+        counter('loginErr', 'figure', {operation: '登录操作', status: '成功'});
+
+        var checkProject = function(projects) {
+            if (!projects) {
+                return [];
+            }
+            var errs = [];
+            var index, name, parent, children, tmp;
+            for (var i = 0; i < projects.length; i++) {
+                tmp = [];
+                // 处理父项目一致性
+                name = projects[i].name;
+                parent = projects[i].parent;
+                if (name == parent) {
+                    tmp.push(name + ' --> 父项目被设置为他自己');
+                }
+                if (parent) {
+                    index = getIndexFromName(parent, projects);
+                    if (index < 0) {
+                        tmp.push(name + '--> 被指定了父项目"' +
+                            parent + '"，但系统中不存在项目：' + parent);
+                    } else {
+                        children = projects[index].children;
+                        children = children ? children : [];
+                        if (searchValue(name, children) < 0) {
+                            tmp.push(name + ' --> 被指定了父项目"' +
+                                parent + '"，但系统中项目"' + parent +
+                                '"并未包含子项目：' + name);
+                        }
+                    }
+                }
+                // 处理子项目一致性
+                children = projects[i].children;
+                children = children ? children : [];
+                if (searchValue(name, children) != -1) {
+                    tmp.push(name + ' --> 被设置为其本身的子项目');
+                }
+                if (children && children.length) {
+                    for (var j = 0; j < children.length; j++) {
+                        index = getIndexFromName(children[j], projects);
+                        if (index < 0) {
+                            tmp.push(name + ' --> 指定了子项目"' +
+                                children[j] + '"，但系统中并不存在项目：' +
+                                children[j]);
+                        } else {
+                            if (projects[index].parent != name) {
+                                tmp.push(name + ' --> 指定了子项目"' +
+                                    children[j] + '"，但项目"' + children[j] +
+                                    '"没有设定父项目为：' + name);
+                            }
+                        }
+                    }
+                }
+                if (tmp.length) {
+                    errs.push(tmp);
+                }
+            }
+            return errs;
+            function getIndexFromName(name, list) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i].name == name) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+            function searchValue(value, list) {
+                for (var i = 0; i < list.length; i++) {
+                    if (list[i] == value) {
+                        return i;
+                    }
+                }
+                return -1;
+            }
+        };
+
+        var queryProject = function() {
+            $http.post('/queryProject', {}).success(function (res) {
+                $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.projects = res.projects;
+                $scope.projectsErr = checkProject($scope.projects);
+                //console.log('projects: %o', $scope.projects);
+                console.log('projectsErr: %o', $scope.projectsErr);
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+        queryProject();
+
+        // 函数checkProject()的测试用例
+        //$scope.projects = [
+        //    {name: 'aaa', parent: 'aaa', children: ['aaa', 'bbb', 'ccc']},
+        //    {name: 'bbb', parent: 'aaaa'},
+        //    {name: 'ccc', parent: 'aaa'},
+        //    {name: 'ddd', parent: 'bbb', children: ['eee']},
+        //    {name: 'eee', parent: 'ddd', children: ['fff', 'ggg']},
+        //    {name: 'fff', parent: 'eee', children: ['ggg', 'hhh', 'zzz']},
+        //    {name: 'ggg', parent: 'eee'},
+        //    {name: 'hhh'}
+        //];
+        //$scope.projectsErr = checkProject($scope.projects);
+        //console.log('projectsErr: %o', $scope.projectsErr);
     }
 ]);
 

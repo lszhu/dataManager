@@ -471,6 +471,39 @@ router.post('/logReport', function(req, res) {
     });
 });
 
+// get items from certain collection and count
+router.post('/counter', function(req, res) {
+    var collect = req.body.collect;
+    var condition = req.body.condition;
+    condition = condition ? condition : {};
+    var regExp = req.body.regExp;
+    for (var i in regExp) {
+        if (!regExp.hasOwnProperty(i)) {
+            continue;
+        }
+        condition[i] = new RegExp(regExp[i]);
+    }
+    debug('condition: ' + JSON.stringify(condition));
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '统计数据库数据量',
+        target: '数据库',
+        comment: '统计失败',
+        status: '失败'
+    };
+
+    db.count(collect, condition, function(err, data) {
+        if (err) {
+            res.send({status: 'countErr', message: '统计数据条目失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send({status: 'ok', count: data});
+        tool.log(db, logMsg, '数据统计成更', '成功');
+    });
+});
+
+// get file list from certain directory
 router.post('/queryFile', function(req, res) {
     var relativePath = req.body.path;
     var logMsg = {
@@ -493,6 +526,7 @@ router.post('/queryFile', function(req, res) {
     });
 });
 
+// get all projects from projects collection
 router.post('/queryProject', function(req, res) {
     var condition = {};
     if (req.body.name) {
@@ -523,6 +557,7 @@ router.post('/queryProject', function(req, res) {
     });
 });
 
+// get vouchers from figures collection
 router.post('/queryVoucher', function(req, res) {
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
@@ -570,6 +605,7 @@ router.post('/queryVoucher', function(req, res) {
     });
 });
 
+// read figure file from a certain directory and import to db
 router.post('/importFigure', function(req, res) {
     var style = req.body.style,
         filePath = req.body.path,
@@ -604,6 +640,7 @@ router.post('/importFigure', function(req, res) {
     }
 });
 
+// check certain directory, bind the correct file to figures
 router.post('/voucherAutoBind', function(req, res) {
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;

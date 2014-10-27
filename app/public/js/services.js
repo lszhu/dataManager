@@ -171,17 +171,12 @@ appService.provider('AppMenu', function() {
                         controller: 'CreateProjectCtrl'
                     },
                     {
-                        name: '项目合并',
-                        link: 'tool/mergeProject',
-                        controller: 'MergeProjectCtrl'
-                    },
-                    {
-                        name: '财务凭证数据添加',
+                        name: '财务数据添加',
                         link: 'tool/addFigure',
                         controller: 'AddFigureCtrl'
                     },
                     {
-                        name: '财务凭证数据导入',
+                        name: '财务数据导入',
                         link: 'tool/importFigure',
                         controller: 'ImportFigureCtrl'
                     },

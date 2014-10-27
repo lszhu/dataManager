@@ -1,0 +1,39 @@
+<div>
+  <h1 class="page-header">系统数据统计信息</h1>
+
+  <div class="col-sm-10"><h3>项目</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>总项数目（含子项目）：<strong>{{projects.length}}</strong></p>
+    <p>项目结构一致性：
+      <strong ng-hide="projectsErr.length" style="color: green;">正常</strong>
+      <strong ng-show="projectsErr.length" style="color: red;">异常</strong>
+    </p>
+    <p ng-show="projectsErr.length">结构异常，需要修正的项目有：</p>
+    <div>
+      <ul ng-repeat="pErrs in projectsErr">
+        <li ng-repeat="err in pErrs">{{err}}</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="col-sm-10"><h3>凭证</h3></div>
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>总凭证数据条数目：<strong>{{figureNum}}</strong></p>
+    <p>年度结转数据条数目：<strong>{{carryOverNum}}</strong></p>
+    <p>已关联凭证扫描文件数目：<strong>{{boundFileNum}}</strong></p>
+  </div>
+
+  <div class="col-sm-10"><h3>日志</h3></div>
+  <div class="col-sm-10 col-sm-offset-1">
+    <p>总日志数据条数目：<strong>{{logNum}}</strong></p>
+    <p>其中操作成功数目：<strong>{{logOk}}</strong></p>
+    <p>其中登录操作数目：<strong>{{login}}</strong></p>
+    <p>其中登录操作失败数目：<strong>{{loginErr}}</strong></p>
+  </div>
+
+  <footer class="col-sm-12">
+    <hr>
+    <p>&copy; 版权所有 2014</p>
+  </footer>
+</div>
