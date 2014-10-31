@@ -32,6 +32,12 @@
     <p>其中登录操作失败数目：<strong>{{loginErr}}</strong></p>
   </div>
 
+  <div class="col-md-8 col-md-offset-2" ng-show="showMsg">
+    <div ng-class="msgClass" class="alert" role="alert">
+      <strong >{{message}}</strong>
+    </div>
+  </div>
+
   <footer class="col-sm-12">
     <hr>
     <p>&copy; 版权所有 2014</p>
