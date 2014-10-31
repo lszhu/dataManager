@@ -71,6 +71,29 @@ router.get('/subject', function(req, res) {
     res.send(tool.subject);
 });
 
+// fetch pdf from server
+router.get('/fetchPdf', function(req, res) {
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '查看pdf文档',
+        target: '财务凭证数据库',
+        comment: '',
+        status: '失败'
+    };
+    var pdfPath = req.query.file ? req.query.file : '';
+    debug('fetch pdf, path: ' + pdfPath);
+    tool.readFile(pdfPath, function(data) {
+        logMsg.target = data.target;
+        if (data.status != 'ok') {
+            res.send('');
+            tool.log(db, logMsg, data.message);
+            return;
+        }
+        res.send(data.data);
+        tool.log(db, logMsg, data.message);
+    });
+});
+
 // for showing pdf in browser
 router.get('/pdfShow', function(req, res) {
     //res.send('ok');

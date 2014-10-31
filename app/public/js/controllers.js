@@ -509,14 +509,15 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
             if (!$scope.hasVoucher(index)) {
                 return;
             }
-            //var query = 'date=' + $scope.figures[index].date;
-            //query += '&project=' + $scope.figures[index].project;
-            //query += '&subjectId=' + $scope.figures[index].subjectId;
-            //query += '&voucherId=' + $scope.figures[index].voucher.id;
-            var query = 'id=' + $scope.figures[index].id;
-            open('/pdfShow?' + query, 'pdfShow',
+
+            //var query = 'id=' + $scope.figures[index].id;
+            //open('/pdfShow?' + query, 'pdfShow',
+            //    'width=800,height=600,toolbar=0,status=0,location=0,' +
+            //        'scrollbars=1');
+            var query = 'file=' + $scope.figures[index].voucher.path;
+            open('/pdfViewer/web/viewer.html?' + query, 'pdfShow',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
-                    'scrollbars=1');
+                'scrollbars=1');
         };
     }
 ]);
