@@ -584,21 +584,24 @@ function lookupSubject(subjectId) {
         g2 = subjectId.slice(0, 5),
         g3 = subjectId.slice(0, 7),
         g4 = subjectId.slice(0, 9);
-    var subject;
+    var subject = {};
     //debug('subjectMap: %j', subjectMap);
-    if (subjectId.length >= 3) {
+    if (subject && subjectId.length >= 3) {
         subject = subjectMap[g1];
         //debug('subject level 1: %j', subject);
     }
-    if (subjectId.length >= 5) {
+    if (subject && subjectId.length >= 5) {
         subject = subject[g2];
         //debug('subject level 2: %j', subject);
     }
-    if (subjectId.length >= 7) {
+    if (subject && subjectId.length >= 7) {
         subject = subject[g3];
     }
-    if (subjectId.length >= 9) {
+    if (subject && subjectId.length >= 9) {
         subject = subject[g4];
+    }
+    if (!subject) {
+        subject = {name: '未知科目', direction: '未知'}
     }
     return {name: subject.name, direction: subject.direction};
 }
