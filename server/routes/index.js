@@ -212,7 +212,7 @@ router.post('/deleteAccount', function(req, res) {
     var username = req.body.username;
     username = username ? username : '';
     if (req.session.user.username == username) {
-        res.send({status: 'curUserErr', messge: '无法删除当前登录用户'});
+        res.send({status: 'curUserErr', message: '无法删除当前登录用户'});
         return;
     }
     var logMsg = {
