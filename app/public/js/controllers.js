@@ -1210,7 +1210,17 @@ mainFrameCtrl.controller('subjectManageCtrl', ['$scope',
 
 mainFrameCtrl.controller('userManageCtrl', ['$scope',
     function($scope) {
-        $scope.tmp = '';
+        $scope.accounts = [
+            {username: 'aaa', description: '', enabled: true},
+            {username: 'bbb', description: '', enabled: true},
+            {username: 'ccc', description: '', enabled: false},
+            {username: 'ddd', description: '', enabled: true},
+            {username: 'eee', description: '', enabled: true},
+            {username: 'fff', description: '', enabled: true}
+        ];
+        $scope.enabled = true;
+        $scope.rights = 'readWrite';
+
     }
 ]);
 
@@ -1297,7 +1307,7 @@ mainFrameCtrl.controller('systemStatusCtrl', ['$scope', '$http',
         counter('logNum', 'log', {});
         counter('logOk', 'log', {status: '成功'});
         counter('login', 'log', {operation: '登录操作'});
-        counter('loginErr', 'log', {operation: '登录操作', status: '成功'});
+        counter('loginErr', 'log', {operation: '登录操作', status: '失败'});
 
         var checkProject = function(projects) {
             if (!projects) {
@@ -1404,25 +1414,3 @@ mainFrameCtrl.controller('systemStatusCtrl', ['$scope', '$http',
         //console.log('projectsErr: %o', $scope.projectsErr);
     }
 ]);
-
-///////////////////////////////////////////////////////////
-// used for phoneCat, a template app
-
-var phonecatControllers = angular.module('phonecatControllers', []);
-
-phonecatControllers.controller('PhoneListCtrl', ['$scope', 'Phone',
-  function($scope, Phone) {
-    $scope.phones = Phone.query();
-    $scope.orderProp = 'age';
-  }]);
-
-phonecatControllers.controller('PhoneDetailCtrl', ['$scope', '$routeParams', 'Phone',
-  function($scope, $routeParams, Phone) {
-    $scope.phone = Phone.get({phoneId: $routeParams.phoneId}, function(phone) {
-      $scope.mainImageUrl = phone.images[0];
-    });
-
-    $scope.setImage = function(imageUrl) {
-      $scope.mainImageUrl = imageUrl;
-    }
-  }]);

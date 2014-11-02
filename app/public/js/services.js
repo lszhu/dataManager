@@ -217,7 +217,7 @@ appService.provider('AppMenu', function() {
                         controller: 'userManageCtrl'
                     },
                     {
-                        name: '用户组管',
+                        name: '用户组管理',
                         link: 'maintain/groupManage',
                         controller: 'groupManageCtrl'
                     },
