@@ -71,6 +71,31 @@ router.get('/subject', function(req, res) {
     res.send(tool.subject);
 });
 
+// get accounts
+router.get('/getAccount', function(req, res) {
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '用户管理',
+        target: '用户账号数据库',
+        comment: '获取用户数据成功',
+        status: '成功'
+    };
+
+    db.query('account', {}, function(err, docs) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库查询失败'});
+            tool.log(db, logMsg,'数据库查询失败');
+            return;
+        }
+        for (var i = 0, len = docs.length; i < len; i++) {
+            docs[i].password = '';
+        }
+        res.send({status: 'ok', accounts: docs});
+        tool.log(db, logMsg);
+    });
+});
+
 // fetch pdf from server
 router.get('/fetchPdf', function(req, res) {
     var logMsg = {
@@ -142,6 +167,72 @@ router.get(/\/.+\/(.+)/, function(req, res) {
     var filename = req.params[0];
     debug('filename: ' + filename);
     res.sendFile('/' + filename + '.html', {root: root});
+});
+
+router.post('/modifyAccount', function(req, res) {
+    var account = {enabled: req.body.enabled};
+    if (!req.body.username) {
+        res.send({status: 'emptyName', message: '用户名不能为空'});
+        return;
+    }
+    account.username = req.body.username;
+    account.originalName =
+        req.body.originalName ? req.body.originalName : account.username;
+    if (req.body.password) {
+        account.password = req.body.password;
+    }
+    if (req.body.rights) {
+        account.rights = req.body.rights;
+    }
+    if (req.body.description) {
+        account.description = req.body.description;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '用户管理',
+        target: '用户账号数据库',
+        comment: '新增或修改用户数据成功',
+        status: '成功'
+    };
+
+    db.save('account', {username: account.originalName}, account,
+        function(err) {
+            if (err) {
+                console.log('Db error: ' + JSON.stringify(err));
+                res.send({status: 'dbErr', message: '数据库查询失败'});
+                tool.log(db, logMsg, '数据库查询失败', '失败');
+                return;
+            }
+            res.send({status: 'ok'});
+            tool.log(db, logMsg);
+        });
+});
+
+router.post('/deleteAccount', function(req, res) {
+    var username = req.body.username;
+    username = username ? username : '';
+    if (req.session.user.username == username) {
+        res.send({status: 'curUserErr', messge: '无法删除当前登录用户'});
+        return;
+    }
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '用户管理',
+        target: '用户账号数据库',
+        comment: '删除用户账号成功',
+        status: '成功'
+    };
+
+    db.remove('account', {username: username}, function(err) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库操作失败'});
+            tool.log(db, logMsg,'数据库操作失败', '失败');
+            return;
+        }
+        res.send({status: 'ok'});
+        tool.log(db, logMsg);
+    })
 });
 
 router.post('/createProject', function(req, res) {

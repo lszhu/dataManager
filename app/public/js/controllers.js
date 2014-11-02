@@ -1208,19 +1208,123 @@ mainFrameCtrl.controller('subjectManageCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('userManageCtrl', ['$scope',
-    function($scope) {
-        $scope.accounts = [
-            {username: 'aaa', description: '', enabled: true},
-            {username: 'bbb', description: '', enabled: true},
-            {username: 'ccc', description: '', enabled: false},
-            {username: 'ddd', description: '', enabled: true},
-            {username: 'eee', description: '', enabled: true},
-            {username: 'fff', description: '', enabled: true}
-        ];
+mainFrameCtrl.controller('userManageCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        // 用于测试的伪造账号
+        //$scope.accounts = [
+        //    {username: 'aaa', description: 'aaaaaa', enabled: true},
+        //    {username: 'bbb', description: '', enabled: true, rights: 'readonly'},
+        //    {username: 'ccc', description: '', enabled: false},
+        //    {username: 'ddd', description: 'dddddd', enabled: true},
+        //    {username: 'eee', description: '', enabled: true, rights: 'readonly'},
+        //    {username: 'fff', description: '', enabled: false}
+        //];
+
+        fetchUser();
         $scope.enabled = true;
         $scope.rights = 'readWrite';
 
+        $scope.loadUser = function(name) {
+            $scope.password = '';
+            $scope.retryPassword = '';
+            name = name ? name : '';
+            var user = $scope.accounts
+                .filter(function(e) {return e.username == name;})[0];
+            if (!user) {
+                $scope.originalName = '';
+                $scope.name = '';
+                $scope.enabled = true;
+                $scope.rights = 'readWrite';
+                $scope.description = '';
+                return;
+            }
+            console.log('user data: %o', user);
+            $scope.originalName = user.username;
+            $scope.name = user.username;
+            $scope.enabled = user.enabled;
+            $scope.rights = user.rights;
+            $scope.description = user.description;
+        };
+
+        $scope.deleteUser = function(name) {
+            if (!name) {
+                return;
+            }
+            if (!confirm('确认要删除该用户？')) {
+                return;
+            }
+            console.log('account name: ' + name);
+            $http.post('/deleteAccount', {username: name})
+                .success(function(res) {
+                    if (res.status == 'ok') {
+                        $scope.msgClass = 'alert-success';
+                        $scope.accounts = $scope.accounts
+                            .filter(function(e) {return e.username != name;});
+                    } else {
+                        $scope.msgClass = 'alert-danger';
+                        $scope.message = res.message ?
+                            res.message : '未知错误，请先退出后重新登录尝试';
+                    }
+                }).error(function(res) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = 'system error: ' + JSON.stringify(res);
+                });
+        };
+
+        $scope.modifyUser = function() {
+            if (!$scope.name || !$scope.name.trim()) {
+                alert('用户名不能为空');
+                return;
+            }
+            if ($scope.password != $scope.retryPassword) {
+                alert('两次输入的密码不一致');
+                return;
+            }
+            var data = {username: $scope.name.trim(), enabled: $scope.enabled};
+                data.originalName =
+                    $scope.originalName ? $scope.originalName : data.username;
+            if ($scope.rights) {
+                data.rights = $scope.rights;
+            }
+            if ($scope.description) {
+                data.description = $scope.description;
+            }
+            if ($scope.password && $scope.password.trim()) {
+                data.password = $scope.password.trim();
+            }
+            console.log('upload data: %o', data);
+            $http.post('/modifyAccount', data)
+                .success(function(res) {
+                    if (res.status == 'ok') {
+                        fetchUser();
+                        $scope.msgClass = 'alert-success';
+                    } else {
+                        $scope.msgClass = 'alert-danger';
+                        $scope.message = res.message ?
+                            res.message : '未知错误，请先退出后重新登录尝试';
+                    }
+                }).error(function(res) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = 'system error: ' + JSON.stringify(res);
+                });
+        };
+
+        function fetchUser() {
+            $http.get('/getAccount')
+                .success(function(res) {
+                    if (res.status == 'ok') {
+                        $scope.accounts = res.accounts ? res.accounts : [];
+                        $scope.msgClass = 'alert-success';
+                    } else {
+                        $scope.msgClass = 'alert-danger';
+                        $scope.message = res.message ?
+                            res.message : '未知错误，请先退出后重新登录尝试';
+                    }
+                }).error(function(res) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = 'system error: ' + JSON.stringify(res);
+                });
+        }
     }
 ]);
 

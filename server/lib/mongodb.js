@@ -120,9 +120,11 @@ function createModels() {
     var accountSchema = new mongoose.Schema({
         username: String,
         password: String,
-        enabled: String,
+        enabled: Boolean,
         description: String,
         groups: [String],
+        rights: String
+        /*
         rights: {
             system: {
                 log: Boolean,
@@ -157,6 +159,7 @@ function createModels() {
                 file: Boolean
             }
         }
+         */
     });
 
     var groupSchema = new mongoose.Schema({
@@ -225,6 +228,8 @@ connectDb();
 // create models being used
 var models = createModels();
 
+// the parameter fields should be a string like 'a b -c d -e -f'
+// or an object like {a: 1, b: 1, c: 0, d: 1, e: 0, f: 0}
 function query(model, condition, callback, fields, limit) {
     limitation = limit ? limit : maxReturnedDoc;
     models[model]
