@@ -68,11 +68,21 @@ router.all('/logout', function(req, res) {
 
 // get subject list include id and name
 router.get('/subject', function(req, res) {
-    res.send(tool.subject);
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    res.send({status: 'ok', subject: tool.subject});
 });
 
 // get accounts
 router.get('/getAccount', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var logMsg = {
         operator: req.session.user.username,
         operation: '用户管理',
@@ -98,6 +108,12 @@ router.get('/getAccount', function(req, res) {
 
 // fetch pdf from server
 router.get('/fetchPdf', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        res.send(tool.banPdf);
+        return;
+    }
+
     var logMsg = {
         operator: req.session.user.username,
         operation: '查看pdf文档',
@@ -121,11 +137,22 @@ router.get('/fetchPdf', function(req, res) {
 
 // for showing pdf in browser
 router.get('/pdfShow', function(req, res) {
-    //res.send('ok');
+    if (!auth.allow(req.session.user, 'administrator')) {
+        //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        res.send('<h1>你无权进行相关操作</h1>');
+        return;
+    }
+
     res.render('pdfShow.html');
 });
 
 router.get('/pdf', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        res.send(tool.banPdf);
+        return;
+    }
+
     var logMsg = {
         operator: req.session.user.username,
         operation: '查看pdf文档',
@@ -170,6 +197,11 @@ router.get(/\/.+\/(.+)/, function(req, res) {
 });
 
 router.post('/modifyAccount', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var account = {enabled: req.body.enabled};
     if (!req.body.username) {
         res.send({status: 'emptyName', message: '用户名不能为空'});
@@ -209,6 +241,11 @@ router.post('/modifyAccount', function(req, res) {
 });
 
 router.post('/deleteAccount', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var username = req.body.username;
     username = username ? username : '';
     if (req.session.user.username == username) {
@@ -236,6 +273,11 @@ router.post('/deleteAccount', function(req, res) {
 });
 
 router.post('/createProject', function(req, res) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var project = proj.parseProject(req);
     if (!project.name) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
@@ -282,6 +324,11 @@ router.post('/createProject', function(req, res) {
 });
 
 router.post('/updateProject', function(req, res) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var project = proj.parseProject(req);
     if (!project.name) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
@@ -321,6 +368,11 @@ router.post('/updateProject', function(req, res) {
 });
 
 router.post('/removeProject', function(req, res) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var name = req.body.name;
     if (!name) {
         res.send({status: 'nameErr', message: '项目名称不能为空'});
@@ -355,6 +407,11 @@ router.post('/removeProject', function(req, res) {
 });
 
 router.post('/pisTable', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
 
@@ -421,8 +478,13 @@ router.post('/pisTable', function(req, res) {
     });
 });
 
-
+// create reporter according to subject
 router.post('/projectTable', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
     var condition = tool.period(req.body.dateFrom, req.body.dateTo,
@@ -472,7 +534,13 @@ router.post('/projectTable', function(req, res) {
     });
 });
 
+// create a reporter according to grading period
 router.post('/gradingTable', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     //debug('req.body', + JSON.stringify(req.body));
     var condition = {};
     var project = req.body.project;
@@ -552,7 +620,13 @@ router.post('/gradingTable', function(req, res) {
     });
 });
 
+// fetch all log information
 router.post('/logReport', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
     var condition = tool.period(req.body.startDate, req.body.endDate,
@@ -596,6 +670,11 @@ router.post('/logReport', function(req, res) {
 
 // get items from certain collection and count
 router.post('/counter', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var collect = req.body.collect;
     var condition = req.body.condition;
     condition = condition ? condition : {};
@@ -628,6 +707,11 @@ router.post('/counter', function(req, res) {
 
 // get file list from certain directory
 router.post('/queryFile', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var relativePath = req.body.path;
     var logMsg = {
         operator: req.session.user.username,
@@ -651,6 +735,11 @@ router.post('/queryFile', function(req, res) {
 
 // get all projects from projects collection
 router.post('/queryProject', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var condition = {};
     if (req.body.name) {
         condition.name = new RegExp(req.body.name.trim());
@@ -682,6 +771,11 @@ router.post('/queryProject', function(req, res) {
 
 // get vouchers from figures collection
 router.post('/queryVoucher', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
     var condition = tool.period(req.body.dateFrom, req.body.dateTo,
@@ -723,13 +817,18 @@ router.post('/queryVoucher', function(req, res) {
             return;
         }
         //debug('financial figures: %j', docs);
-        res.send({figures: docs});
+        res.send({status: 'ok', figures: docs});
         tool.log(db, logMsg, '成功查询到财务凭证数据', '成功');
     });
 });
 
 // read figure file from a certain directory and import to db
 router.post('/importFigure', function(req, res) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     var style = req.body.style,
         filePath = req.body.path,
         projectName = req.body.projectName,
@@ -765,6 +864,11 @@ router.post('/importFigure', function(req, res) {
 
 // check certain directory, bind the correct file to figures
 router.post('/voucherAutoBind', function(req, res) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
     // milliseconds in a day minus one;
     var delta = 24 * 60 * 60 * 1000 - 1;
     var condition = tool.period(req.body.dateFrom, req.body.dateTo,

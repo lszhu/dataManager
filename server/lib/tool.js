@@ -13,6 +13,9 @@ var dictionary = readJsonFile(
 var subjectMap = readJsonFile(
     path.join(__dirname, '../../staticData/subjectMap.json'));
 
+var banPdf = readFileInBuf(
+    path.join(__dirname, '../../staticData/banPdf.pdf'));
+
 // 解析读入并解析JSON文件
 function readJsonFile(filePath) {
     try {
@@ -20,6 +23,17 @@ function readJsonFile(filePath) {
         return JSON.parse(data);
     } catch (e) {
         console.log('read file %j error', filePath);
+        return '';
+    }
+}
+
+// 读取显示禁止pdf的文件内容
+function readFileInBuf(filePath) {
+    try {
+        return fs.readFileSync(filePath);
+    } catch (e) {
+        console.log('read file %j error', filePath);
+        return '';
     }
 }
 
@@ -870,6 +884,7 @@ function candidateFigure(figures) {
 
 module.exports = {
     subject: subjectMap,
+    banPdf: banPdf,
     log: log,
     period: period,
     importFigures: importFigures,

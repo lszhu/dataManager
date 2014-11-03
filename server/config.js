@@ -28,7 +28,7 @@ var builtinAccount = {
     username: 'admin',            // 管理员名称
     password: 'admin',            // 管理员密码
     groups: ['administrator'],    // 管理员所属组号
-    rights: {},                   // 除组规定的权限外的额外权限
+    rights: 'administrator', //{},             // 除组规定的权限外的额外权限
     enabled: true,                // 启用状态
     description : 'builtin administrator'
 };

@@ -745,8 +745,14 @@ mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
         // 由服务器获取科目信息并初始化控制器地变量
         function initSubject() {
             $http.get('/subject').success(function(res) {
-                $scope.subjects = res;
-                $scope.subjectIds = Object.keys(res);
+                if (res.status == 'ok') {
+                    $scope.msgClass = 'alert-success';
+                    $scope.subjects = res.subject;
+                    $scope.subjectIds = Object.keys(res.subject);
+                } else {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = res.message;
+                }
             }).error(function (res) {
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
@@ -855,8 +861,14 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
         // 由服务器获取科目信息并初始化控制器地变量
         function getSubject() {
             $http.get('/subject').success(function(res) {
-                $scope.subjects = res;
-                $scope.subjectIds = Object.keys(res);
+                if (res.status == 'ok') {
+                    $scope.msgClass = 'alert-success';
+                    $scope.subjects = res.subject;
+                    $scope.subjectIds = Object.keys(res.subject);
+                } else {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = res.message;
+                }
             }).error(function (res) {
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
@@ -1142,8 +1154,14 @@ mainFrameCtrl.controller('VoucherAutoBindCtrl', ['$scope', '$http',
         });
 
         $http.get('/subject').success(function(res) {
-            $scope.subjects = res;
-            $scope.subjectIds = Object.keys(res);
+            if (res.status == 'ok') {
+                $scope.msgClass = 'alert-success';
+                $scope.subjects = res.subject;
+                $scope.subjectIds = Object.keys(res.subject);
+            } else {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = res.message;
+            }
         }).error(function (res) {
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
@@ -1247,6 +1265,7 @@ mainFrameCtrl.controller('userManageCtrl', ['$scope', '$http',
         };
 
         $scope.deleteUser = function(name) {
+            $scope.message = '';
             if (!name) {
                 return;
             }
@@ -1272,6 +1291,7 @@ mainFrameCtrl.controller('userManageCtrl', ['$scope', '$http',
         };
 
         $scope.modifyUser = function() {
+            $scope.message = '';
             if (!$scope.name || !$scope.name.trim()) {
                 alert('用户名不能为空');
                 return;
@@ -1315,6 +1335,7 @@ mainFrameCtrl.controller('userManageCtrl', ['$scope', '$http',
                     if (res.status == 'ok') {
                         $scope.accounts = res.accounts ? res.accounts : [];
                         $scope.msgClass = 'alert-success';
+                        $scope.message = res.message;
                     } else {
                         $scope.msgClass = 'alert-danger';
                         $scope.message = res.message ?
