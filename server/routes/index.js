@@ -188,12 +188,15 @@ router.get('/pdf', function(req, res) {
 });
 
 // for angular.js to get partial view file
-router.get(/\/.+\/(.+)/, function(req, res) {
+//router.get(/\/.+\/(.+)/, function(req, res) {
+router.get(/(.+\/.+)/, function(req, res) {
     var root = path.resolve(__dirname + '/../../app/partials/');
     debug('root path: ' + root);
     var filename = req.params[0];
+    //var filename = req.params.filePath;
     debug('filename: ' + filename);
-    res.sendFile('/' + filename + '.html', {root: root});
+    //res.sendFile('/' + filename + '.html', {root: root});
+    res.sendFile(filename + '.html', {root: root});
 });
 
 router.post('/modifyAccount', function(req, res) {
