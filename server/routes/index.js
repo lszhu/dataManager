@@ -108,7 +108,7 @@ router.get('/getAccount', function(req, res) {
 
 // fetch pdf from server
 router.get('/fetchPdf', function(req, res) {
-    if (!auth.allow(req.session.user, 'administrator')) {
+    if (!auth.allow(req.session.user, 'readPlus')) {
         //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         res.send(tool.banPdf);
         return;
@@ -137,7 +137,7 @@ router.get('/fetchPdf', function(req, res) {
 
 // for showing pdf in browser
 router.get('/pdfShow', function(req, res) {
-    if (!auth.allow(req.session.user, 'administrator')) {
+    if (!auth.allow(req.session.user, 'readPlus')) {
         //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         res.send('<h1>你无权进行相关操作</h1>');
         return;
@@ -147,7 +147,7 @@ router.get('/pdfShow', function(req, res) {
 });
 
 router.get('/pdf', function(req, res) {
-    if (!auth.allow(req.session.user, 'administrator')) {
+    if (!auth.allow(req.session.user, 'readPlus')) {
         //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         res.send(tool.banPdf);
         return;
@@ -707,7 +707,7 @@ router.post('/counter', function(req, res) {
 
 // get file list from certain directory
 router.post('/queryFile', function(req, res) {
-    if (!auth.allow(req.session.user, 'readonly')) {
+    if (!auth.allow(req.session.user, 'readWrite')) {
         res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         return;
     }
