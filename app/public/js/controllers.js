@@ -100,27 +100,12 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
         // 保存项目未改名前的名称
         $scope.originalName = '';
 
-        $scope.queryProject = function() {
-            //$scope.line = -1;
-            $http.post('/queryProject', {
-                name: $scope.name,
-                id: $scope.id,
-                description: $scope.description
-            }).success(function(res) {
-                $scope.msgClass =
-                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                $scope.message = res.message;
-                $scope.projects = res.projects;
-            }).error(function(res) {
-                $scope.msgClass = 'alert-danger';
-                $scope.message = 'system error: ' + JSON.stringify(res);
-            });
-        };
-
         $scope.gotoProjectDetail = function(name) {
             $location.path('/search/queryProjectDetail')
                 .search('project', name);
         };
+
+        $scope.queryProject = queryProject;
 
         var initTmpProject = function(project) {
             //$scope.tmpProject = {};
@@ -143,12 +128,6 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
             if (oldProject) {
                 oldProject.edit = false;
             }
-            //if (oldProject) {
-            //    oldProject.name = $scope.oldName;
-            //    oldProject.id = $scope.oldId;
-            //    oldProject.description = $scope.oldDescription;
-            //    oldProject.edit = false;
-            //}
 
             var project = $scope.projects
                 .filter(function(e) {return e.name == name;})[0];
@@ -193,19 +172,14 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                     if (res.status == 'duplicateName') {
                         alert('系统中已存在项目名称：'
                             + $scope.tmpProject.newName);
+                    } else if (res.status == 'rightsErr') {
+                        alert(res.message);
                     } else if (res.status != 'ok') {
                         alert('系统原因导致未能修改成功：\n' + res.message);
                         //project.name = $scope.oldName;
                         //project.description = $scope.oldDescription;
                     } else {
-                        $scope.queryProject();
-                        //for (var i = 0; i < $scope.projects.length; i++) {
-                        //    if ($scope.projects[i].name == name) {
-                        //        uploadData.name = uploadData.newName;
-                        //        $scope.projects[i] = uploadData;
-                        //        break;
-                        //    }
-                        //}
+                        queryProject();
                     }
                     //$scope.line = -1;
                 }).error(function(err) {
@@ -244,6 +218,30 @@ mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
                     console.log('project remove error: %o', err);
                 });
         };
+
+        function queryProject() {
+            //$scope.line = -1;
+            $http.post('/queryProject', {
+                name: $scope.name,
+                id: $scope.id,
+                description: $scope.description
+            }).success(function(res) {
+                $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.projects = res.projects.sort(function(a, b) {
+                    if (a.name < b.name) {
+                        return -1;
+                    } else if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                });
+            }).error(function(res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        }
     }
 ]);
 
@@ -285,24 +283,6 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             }
         };
 
-        var queryProject = function() {
-            $http.post('/queryProject', {}).success(function (res) {
-                $scope.msgClass =
-                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                $scope.message = res.message;
-                $scope.projectsRaw = res.projects;
-                $scope.projects = res.projects;
-                $scope.parentProjects = res.projects;
-                if (!$scope.projectName &&
-                    $scope.projectsRaw && $scope.projectsRaw.length) {
-                    $scope.projectName = $scope.projectsRaw[0].name;
-                    initTmpProject($scope.projectsRaw[0]);
-                }
-            }).error(function (res) {
-                $scope.msgClass = 'alert-danger';
-                $scope.message = 'system error: ' + JSON.stringify(res);
-            });
-        };
         queryProject();
 
         var currentProject = function() {
@@ -333,7 +313,7 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             $http.post('/updateProject', $scope.tmpProject)
                 .success(function(res) {
                     if (res.status != 'ok') {
-                        alert('未能修改成功：\n' + res.message);
+                        alert('未能成功修改：\n' + res.message);
                         initTmpProject(project);
                         console.log('project: %o', project);
                     } else {
@@ -444,6 +424,31 @@ mainFrameCtrl.controller('ProjectDetailCtrl', ['$scope', '$http', '$location',
             }
         );
 
+        function queryProject() {
+            $http.post('/queryProject', {}).success(function (res) {
+                $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.message = res.message;
+                $scope.projectsRaw = res.projects.sort(function(a, b) {
+                    if (a.name < b.name) {
+                        return -1;
+                    } else if (a.name > b.name) {
+                        return 1;
+                    }
+                    return 0;
+                });
+                $scope.projects = $scope.projectsRaw;
+                $scope.parentProjects = res.projects;
+                if (!$scope.projectName &&
+                    $scope.projectsRaw && $scope.projectsRaw.length) {
+                    $scope.projectName = $scope.projectsRaw[0].name;
+                    initTmpProject($scope.projectsRaw[0]);
+                }
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        }
     }
 ]);
 
@@ -858,6 +863,7 @@ mainFrameCtrl.controller('ProjectGradingTableCtrl', ['$scope', '$http',
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
         }
+
         // 由服务器获取科目信息并初始化控制器地变量
         function getSubject() {
             $http.get('/subject').success(function(res) {
@@ -1016,8 +1022,15 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
             $scope.message = res.message;
-            $scope.projectsRaw = res.projects;
-            $scope.projects = res.projects;
+            $scope.projectsRaw = res.projects.sort(function(a, b) {
+                if (a.name < b.name) {
+                    return -1;
+                } else if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+            $scope.projects = $scope.projectsRaw;
             $scope.projectName = res.projects ? res.projects[0].name : '';
         }).error(function(res) {
             $scope.msgClass = 'alert-danger';
@@ -1085,12 +1098,14 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
                 $scope.message = res.message;
-                if (res.status == 'nameErr') {
+                if (res.status == 'nameErr' || res.status == 'rightsErr') {
                     return;
                 }
+
                 if (res.errLines) {
                     $scope.errLines += ' #文件名: ' + res.filename + ', ' +
                         '错误位置: ' + JSON.stringify(res.errLines);
+                    return;
                 }
 
                 $scope.importedList.push({
@@ -1146,8 +1161,15 @@ mainFrameCtrl.controller('VoucherAutoBindCtrl', ['$scope', '$http',
             $scope.msgClass =
                     res.status == 'ok' ? 'alert-success' : 'alert-danger';
             $scope.message = res.message;
-            $scope.projectsRaw = res.projects;
-            $scope.projects = res.projects;
+            $scope.projectsRaw = res.projects.sort(function(a, b) {
+                if (a.name < b.name) {
+                    return -1;
+                } else if (a.name > b.name) {
+                    return 1;
+                }
+                return 0;
+            });
+            $scope.projects = $scope.projectsRaw;
         }).error(function (res) {
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);

@@ -104,7 +104,7 @@
   </form>
 
   <div class="col-md-8 col-md-offset-2" ng-show="message">
-    <div ng-class="msgClass" class="alert" role="alert">
+    <div ng-class="msgClass" class="alert text-center" role="alert">
       <strong >{{message}}<br><span ng-show="msgClass == 'alert-danger'">{{errLines}}</span></strong>
     </div>
   </div>
@@ -124,7 +124,7 @@
   </thead>
   <tbody>
   <tr ng-repeat="row in importedList">
-    <td>{{$index}}</td>
+    <td>{{$index + 1}}</td>
     <td>{{row.projectName}}</td>
     <td>{{row.year}}</td>
     <td>{{row.path}}</td>
