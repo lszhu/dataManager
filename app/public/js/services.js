@@ -171,14 +171,14 @@ appService.provider('AppMenu', function() {
                         controller: 'CreateProjectCtrl'
                     },
                     {
-                        name: '财务数据添加',
-                        link: 'tool/addFigure',
-                        controller: 'AddFigureCtrl'
-                    },
-                    {
                         name: '财务数据导入',
                         link: 'tool/importFigure',
                         controller: 'ImportFigureCtrl'
+                    },
+                    { // 与凭证查询共用同一个控制器
+                        name: '财务数据删除',
+                        link: 'tool/removeFigure',
+                        controller: 'QueryVoucherCtrl'
                     },
                     {
                         name: '财务凭证自动关联',

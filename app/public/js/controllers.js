@@ -458,8 +458,11 @@ mainFrameCtrl.controller('QuerySubjectCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
-    function($scope, $http) {
+mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
+    function($scope, $http, $timeout) {
+        // 用于指示数据删除前是否核准
+        $scope.confirmed = false;
+        $scope.condition = {};
         $scope.message = '';
         $scope.msgClass = 'alert-success';
         $scope.description = '';
@@ -475,7 +478,7 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
 
         $scope.queryVoucher = function() {
             //console.log('startDate: ' + $scope.startDate);
-            $http.post('/queryVoucher',{
+            $scope.condition = {
                 dateFrom: $scope.dateFrom,
                 dateTo: $scope.dateTo,
                 timezone: (new Date()).getTimezoneOffset(),
@@ -485,15 +488,46 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http',
                 project: $scope.project,
                 subjectName: $scope.subjectName,
                 description: $scope.description
-            }).success(function(res) {
-                $scope.msgClass =
+            };
+            $http.post('/queryVoucher', $scope.condition)
+                .success(function(res) {
+                    $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                $scope.message = res.message;
-                $scope.figures = res.figures;
-            }).error(function(res) {
-                $scope.msgClass = 'alert-danger';
-                $scope.message = 'system error: ' + JSON.stringify(res);
-            });
+                    $scope.message = res.message;
+                    $scope.figures = res.figures
+                        .sort(function(a, b) {
+                            if (a.date < b.date) {
+                                return -1;
+                            } else if (a.data = b.data) {
+                                return 0;
+                            } else {
+                                return 1;
+                            }
+                        });
+                }).error(function(res) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = 'system error: ' + JSON.stringify(res);
+                });
+        };
+
+        $scope.checkVoucher = function() {
+            $scope.queryVoucher();
+            $timeout(function() {$scope.confirmed = true;}, 3000);
+        };
+
+        $scope.removeVoucher = function() {
+            if (!confirm('你确认要删除这些凭证数据吗？')) {
+                return;
+            }
+            $http.post('/deleteVoucher', $scope.condition)
+                .success(function(res) {
+                    $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                    $scope.message = res.message;
+                }).error(function(res) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = 'system error: ' + JSON.stringify(res);
+                });
         };
 
         $scope.toLocalDate = function(time) {
