@@ -91,6 +91,36 @@ mainFrameCtrl.controller('FilingCtrl', ['$scope',
     }
 ]);
 
+mainFrameCtrl.controller('DigitalArchiveCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('ArchiveBindCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('BorrowReturnCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('DestroyCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
+mainFrameCtrl.controller('ReportCtrl', ['$scope',
+    function($scope) {
+        $scope.operation = 'add';
+    }
+]);
+
 mainFrameCtrl.controller('QueryProjectCtrl', ['$scope', '$http', '$location',
     function($scope, $http, $location) {
         //$scope.line = -1;
