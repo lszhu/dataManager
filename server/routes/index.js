@@ -825,6 +825,59 @@ router.post('/queryVoucher', function(req, res) {
     });
 });
 
+// delete vouchers from figures collection
+router.post('/deleteVoucher', function(req, res) {
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    // milliseconds in a day minus one;
+    var delta = 24 * 60 * 60 * 1000 - 1;
+    var condition = tool.period(req.body.dateFrom, req.body.dateTo,
+        delta, req.body.timezone);
+    condition = condition ? {date: condition} : {};
+    debug('date: %j', condition);
+
+    var interval = tool.interval(req.body.amountFrom, req.body.amountTo);
+    if (interval) {
+        condition.$or = [{debit: interval}, {credit: interval}];
+        debug('condition: %j', condition);
+    }
+
+    if (req.body.voucherId) {
+        condition['voucher.id'] = new RegExp(req.body.voucherId.trim());
+    }
+    if (req.body.project) {
+        condition.project = new RegExp(req.body.project.trim());
+    }
+    if (req.body.subjectName) {
+        condition.subjectName = new RegExp(req.body.subjectName.trim());
+    }
+    if (req.body.description) {
+        condition.description = new RegExp(req.body.description.trim());
+    }
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '财务凭证数据查看',
+        target: '财务凭证数据数据库',
+        comment: '数据库操作失败',
+        status: '失败'
+    };
+    db.remove('figure', condition, function(err) {
+        if (err) {
+            console.log('Db error: ' + JSON.stringify(err));
+            res.send({status: 'dbErr', message: '数据库操作失败'});
+            tool.log(db, logMsg);
+            return;
+        }
+        //debug('financial figures: %j', docs);
+        res.send({status: 'ok', message: '成功删除财务凭证数据'});
+        tool.log(db, logMsg, '成功删除财务凭证数据', '成功');
+    });
+});
+
 // read figure file from a certain directory and import to db
 router.post('/importFigure', function(req, res) {
     if (!auth.allow(req.session.user, 'readWrite')) {

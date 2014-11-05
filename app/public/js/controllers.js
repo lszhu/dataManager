@@ -521,9 +521,10 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
             }
             $http.post('/deleteVoucher', $scope.condition)
                 .success(function(res) {
-                    $scope.msgClass =
-                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                    $scope.message = res.message;
+                    $scope.queryVoucher();
+                    //$scope.msgClass =
+                    //    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                    //$scope.message = res.message;
                 }).error(function(res) {
                     $scope.msgClass = 'alert-danger';
                     $scope.message = 'system error: ' + JSON.stringify(res);
