@@ -60,8 +60,8 @@ function allow(acc, rights) {
         return false;
     }
 
-    console.log('serverId: ' + serverId);
-    console.log('customerId: ' + customerId);
+    //console.log('serverId: ' + serverId);
+    //console.log('customerId: ' + customerId);
     var auth1 = verifyCpuId(serverId, customerId);
     var auth2 = verifyMacAddress(serverId, customerId);
     return auth1 && auth2;
@@ -116,7 +116,7 @@ function serverIdString(sId) {
     }
     var idString = sId.macAddress.join('-');
     idString += '-' + sId.cpuId;
-    console.log(idString);
+    //console.log(idString);
     return idString;
 }
 
@@ -164,6 +164,15 @@ function getCustomerId() {
 
 // 验证cpuId，这里的cpuId并非全球唯一Id，类似于cpu型号Id
 function verifyCpuId(serverId, customerId) {
+    var year = getYear(customerId);
+    var month = getMonth(customerId);
+    if (year && month) {
+        var curDate = new Date();
+        var regDate = new Date(year, month - 1, 31);
+        if (curDate < regDate) {
+            return true;
+        }
+    }
     if (!customerId || !serverId || !serverId.cpuId) {
         return false;
     }
@@ -173,6 +182,15 @@ function verifyCpuId(serverId, customerId) {
 
 // 验证mac地址，只要有一个mac地址符合，即通过验证
 function verifyMacAddress(serverId, customerId) {
+    var year = getYear(customerId);
+    var month = getMonth(customerId);
+    if (year && month) {
+        var curDate = new Date();
+        var regDate = new Date(year, month - 1, 31);
+        if (curDate < regDate) {
+            return true;
+        }
+    }
     if (!customerId || !serverId || !serverId.macAddress) {
         return false;
     }
@@ -185,6 +203,50 @@ function verifyMacAddress(serverId, customerId) {
         }
     }
     return false;
+}
+
+// 校验序列号中是否包含当年或下一年信息
+function getYear(customerId) {
+    if (!customerId) {
+        return 0;
+    }
+    customerId = customerId.split('\n');
+    if (customerId.length != 2) {
+        return 0;
+    }
+    var curYear = (new Date()).getFullYear();
+    var hashedYear = customerId[0];
+    var hashedYears = hashYear();
+    if (hashedYear == hashedYears[0]) {
+        console.log('year: ' + curYear);
+        return curYear;
+    } else if (hashedYear == hashedYears[1]) {
+        console.log('year: ' + curYear);
+        return curYear + 1;
+    }
+    console.log('year: ' + 0);
+    return 0;
+}
+
+// 校验序列号中是否包含月份信息
+function getMonth(customerId) {
+    if (!customerId) {
+        return 0;
+    }
+    customerId = customerId.split('\n');
+    if (customerId.length != 2) {
+        return 0;
+    }
+    var hashedMonth = customerId[1];
+    var hashedMonthList = hashMonth();
+    for (var i = 0; i < 12; i++) {
+        if (hashedMonthList[i] == hashedMonth) {
+            console.log('month: ' + (i + 1));
+            return i + 1;
+        }
+    }
+    console.log('month: ' + 0);
+    return 0;
 }
 
 // 将服务器唯一Id转换为序列号
@@ -227,10 +289,51 @@ function verifyCustomerId(serverId, customerId) {
     }
 }
 
-var sId = createServerId();
-setTimeout(function() {console.log(sId)}, 2000);
-setTimeout(function() {console.log(createCustomerId(serverIdString(sId)))}, 2000);
+function hashMonth() {
+    var month = [];
+    var i, j, tmp, hash;
+    for (i = 1; i < 13; i++) {
+        tmp = '';
+        for (j = 0; j < 32; j++) {
+            tmp += i < 10 ? '0' + i : '' + i;
+        }
+        hash = crypto.createHash('sha256');
+        hash.update(tmp);
+        month.push(hash.digest('hex'));
+    }
+    console.log(month);
+    return month;
+}
 
+function hashYear() {
+    var hashYears = [];
+    var year = (new Date()).getFullYear();
+    var tmp, i;
+    for (i = 0, tmp = ''; i < 16; i++) {
+        tmp += year;
+    }
+    var hash = crypto.createHash('sha256');
+    hash.update(tmp);
+    hashYears.push(hash.digest('hex'));
+    year++;
+    for (i = 0, tmp = ''; i < 16; i++) {
+        tmp += year;
+    }
+    hash = crypto.createHash('sha256');
+    hash.update(tmp);
+    hashYears.push(hash.digest('hex'));
+    console.log(hashYears);
+    return hashYears;
+}
+
+// 可用来显示使用序列号
+//hashYear();
+//hashMonth();
+
+// 可用来显示用户注册序列号
+//setTimeout(function() {
+//    console.log(createCustomerId(serverIdString(serverId)))
+//}, 2000);
 
 module.exports = {
     auth: auth,

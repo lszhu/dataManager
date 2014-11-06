@@ -3,3 +3,4 @@ logs/*
 node_modules/
 .idea
 app/bower_components/
+staticData/customerId
