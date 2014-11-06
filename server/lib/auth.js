@@ -8,6 +8,10 @@ var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
 
+// 存放服务器Id，该值是异步获取的
+var serverId = createServerId();
+var customerId = getCustomerId();
+
 
 // 对两个参数代表的账号进行比对，如果一致，则返回真值
 function auth(acc, stdAcc) {
@@ -24,7 +28,7 @@ function auth(acc, stdAcc) {
 }
 
 // 检测acc对应账号的权限是否满足rights对应的权限，是则返回真值
-function allow(acc, rights) {
+function testRights(acc, rights) {
     var permission = {
         readonly: 1,
         readPlus: 2,
@@ -50,6 +54,19 @@ function allow(acc, rights) {
     //return false;
 }
 
+// 一般的操作，只有当权限符合且软件已成功注册才允许操作
+function allow(acc, rights) {
+    if (!testRights(acc, rights)) {
+        return false;
+    }
+
+    console.log('serverId: ' + serverId);
+    console.log('customerId: ' + customerId);
+    var auth1 = verifyCpuId(serverId, customerId);
+    var auth2 = verifyMacAddress(serverId, customerId);
+    return auth1 && auth2;
+}
+
 //////////////////////////////////////////////////////////////
 // 以下函数用于系统安装运行时的注册验证版权
 
@@ -57,6 +74,7 @@ function allow(acc, rights) {
 function createServerId() {
     var command = ['wmic cpu get processorId', 'wmic nic get macaddress'];
     var serverId = {};
+    //var childProcess = require('child_process');
     childProcess.exec(command[0], function(err, stdout, stderr) {
         if (err) {
             console.log('create server Id error(run) ', err);
@@ -127,6 +145,7 @@ function hashMacAddress(macList) {
 // 将用户注册序列号写入特定文件，callback(err)
 function saveCustomerId(cId, callback) {
     var cIdPath = path.join(__dirname, customerIdPath);
+    customerId = cId;
     fs.writeFile(cIdPath, cId, callback);
 }
 
@@ -217,10 +236,12 @@ module.exports = {
     auth: auth,
     allow: allow,
     builtinUser: builtinAccount,
-    serverId: createServerId(),
-    customerId: getCustomerId(),
+    serverId: serverId,
+    customerId: customerId,
+    getCustomer: getCustomerId,
     serverIdString: serverIdString,
     saveCustomerId: saveCustomerId,
     verifyCpuId: verifyCpuId,
-    verifyMacAddress: verifyMacAddress
+    verifyMacAddress: verifyMacAddress,
+    testRights: testRights
 };

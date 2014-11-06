@@ -78,7 +78,7 @@ router.get('/subject', function(req, res) {
 
 // get register information
 router.get('/getSerial', function(req, res) {
-    if (!auth.allow(req.session.user, 'administrator')) {
+    if (!auth.testRights(req.session.user, 'administrator')) {
         res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         return;
     }
@@ -98,7 +98,7 @@ router.get('/getSerial', function(req, res) {
 
 // save register information
 router.post('/saveCustomerId', function(req, res) {
-    if (!auth.allow(req.session.user, 'administrator')) {
+    if (!auth.testRights(req.session.user, 'administrator')) {
         res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         return;
     }
@@ -133,6 +133,7 @@ router.post('/saveCustomerId', function(req, res) {
             return;
         }
         console.log('register info saved');
+        auth.customerId = customerId;
         res.send({status: 'ok', message: '软件注册成功'});
         tool.log(db, logMsg);
     });
