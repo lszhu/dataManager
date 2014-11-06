@@ -76,6 +76,68 @@ router.get('/subject', function(req, res) {
     res.send({status: 'ok', subject: tool.subject});
 });
 
+// get register information
+router.get('/getSerial', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '获取软件注册信息',
+        target: '系统注册文件',
+        comment: '成功获取软件注册信息',
+        status: '成功'
+    };
+    var serverId = auth.serverIdString(auth.serverId);
+    var customerId = auth.customerId;
+    res.send({status: 'ok', serverId: serverId, customerId: customerId});
+    tool.log(db, logMsg);
+});
+
+// save register information
+router.post('/saveCustomerId', function(req, res) {
+    if (!auth.allow(req.session.user, 'administrator')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '软件注册',
+        target: '系统注册文件',
+        comment: '软件注册成功',
+        status: '成功'
+    };
+    var customerId = req.body.customerId;
+    customerId.replace(/\r/gm, '');
+    debug('customerId: ' + customerId);
+    var serverId = auth.serverId;
+    debug('serverId: ' + JSON.stringify(serverId));
+    var auth1 = auth.verifyCpuId(serverId, customerId);
+    var auth2 = auth.verifyMacAddress(serverId, customerId);
+    debug('auth1', auth1);
+    debug('auth2', auth2);
+    if (!auth1 || !auth2) {
+        console.log('software register failed');
+        res.send({status: 'regErr', message: '非法的注册序列号'});
+        tool.log(db, logMsg, '非法的注册序列号', '失败');
+        return;
+    }
+    auth.saveCustomerId(customerId, function(err) {
+        if (err) {
+            console.log('software user register info saving error');
+            res.send({status: 'regSavingErr', message: '注册序列号保存失败'});
+            tool.log(db, logMsg, '注册序列号保存失败', '失败');
+            return;
+        }
+        console.log('register info saved');
+        res.send({status: 'ok', message: '软件注册成功'});
+        tool.log(db, logMsg);
+    });
+});
+
 // get accounts
 router.get('/getAccount', function(req, res) {
     if (!auth.allow(req.session.user, 'administrator')) {

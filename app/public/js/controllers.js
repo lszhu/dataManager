@@ -61,6 +61,46 @@ mainFrameCtrl.controller('WelcomeCtrl', ['$scope',
     }
 ]);
 
+mainFrameCtrl.controller('RegisterCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.serverId = '';
+        $scope.customerId = '';
+
+        $scope.saveCustomerId = function() {
+            $http.post('/saveCustomerId', {customerId: $scope.customerId})
+                .success(function(res) {
+                    $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                    $scope.message = res.message;
+                }).error(function(err) {
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = '保存失败: ' + JSON.stringify(err);
+                });
+        };
+
+        $scope.reset = getSerial;
+
+        getSerial();
+
+        function getSerial() {
+            $http.get('/getSerial')
+                .success(function(res) {
+                    $scope.serverId = res.serverId;
+                    $scope.customerId = res.customerId;
+                    $scope.msgClass =
+                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                    $scope.message = res.message;
+                }).error(function(err) {
+                    console.log('未知外界原因，无法获取系统注册信息，%o', err);
+                    $scope.msgClass =
+                        res.status == 'alert-danger';
+                    $scope.message =
+                        '无法获取系统注册信息: ' + JSON.stringify(err);
+                });
+        }
+    }
+]);
+
 mainFrameCtrl.controller('StorageManageCtrl', ['$scope',
     function($scope) {
         $scope.operation = 'add';
@@ -551,10 +591,12 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
             }
             $http.post('/deleteVoucher', $scope.condition)
                 .success(function(res) {
-                    $scope.queryVoucher();
-                    //$scope.msgClass =
-                    //    res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                    //$scope.message = res.message;
+                    if (res.status == 'ok') {
+                        $scope.queryVoucher();
+                        return;
+                    }
+                    $scope.msgClass = 'alert-danger';
+                    $scope.message = res.message;
                 }).error(function(res) {
                     $scope.msgClass = 'alert-danger';
                     $scope.message = 'system error: ' + JSON.stringify(res);
@@ -1444,15 +1486,25 @@ mainFrameCtrl.controller('groupManageCtrl', ['$scope',
 
 mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http',
     function($scope, $http) {
-        // 将时间范围初始化为当年的1月1日至查询当天
+        // 将时间范围初始化为查询当天之前一个月内
         var time = new Date();
         var year = time.getFullYear();
-        $scope.dateFrom = year + '-01-01';
+        //$scope.dateFrom = year + '-01-01';
         var month = time.getMonth() + 1;
         month = month > 9 ? month : '0' + month;
         var day = time.getDate();
         day = day > 9 ? day : '0' + day;
         $scope.dateTo = year + '-' + month + '-' + day;
+        if (month == '01') {
+            month = 12;
+            year--;
+        } else if (month < 11) {
+            month = '0' + (month - 1);
+        } else {
+            month--;
+        }
+        $scope.dateFrom = year + '-' + month + '-' + day;
+        console.log('dateFrom: ' + $scope.dateFrom);
 
         $scope.message = '';
         $scope.msgClass = 'alert-success';

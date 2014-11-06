@@ -23,6 +23,10 @@ archiveApp.config(['$routeProvider', 'AppMenuProvider',
                 templateUrl: '/help/guide',
                 controller: 'WelcomeCtrl'
             })
+            .when('/help/register', {
+                templateUrl: '/help/register',
+                controller: 'RegisterCtrl'
+            })
             .when('/help/about', {
                 templateUrl: '/help/about',
                 controller: 'WelcomeCtrl'
