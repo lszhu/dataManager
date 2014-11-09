@@ -44,7 +44,10 @@ var dbServer = {
 var dbParameters = {
     user: 'chequesys',            // 数据库连接用户名称
     pass: 'chequeSys2014',        // 数据库连接用户密码
-    server: {socketOptions: {keepAlive: 1}}
+    server: {
+        socketOptions: {keepAlive: 1},
+        auto_reconnect: false     // 请不要修改此参数
+    }
 };
 
 // 对查询数据库结果数目作出限制，以保证系统性能，避免假死
@@ -60,8 +63,7 @@ module.exports = {
         voucher: voucherPath,
         file: filePath,
         base: importPath
-    }
-,
+    },
     builtinAccount: builtinAccount,
     db: {
         server: dbServer,
