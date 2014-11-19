@@ -3,6 +3,8 @@ var builtinAccount = require('../config').builtinAccount;
 // 存放用户注册序列号的位置
 var customerIdPath = '../../staticData/customerId';
 
+// debug信息
+var debug = require('debug')('auth');
 var childProcess = require('child_process');
 var fs = require('fs');
 var path = require('path');
@@ -218,13 +220,13 @@ function getYear(customerId) {
     var hashedYear = customerId[0];
     var hashedYears = hashYear();
     if (hashedYear == hashedYears[0]) {
-        console.log('year: ' + curYear);
+        debug('year: ' + curYear);
         return curYear;
     } else if (hashedYear == hashedYears[1]) {
-        console.log('year: ' + curYear);
+        debug('year: ' + curYear);
         return curYear + 1;
     }
-    console.log('year: ' + 0);
+    debug('year: ' + 0);
     return 0;
 }
 
@@ -241,11 +243,11 @@ function getMonth(customerId) {
     var hashedMonthList = hashMonth();
     for (var i = 0; i < 12; i++) {
         if (hashedMonthList[i] == hashedMonth) {
-            console.log('month: ' + (i + 1));
+            debug('month: ' + (i + 1));
             return i + 1;
         }
     }
-    console.log('month: ' + 0);
+    debug('month: ' + 0);
     return 0;
 }
 
@@ -301,7 +303,7 @@ function hashMonth() {
         hash.update(tmp);
         month.push(hash.digest('hex'));
     }
-    console.log(month);
+    debug('month: ' + month);
     return month;
 }
 
@@ -322,7 +324,7 @@ function hashYear() {
     hash = crypto.createHash('sha256');
     hash.update(tmp);
     hashYears.push(hash.digest('hex'));
-    console.log(hashYears);
+    debug('year: ' + hashYears);
     return hashYears;
 }
 

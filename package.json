@@ -30,7 +30,7 @@
     "postinstall": "bower install",
 
     "prestart": "npm install",
-    "start": "set DEBUG=chequeSys,app,route,db,tool,project && nodemon -w ./server ./server/bin/www",
+    "start": "set DEBUG=chequeSys,app,route,db,tool,project,auth && nodemon -w ./server ./server/bin/www",
 
     "pretest": "npm install",
     "test": "node node_modules/karma/bin/karma start test/karma.conf.js",
