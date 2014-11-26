@@ -571,7 +571,7 @@ router.post('/projectTable', function(req, res) {
     //}
     // use regExp to match sub-subject
     if (subject != 'all') {
-        condition.subjectId = new RegExp(subject);
+        condition.subjectId = new RegExp('^' + subject);
     }
     debug('condition: ' + JSON.stringify(condition));
 
