@@ -88,8 +88,8 @@
       <td>{{$index + 1}}</td>
       <td>{{figure.project}}</td>
       <td>{{toLocalDate(figure.date)}}</td>
-      <td ng-click="showVoucher($index)" ng-class="hasVoucher($index) ? 'pointer' : ''">
-        <span ng-show="hasVoucher($index)" class="glyphicon glyphicon-paperclip"></span>
+      <td ng-click="showVoucher(figure)" ng-class="hasVoucher(figure) ? 'pointer' : ''">
+        <span ng-show="hasVoucher(figure)" class="glyphicon glyphicon-paperclip"></span>
         {{figure.voucher.id}}</td>
       <td>{{figure.subjectId}}</td>
       <td>{{figure.subjectName}}</td>

@@ -612,21 +612,23 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                 !$scope.queryCondition.amountTo.$valid;
         };
 
-        $scope.hasVoucher = function(index) {
-            var voucher = $scope.figures[index].voucher.path;
+        $scope.hasVoucher = function(figure) {
+            if (!figure || !figure.voucher || !figure.voucher.path) {
+                return;
+            }
+            var voucher = figure.voucher.path;
             return voucher != '' && voucher != undefined;
         };
 
-        $scope.showVoucher = function(index) {
-            if (!$scope.hasVoucher(index)) {
+        $scope.showVoucher = function(figure) {
+            if (!figure || !figure.voucher || !figure.voucher.path) {
                 return;
             }
-
             //var query = 'id=' + $scope.figures[index].id;
             //open('/pdfShow?' + query, 'pdfShow',
             //    'width=800,height=600,toolbar=0,status=0,location=0,' +
             //        'scrollbars=1');
-            var query = 'file=' + $scope.figures[index].voucher.path;
+            var query = 'file=' + figure.voucher.path;
             open('/pdfViewer/web/viewer.html?' + query, 'pdfShow',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
                 'scrollbars=1');
