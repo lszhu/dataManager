@@ -615,7 +615,7 @@ router.post('/gradingTable', function(req, res) {
     }
     var subject = req.body.subject;
     if (subject && subject != 'all') {
-        condition.subjectId = new RegExp(subject);
+        condition.subjectId = new RegExp('^' + subject);
     }
 
     var yearFrom = req.body.yearFrom;
