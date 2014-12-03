@@ -194,7 +194,7 @@ router.get('/fetchPdf', function(req, res) {
             return;
         }
         res.send(data.data);
-        tool.log(db, logMsg, data.message);
+        tool.log(db, logMsg, data.message, '成功');
     });
 });
 
@@ -245,7 +245,7 @@ router.get('/pdf', function(req, res) {
                 return;
             }
             res.send(data.data);
-            tool.log(db, logMsg, data.message);
+            tool.log(db, logMsg, data.message, '成功');
         });
     });
 });
