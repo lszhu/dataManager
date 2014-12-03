@@ -701,16 +701,16 @@ router.post('/logReport', function(req, res) {
     debug('date: ' + JSON.stringify(condition));
 
     if (req.body.operator) {
-        condition.operator = new RegExp(req.body.operator.trim());
+        condition.operator = new RegExp(req.body.operator.trim(), 'i');
     }
     if (req.body.operation) {
-        condition.operation = new RegExp(req.body.operation.trim());
+        condition.operation = new RegExp(req.body.operation.trim(), 'i');
     }
     if (req.body.target) {
-        condition.target = new RegExp(req.body.target.trim());
+        condition.target = new RegExp(req.body.target.trim(), 'i');
     }
     if (req.body.comment) {
-        condition.comment = new RegExp(req.body.comment.trim());
+        condition.comment = new RegExp(req.body.comment.trim(), 'i');
     }
     if (req.body.status) {
         condition.status = req.body.status;
@@ -749,7 +749,7 @@ router.post('/counter', function(req, res) {
         if (!regExp.hasOwnProperty(i)) {
             continue;
         }
-        condition[i] = new RegExp(regExp[i]);
+        condition[i] = new RegExp(regExp[i], 'i');
     }
     debug('condition: ' + JSON.stringify(condition));
     var logMsg = {
@@ -808,13 +808,13 @@ router.post('/queryProject', function(req, res) {
 
     var condition = {};
     if (req.body.name) {
-        condition.name = new RegExp(req.body.name.trim());
+        condition.name = new RegExp(req.body.name.trim(), 'i');
     }
     if (req.body.id) {
-        condition.id = new RegExp(req.body.id.trim());
+        condition.id = new RegExp(req.body.id.trim(), 'i');
     }
     if (req.body.description) {
-        condition.description = new RegExp(req.body.description.trim());
+        condition.description = new RegExp(req.body.description.trim(), 'i');
     }
     var logMsg = {
         operator: req.session.user.username,
@@ -856,16 +856,16 @@ router.post('/queryVoucher', function(req, res) {
     }
 
     if (req.body.voucherId) {
-        condition['voucher.id'] = new RegExp(req.body.voucherId.trim());
+        condition['voucher.id'] = new RegExp(req.body.voucherId.trim(), 'i');
     }
     if (req.body.project) {
-        condition.project = new RegExp(req.body.project.trim());
+        condition.project = new RegExp(req.body.project.trim(), 'i');
     }
     if (req.body.subjectName) {
-        condition.subjectName = new RegExp(req.body.subjectName.trim());
+        condition.subjectName = new RegExp(req.body.subjectName.trim(), 'i');
     }
     if (req.body.description) {
-        condition.description = new RegExp(req.body.description.trim());
+        condition.description = new RegExp(req.body.description.trim(), 'i');
     }
 
     var logMsg = {
@@ -909,16 +909,16 @@ router.post('/deleteVoucher', function(req, res) {
     }
 
     if (req.body.voucherId) {
-        condition['voucher.id'] = new RegExp(req.body.voucherId.trim());
+        condition['voucher.id'] = new RegExp(req.body.voucherId.trim(), 'i');
     }
     if (req.body.project) {
-        condition.project = new RegExp(req.body.project.trim());
+        condition.project = new RegExp(req.body.project.trim(), 'i');
     }
     if (req.body.subjectName) {
-        condition.subjectName = new RegExp(req.body.subjectName.trim());
+        condition.subjectName = new RegExp(req.body.subjectName.trim(), 'i');
     }
     if (req.body.description) {
-        condition.description = new RegExp(req.body.description.trim());
+        condition.description = new RegExp(req.body.description.trim(), 'i');
     }
 
     var logMsg = {
