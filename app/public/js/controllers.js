@@ -581,6 +581,7 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
         };
 
         $scope.checkVoucher = function() {
+            $scope.confirmed = false;
             $scope.queryVoucher();
             $timeout(function() {$scope.confirmed = true;}, 3000);
         };
