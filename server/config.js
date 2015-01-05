@@ -21,7 +21,7 @@ var voucherPath = '../../../voucher';
 var filePath = '../../../file';
 
 // 存放用于导入系统数据库的凭证数据文件的根目录，建议用绝对路径
-var importPath = 'E:/web/chequeSysDev/voucher';
+var importPath = 'E:/web/chequeSys/voucher/用友数据';
 
 // 此处修改内置管理员账号的名称和密码等信息
 var builtinAccount = {

@@ -98,7 +98,7 @@ function interval(from, to) {
 // 列出指定目录中的文件列表
 // 回调函数为callback(err, data, res)
 function listFiles(res, relativePath, callback) {
-    var fullPath = path.join(__dirname, refPath.voucher, relativePath);
+    var fullPath = path.join(refPath.base, relativePath);
     debug('fullPath: ' + fullPath);
     fs.readdir(fullPath, function (err, files) {
         debug('files' + JSON.stringify(files));
