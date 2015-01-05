@@ -1123,7 +1123,8 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
         for (var i = (new Date()).getFullYear(); i >= 1990; i--) {
             $scope.years.push(i);
         }
-        $scope.year = $scope.years[0];
+        $scope.year = '';
+        $scope.projectName = '';
         // 默认导入方式为服务器端本地模式
         $scope.style = 'server';
         // 初始化$scope.projects，保存项目列表
@@ -1140,7 +1141,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 return 0;
             });
             $scope.projects = $scope.projectsRaw;
-            $scope.projectName = res.projects ? res.projects[0].name : '';
+            //$scope.projectName = res.projects ? res.projects[0].name : '';
         }).error(function(res) {
             $scope.msgClass = 'alert-danger';
             $scope.message = 'system error: ' + JSON.stringify(res);
