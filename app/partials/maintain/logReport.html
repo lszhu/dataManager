@@ -87,7 +87,7 @@
     </tbody>
   </table>
 
-  <nav class="col-sm-offset-7">
+  <nav class="col-sm-offset-7" ng-show="pageList.length > 0">
     <ul class="pagination">
       <li><a ng-click="previousPageList()" href="">«</a></li>
       <li ng-class="setActive(p)" ng-click="setPage(p)" ng-repeat="p in pageList"><a href="">{{p}}</a></li>

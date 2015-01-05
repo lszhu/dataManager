@@ -1,0 +1,30 @@
+body {
+    background-repeat: no-repeat;
+    background-position: 100% 10%;
+    margin: 0;
+    padding: 0;
+
+}
+
+.container {
+    padding-top: 20%;
+}
+
+.title {
+    color: darkred;
+    font: bold 5em LiSu,KaiTi;
+}
+
+.left {
+    position: relative;
+    float: left;
+}
+
+.right {
+    position: relative;
+    float: right;
+}
+
+img {
+    height: 112px;
+}
