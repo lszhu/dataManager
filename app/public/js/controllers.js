@@ -529,7 +529,21 @@ mainFrameCtrl.controller('QuerySubjectCtrl', ['$scope',
 ]);
 
 mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
-    function($scope, $http, $timeout) {
+    '$window', function($scope, $http, $timeout, $window) {
+        // 每页显示的最大条目数
+        var limit = 100;
+        // 页码列表长度
+        var navPageBar = 5;
+        // 总页码数
+        var pages = 0;
+        var curPage = 1;
+        // 存放从服务器查询到的最初数据并按由新到旧进行排序
+        var voucherListRaw = [];
+        // 当前页码表
+        $scope.pageList = [];
+        // 当前页面条目计数起始数目
+        $scope.baseNumber = 1;
+
         // 用于指示数据删除前是否核准
         $scope.confirmed = false;
         $scope.condition = {};
@@ -574,6 +588,9 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                                 return 1;
                             }
                         });
+                    voucherListRaw = $scope.figures;
+                    initPage();
+                    $scope.setPage(1);
                 }).error(function(res) {
                     $scope.msgClass = 'alert-danger';
                     $scope.message = 'system error: ' + JSON.stringify(res);
@@ -634,6 +651,67 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
                 'scrollbars=1');
         };
+
+
+        $scope.setPage = function(n) {
+            $scope.baseNumber = (n - 1) * limit + 1;
+            curPage = n;
+            $scope.voucherList = voucherListRaw.slice(limit * (n - 1), limit * n);
+            $window.scrollTo(0, 0);
+        };
+
+        $scope.nextPageList = function() {
+            var end = $scope.pageList.slice(-1);
+            var i;
+            var len = $scope.pageList.length;
+            if (end < pages - navPageBar) {
+                for (i = 0; i < len; i++) {
+                    $scope.pageList[i] += navPageBar;
+                }
+                $scope.setPage($scope.pageList[0]);
+            } else {
+                for (i = 0; i < len; i++) {
+                    $scope.pageList[i] = pages - len + 1 + i;
+                }
+                if ($scope.pageList
+                        .every(function(e) {return e != curPage;})) {
+                    $scope.setPage($scope.pageList[0]);
+                }
+            }
+        };
+
+        $scope.previousPageList = function() {
+            var first = $scope.pageList[0];
+            var i;
+            var len = $scope.pageList.length;
+            if (first - navPageBar > 0) {
+                for (i = 0; i < len; i++) {
+                    $scope.pageList[i] -= navPageBar;
+                }
+                $scope.setPage($scope.pageList[0]);
+            } else {
+                for (i = 0; i < len; i++) {
+                    $scope.pageList[i] = i + 1;
+                }
+                if ($scope.pageList
+                        .every(function(e) {return e != curPage;})) {
+                    $scope.setPage($scope.pageList[0]);
+                }
+            }
+        };
+
+        $scope.setActive = function(n) {
+            return curPage == n ? 'active' : '';
+        };
+
+        function initPage() {
+            $scope.pageList = [];
+            $scope.voucherList = voucherListRaw.slice(0, limit);
+            pages = Math.ceil(voucherListRaw.length / limit);
+            for (var i = 1; i <= pages && i <= navPageBar; i++) {
+                $scope.pageList[i - 1] = i;
+            }
+        }
     }
 ]);
 
@@ -1620,6 +1698,7 @@ mainFrameCtrl.controller('logReportCtrl', ['$scope', '$http', '$window',
         };
 
         function initPage() {
+            $scope.pageList = [];
             $scope.logMsgs = logMsgRaw.slice(0, limit);
             pages = Math.ceil(logMsgRaw.length / limit);
             for (var i = 1; i <= pages && i <= navPageBar; i++) {

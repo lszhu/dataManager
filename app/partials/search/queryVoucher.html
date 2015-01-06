@@ -84,8 +84,8 @@
     </tr>
     </thead>
     <tbody>
-    <tr ng-repeat="figure in figures | filter: globalFilterKey">
-      <td>{{$index + 1}}</td>
+    <tr ng-repeat="figure in voucherList | filter: globalFilterKey">
+      <td>{{$index + baseNumber}}</td>
       <td>{{figure.project}}</td>
       <td>{{toLocalDate(figure.date)}}</td>
       <td ng-click="showVoucher(figure)" ng-class="hasVoucher(figure) ? 'pointer' : ''">
@@ -101,5 +101,13 @@
     </tr>
     </tbody>
   </table>
+
+  <nav class="col-sm-offset-7" ng-show="pageList.length > 0">
+    <ul class="pagination">
+      <li><a ng-click="previousPageList()" href="">«</a></li>
+      <li ng-class="setActive(p)" ng-click="setPage(p)" ng-repeat="p in pageList"><a href="">{{p}}</a></li>
+      <li><a ng-click="nextPageList()" href="">»</a></li>
+    </ul>
+  </nav>
 
 </div>
