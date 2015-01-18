@@ -799,6 +799,42 @@ router.post('/queryFile', function(req, res) {
     });
 });
 
+// get (recursive style) file list from certain directory
+router.post('/queryFileList', function(req, res) {
+    debug('in queryFileList');
+    if (!auth.allow(req.session.user, 'readonly')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '获取文件列表',
+        target: '常规文件存放目录',
+        comment: '获取文件列表失败',
+        status: '失败'
+    };
+
+    var type = req.body.type || '';
+    // base dir for normal file query
+    var baseDir = require('../config').path.file;
+
+    var absolutePath = path.join(__dirname, baseDir, req.body.path || '');
+    debug('absolutePath: ' + absolutePath);
+
+    tool.listFilesRecursive(absolutePath, type, function(err, files) {
+        if (err) {
+            res.send({
+                status: 'listFileErr',
+                message: '获取文件列表失败，路径：' + absolutePath});
+            tool.log(db, logMsg);
+            return;
+        }
+        res.send({status: 'ok', list: files});
+        tool.log(db, logMsg, '文件获取成功', '成功');
+    });
+});
+
 // get all projects from projects collection
 router.post('/queryProject', function(req, res) {
     if (!auth.allow(req.session.user, 'readonly')) {

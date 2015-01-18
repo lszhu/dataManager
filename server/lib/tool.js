@@ -139,6 +139,14 @@ function listFiles(res, relativePath, callback) {
     });
 }
 
+// 获取绝对路径下（包含子目录）的文件列表
+// callback回调函数格式为callback(err, list)，list为文件列表的数组
+function listFilesRecursive(path, type, callback) {
+    var list = [path, type, 'c当前类目c',
+        'd当前类目d', 'e当前类目e', 'f当前类目f'];
+    callback(null, list);
+}
+
 // 向db指定的数据库中导入财务凭证数据
 // 回调函数格式为callback(message)
 function importFigures(db, filePath, projectName, year, callback) {
@@ -895,6 +903,7 @@ module.exports = {
     objectToArray: objectToArray,
     voucherAutoBind: voucherAutoBind,
     listFiles: listFiles,
+    listFilesRecursive: listFilesRecursive,
     projectList: projectList,
     gradingList: gradingList
 };

@@ -721,9 +721,43 @@ mainFrameCtrl.controller('QueryContractCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope',
-    function($scope) {
-        $scope.tmp = '';
+mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
+    'filterFilter', function($scope, $http, filterFilter) {
+        $scope.fileList = [
+            {name: 'ashtedfasf.pdf', path: '/35fefbrt15 /r356hr13a /dedfhf1s'},
+            {name: 'asd34fasf.pdf', path: '/34serng515 /rr1g3a /dedfgefgdf1s'},
+            {name: 'aszxdfg3f.pdf', path: '/3fhend15 /rrghfhb13a /deherdff1s'}
+        ];
+
+        // 保存当前路径，数组形式，后一个元素为前一个的子目录
+        $scope.path = ['a当前类目a', 'b当前类目b', 'c当前类目c',
+            'd当前类目d', 'e当前类目e', 'f当前类目f'];
+        // 当前路径下的子目录列表
+        $scope.subDir = {list: []};
+        // 当前选中的目录
+        $scope.directory = '.';
+
+        // fileType可以是file或dir分别表示普通文件或目录，为空表示不限
+        $scope.queryFileName = function(fileType, store) {
+            var data = {
+                name: $scope.name,
+                path: $scope.path.join('/'),
+                type: fileType
+            };
+            $http.post('/queryFileList', data).success(function (res) {
+                $scope.msgClass =
+                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                store.list = res.list;
+                console.log('file list: %o', res.list);
+            }).error(function (res) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(res);
+            });
+        };
+        // 初始化时，获取顶级类目
+        $scope.queryFileName('dir', $scope.subDir);
+
+
     }
 ]);
 
