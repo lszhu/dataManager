@@ -9,6 +9,7 @@
           <th>序号</th>
           <th>名称</th>
           <th>描述</th>
+          <th>权限</th>
           <th>可用状态</th>
           <th>删除账号</th>
           <th>编辑</th>
@@ -17,12 +18,9 @@
         <tbody>
         <tr ng-repeat="account in accounts | filter: globalFilterKey">
           <td>{{$index + 1}}</td>
-          <td>
-            <span>{{account.username}}</span>
-          </td>
-          <td>
-            <span>{{account.description}}</span>
-          </td>
+          <td><span>{{account.username}}</span></td>
+          <td><span>{{account.description}}</span></td>
+          <td><span>{{account.rights}}</span></td>
           <td>
             <span ng-show="account.enabled" class="glyphicon glyphicon-ok"></span>
             <span ng-hide="account.enabled" class="glyphicon glyphicon-exclamation-sign"></span>
@@ -113,7 +111,7 @@
           </div>
           <div class="modal-footer">
             <div class="col-sm-2 col-sm-offset-8">
-              <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="modifyUser()" ng-disabled = '!name'>确&nbsp;定</button>
+              <button type="button" class="btn btn-success btn-block" data-dismiss="modal" ng-click="modifyUser()" ng-disabled = "!name">确&nbsp;定</button>
             </div>
             <div class="col-sm-2">
               <button type="button" class="btn btn-primary btn-block" data-dismiss="modal">取&nbsp;消</button>
