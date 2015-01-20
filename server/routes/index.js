@@ -822,7 +822,8 @@ router.post('/queryFileList', function(req, res) {
     var absolutePath = path.join(__dirname, baseDir, req.body.path || '');
     debug('absolutePath: ' + absolutePath);
 
-    tool.listFilesRecursive(absolutePath, type, function(err, files) {
+    var getList = type == 'file' ? tool.listFilesRecursive : tool.getSubDir;
+    getList(absolutePath, function(err, files) {
         if (err) {
             res.send({
                 status: 'listFileErr',

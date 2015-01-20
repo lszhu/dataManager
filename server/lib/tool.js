@@ -139,13 +139,147 @@ function listFiles(res, relativePath, callback) {
     });
 }
 
-// 获取绝对路径下（包含子目录）的文件列表
-// callback回调函数格式为callback(err, list)，list为文件列表的数组
-function listFilesRecursive(path, type, callback) {
-    var list = [path, type, 'c当前类目c',
-        'd当前类目d', 'e当前类目e', 'f当前类目f'];
-    callback(null, list);
+// 获取指定目录下所有子目录（不做递归查询，仅限直接子目录）
+// callback回调函数格式为callback(err, list)，list为目录列表的数组
+function getSubDir(basePath, callback) {
+    var recorder = {dirs: [], count: 0};
+
+    fs.stat(basePath, function(err, stats) {
+        if (err) {
+            console.log('error in testing file type');
+            callback(err);
+            return;
+        } else if (!stats.isDirectory()) {
+            console.log(basePath + ' is not a directory');
+            callback(null, []);
+            return;
+        }
+        fs.readdir(basePath, function(err, dirs) {
+            if (err) {
+                console.log('error in reading dir name');
+                callback(err);
+            } else {
+                var tmpDir;
+                for (var i = 0, len = dirs.length; i < len; i++) {
+                    recorder.count++;
+                    tmpDir = path.join(basePath, dirs[i]);
+                    fs.stat(tmpDir, function(index) {
+                        return function(err, stats) {
+                            recorder.count--;
+                            if (!err && stats.isDirectory()) {
+                                recorder.dirs.push(dirs[index]);
+                            }
+                            if (!recorder.count) {
+                                callback(null, recorder.dirs);
+                            }
+                        }
+                    }(i));
+                }
+            }
+        });
+    });
 }
+// 用于测试
+//getSubDir('../../../chequeSys', function(err, files) {
+//    if (err) {
+//        console.log('出现错误：' + JSON.stringify(err));
+//    } else {
+//        console.log('文件列表长度：' + files.length);
+//        console.log('文件列表：' + JSON.stringify(files));
+//    }
+//});
+
+// 获取绝对路径下（包含子目录）的文件（仅限普通文件，不含目录等）列表
+// callback回调函数格式为callback(err, list)，list为文件列表的数组
+function listFilesRecursive(basePath, callback) {
+    // 用于记录已获取的普通文件，待处理的目录，正在处理的文件/目录
+    var recorder = {
+        files: [],
+        error: false,
+        count: 0
+    };
+
+    fs.stat(basePath, function(err, stats) {
+        if (err) {
+            callback(err);
+            return;
+        } else if (stats.isFile()) {
+            callback(null, [basePath]);
+            return;
+        } else if (!stats.isDirectory()) {
+            console.log('error file type');
+            return;
+        }
+        iterateDir('');
+    });
+
+    // 递归访问子目录的文件
+    function iterateDir(parentDir) {
+        if (recorder.error) {
+            return;
+        }
+
+        //var parentDir = directories.pop();
+        var filePath = path.join(basePath, parentDir);
+        recorder.count++;
+        fs.readdir(filePath, function(err, files) {
+            recorder.count--;
+            if (err) {
+                if (!recorder.error) {
+                    console.log('error in reading dir');
+                    callback(err);
+                    recorder.error = true;
+                }
+                console.log('error: ' + JSON.stringify(err));
+                return;
+            }
+            var tmpPath;
+            for (var i = 0, len = files.length; i < len; i++) {
+                tmpPath = path.join(filePath, files[i]);
+                recorder.count++;
+                fs.stat(tmpPath, function(index) {
+                    return function(err, stats) {
+                        recorder.count--;
+                        if (recorder.error) {
+                            return;
+                        }
+                        var curPath = path.join(parentDir, files[index]);
+                        if (err) {
+                            console.log('error in testing file type');
+                            if (!recorder.error) {
+                                callback(err);
+                                recorder.error = true;
+                            }
+                            console.log('error: ' + JSON.stringify(err));
+                        } else if (stats.isFile()) {
+                            recorder.files.push(curPath);
+                            if (!recorder.count && !recorder.error) {
+                                callback(null, recorder.files);
+                            }
+                        } else if (stats.isDirectory()) {
+                            iterateDir(curPath);
+                            //console.log('in sub directory');
+                        }
+                    };
+                }(i));
+            }
+        });
+    }
+
+    //var list = [path, type, 'c当前类目c',
+    //    'd当前类目d', 'e当前类目e', 'f当前类目f'];
+    //callback(null, list);
+}
+// 用于测试
+//listFilesRecursive('../../../file', function(err, files) {
+//    if (err) {
+//        console.log('出现错误：' + JSON.stringify(err));
+//    } else {
+//        console.log('文件列表长度：' + files.length);
+//        console.log('文件列表：' + JSON.stringify(files));
+//    }
+//});
+
 
 // 向db指定的数据库中导入财务凭证数据
 // 回调函数格式为callback(message)
@@ -904,6 +1038,7 @@ module.exports = {
     voucherAutoBind: voucherAutoBind,
     listFiles: listFiles,
     listFilesRecursive: listFilesRecursive,
+    getSubDir: getSubDir,
     projectList: projectList,
     gradingList: gradingList
 };

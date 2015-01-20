@@ -730,12 +730,13 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
         ];
 
         // 保存当前路径，数组形式，后一个元素为前一个的子目录
-        $scope.path = ['a当前类目a', 'b当前类目b', 'c当前类目c',
-            'd当前类目d', 'e当前类目e', 'f当前类目f'];
+        $scope.path = [];
         // 当前路径下的子目录列表
         $scope.subDir = {list: []};
         // 当前选中的目录
         $scope.directory = '.';
+        // 以数组方式保存获取到的同一路径链上各个目录的子目录列表
+        var dirLink = [];
 
         // fileType可以是file或dir分别表示普通文件或目录，为空表示不限
         $scope.queryFileName = function(fileType, store) {
@@ -745,10 +746,13 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
                 type: fileType
             };
             $http.post('/queryFileList', data).success(function (res) {
-                $scope.msgClass =
-                    res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                store.list = res.list;
-                console.log('file list: %o', res.list);
+                $scope.msgClass = 'alert-danger';
+                if (res.status == 'ok') {
+                    $scope.msgClass = 'alert-success';
+                    store.list = res.list;
+                    //dirLink.push(res.link);
+                    console.log('file list: %o', res.list);
+                }
             }).error(function (res) {
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
@@ -757,7 +761,32 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
         // 初始化时，获取顶级类目
         $scope.queryFileName('dir', $scope.subDir);
 
-
+        // 监视类目的变化
+        $scope.$watch("directory", function (newValue, oldValue) {
+                if (newValue === oldValue || newValue === '.') {
+                    return;
+                }
+                console.log('directory: ' + newValue);
+                if (newValue === '..') {
+                    if ($scope.path.length) {
+                        // 从缓存中取出目录列表
+                        $scope.subDir.list = dirLink.pop();
+                        // 去掉原选定目录
+                        $scope.path.pop();
+                    }
+                    $scope.directory = '.';
+                    return;
+                }
+                // 进一步浏览子目录的情况
+                // 缓存当前选定目录
+                $scope.path.push(newValue);
+                // 缓存当前目录下的子目录
+                dirLink.push($scope.subDir.list);
+                // 获取选定子目录的子目录列表
+                $scope.queryFileName('dir', $scope.subDir);
+                $scope.directory = '.';
+            }
+        );
     }
 ]);
 
