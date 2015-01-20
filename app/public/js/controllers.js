@@ -642,6 +642,7 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
             if (!figure || !figure.voucher || !figure.voucher.path) {
                 return;
             }
+            console.log('figure.voucher.path: ' + figure.voucher.path);
             //var query = 'id=' + $scope.figures[index].id;
             //open('/pdfShow?' + query, 'pdfShow',
             //    'width=800,height=600,toolbar=0,status=0,location=0,' +
@@ -721,13 +722,15 @@ mainFrameCtrl.controller('QueryContractCtrl', ['$scope',
     }
 ]);
 
-mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
-    'filterFilter', function($scope, $http, filterFilter) {
+mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http', '$timeout',
+    function($scope, $http, $timeout) {
         $scope.fileList = [
             {name: 'ashtedfasf.pdf', path: '/35fefbrt15 /r356hr13a /dedfhf1s'},
             {name: 'asd34fasf.pdf', path: '/34serng515 /rr1g3a /dedfgefgdf1s'},
             {name: 'aszxdfg3f.pdf', path: '/3fhend15 /rrghfhb13a /deherdff1s'}
         ];
+        // 用来保存当前目录及子目录中的普通文件
+        $scope.files = {list: []};
 
         // 保存当前路径，数组形式，后一个元素为前一个的子目录
         $scope.path = [];
@@ -741,10 +744,14 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
         // fileType可以是file或dir分别表示普通文件或目录，为空表示不限
         $scope.queryFileName = function(fileType, store) {
             var data = {
-                name: $scope.name,
+                name: $scope.fileName,
                 path: $scope.path.join('/'),
                 type: fileType
             };
+            // 如果是查询目录，则取消文件名作为过滤条件
+            if (data.type == 'dir') {
+                data.name = '';
+            }
             $http.post('/queryFileList', data).success(function (res) {
                 $scope.msgClass = 'alert-danger';
                 if (res.status == 'ok') {
@@ -761,6 +768,15 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
         // 初始化时，获取顶级类目
         $scope.queryFileName('dir', $scope.subDir);
 
+        // 显示文件内容
+        $scope.display = function(filePath) {
+            // filePath是数组
+            var query = 'category=file&file=' + filePath.join('\\');
+            open('/pdfViewer/web/viewer.html?' + query, 'pdfShow',
+                'width=800,height=600,toolbar=0,status=0,location=0,' +
+                'scrollbars=1');
+        };
+
         // 监视类目的变化
         $scope.$watch("directory", function (newValue, oldValue) {
                 if (newValue === oldValue || newValue === '.') {
@@ -774,7 +790,7 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
                         // 去掉原选定目录
                         $scope.path.pop();
                     }
-                    $scope.directory = '.';
+                    $timeout(function() {$scope.directory = '.';}, 500);
                     return;
                 }
                 // 进一步浏览子目录的情况
@@ -784,7 +800,7 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http',
                 dirLink.push($scope.subDir.list);
                 // 获取选定子目录的子目录列表
                 $scope.queryFileName('dir', $scope.subDir);
-                $scope.directory = '.';
+                $timeout(function() {$scope.directory = '.';}, 500);
             }
         );
     }

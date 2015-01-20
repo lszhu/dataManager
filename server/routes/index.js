@@ -170,7 +170,7 @@ router.get('/getAccount', function(req, res) {
 });
 
 // fetch pdf from server
-router.get('/fetchPdf', function(req, res) {
+router.get('/fetchPdf/:category', function(req, res) {
     if (!auth.allow(req.session.user, 'readPlus')) {
         //res.send({status: 'rightsErr', message: '你无权进行相关操作'});
         res.send(tool.banPdf);
@@ -186,7 +186,8 @@ router.get('/fetchPdf', function(req, res) {
     };
     var pdfPath = req.query.file ? req.query.file : '';
     debug('fetch pdf, path: ' + pdfPath);
-    tool.readFile(pdfPath, function(data) {
+    var category = req.params.category ? req.params.category : '';
+    tool.readFile(category, pdfPath, function(data) {
         logMsg.target = data.target;
         if (data.status != 'ok') {
             res.send('');
@@ -815,6 +816,7 @@ router.post('/queryFileList', function(req, res) {
         status: '失败'
     };
 
+    var fileName = req.body.name || '';
     var type = req.body.type || '';
     // base dir for normal file query
     var baseDir = require('../config').path.file;
@@ -831,7 +833,18 @@ router.post('/queryFileList', function(req, res) {
             tool.log(db, logMsg);
             return;
         }
-        res.send({status: 'ok', list: files});
+        var filteredFiles = files;
+        // if file type is normal file, filter/map the file list
+        if (type == 'file') {
+            filteredFiles = files.filter(function(e) {
+                var name = e.split(path.sep).pop();
+                return !name || name.search(fileName) != -1;
+            });
+            filteredFiles = filteredFiles.map(function(e) {
+                return e.split(path.sep);
+            });
+        }
+        res.send({status: 'ok', list: filteredFiles});
         tool.log(db, logMsg, '文件获取成功', '成功');
     });
 });

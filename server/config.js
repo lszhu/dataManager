@@ -15,7 +15,7 @@ var archivePath = '../../../archive';
 var contractPath = '../../../contract';
 
 // 存放凭证文件的路径，建议用相对路径
-var voucherPath = '../../../voucher';
+var voucherPath = '../../../pdf';
 
 // 存放普通文件的路径，建议用相对路径
 var filePath = '../../../file';

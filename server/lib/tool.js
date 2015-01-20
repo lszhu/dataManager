@@ -772,10 +772,13 @@ function objectToArray(obj) {
     return a;
 }
 
-// 由指定参数获取路径，并读取文件
-function readFile(relativePath, callback) {
-    //var filePath = voucherFilePath(params);
+// 由指定参数获取路径，并读取文件, 第一个参数指定保存文件所属类别
+// 文件类别包括file, voucher等，参考config.js中的path部分的配置
+function readFile(category, relativePath, callback) {
     var filePath = path.join(__dirname, refPath.voucher, '..', relativePath);
+    if (category == 'file') {
+        filePath = path.join(__dirname, refPath.file, relativePath);
+    }
     debug('file path: ' + filePath);
 
     fs.readFile(filePath, function(err ,data) {

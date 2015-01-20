@@ -1,6 +1,6 @@
 <div>
   <h1 class="page-header">文件查询</h1>
-  <form class="form-horizontal" name="project" role="form" ng-submit="queryData()">
+  <form class="form-horizontal" name="project" role="form">
 
     <div class="form-group col-sm-12">
       <label for="directory" class="col-sm-3 control-label">选择类目</label>
@@ -8,7 +8,7 @@
         <select class="form-control" ng-model="directory" name="directory" id="directory">
           <option value="..">返回上级</option>
           <option value=".">当前类目</option>
-          <option ng-repeat="d in subDir.list">{{d}}</option>
+          <option ng-repeat="d in subDir.list track by $index">{{d}}</option>
         </select>
       </div>
     </div>
@@ -34,7 +34,7 @@
 
     <div class="col-sm-12">
       <div class="col-sm-offset-4 col-sm-4">
-        <button type="submit" class="btn btn-primary btn-block">查 询</button>
+        <button type="button" ng-click="queryFileName('file', files)" class="btn btn-primary btn-block">查 询</button>
       </div>
     </div>
   </form>
@@ -52,10 +52,10 @@
         </tr>
         </thead>
         <tbody>
-        <tr ng-repeat="file in fileList | filter: globalFilterKey">
+        <tr ng-repeat="file in files.list | filter: globalFilterKey">
           <td>{{$index + 1}}</td>
-          <td>{{file.name}}</td>
-          <td>{{file.path}}</td>
+          <td><a href="" ng-click="display(file)">{{file[file.length-1]}}</a></td>
+          <td>／{{file.slice(0, -1).join('／')}}</td>
         </tr>
         </tbody>
       </table>
