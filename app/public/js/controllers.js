@@ -770,12 +770,27 @@ mainFrameCtrl.controller('QueryDocumentCtrl', ['$scope', '$http', '$timeout',
 
         // 显示文件内容
         $scope.display = function(filePath) {
+            if (!filePath || !filePath.length) {
+                alert('无法显示该文件的内容');
+                return;
+            }
+            var file = filePath[filePath.length - 1] || '';
+            console.log('file.slice(-4): ' + file.slice(-4));
+            if (!file || file.slice(-4) != '.pdf') {
+                alert('不支持在线查看该格式的文件');
+                return;
+            }
+            onlineDisplay(filePath);
+        };
+
+        // 在线查看文件内容
+        function onlineDisplay(filePath) {
             // filePath是数组
             var query = 'category=file&file=' + filePath.join('\\');
             open('/pdfViewer/web/viewer.html?' + query, 'pdfShow',
                 'width=800,height=600,toolbar=0,status=0,location=0,' +
                 'scrollbars=1');
-        };
+        }
 
         // 监视类目的变化
         $scope.$watch("directory", function (newValue, oldValue) {
