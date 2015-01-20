@@ -1,6 +1,6 @@
 <div>
   <h1 class="page-header">文件查询</h1>
-  <form class="form-horizontal" name="project" role="form">
+  <form class="form-horizontal" name="project" role="form" ng-submit="queryFileName('file', files)">
 
     <div class="form-group col-sm-12">
       <label for="directory" class="col-sm-3 control-label">选择类目</label>
@@ -16,9 +16,9 @@
     <div class="form-group col-sm-12">
       <label class="col-sm-3 control-label">当前类目</label>
       <div class="col-sm-9">
-        <label class="control-label"><button>／文档总目录</button></label>
+        <label class="control-label"><button ng-click="selectDir(0)">／文档总目录</button></label>
         <label class="control-label" ng-repeat="d in path track by $index">
-          <button>／{{d}}</button>&nbsp;
+          <button ng-click="selectDir($index + 1)">／{{d}}</button>&nbsp;
         </label>
       </div>
     </div>
@@ -34,7 +34,7 @@
 
     <div class="col-sm-12">
       <div class="col-sm-offset-4 col-sm-4">
-        <button type="button" ng-click="queryFileName('file', files)" class="btn btn-primary btn-block">查 询</button>
+        <button type="submit" class="btn btn-primary btn-block">查 询</button>
       </div>
     </div>
   </form>
@@ -48,7 +48,7 @@
         <tr class="active pis">
           <th>序号</th>
           <th>文件名称</th>
-          <th>所属类目</th>
+          <th>所属子类目</th>
         </tr>
         </thead>
         <tbody>
