@@ -76,6 +76,26 @@ router.get('/subject', function(req, res) {
     res.send({status: 'ok', subject: tool.subject});
 });
 
+// get rootPath for saving normal files
+router.get('/getRootPath', function(req, res) {
+    if (!auth.testRights(req.session.user, 'readWrite')) {
+        res.send({status: 'rightsErr', message: '你无权进行相关操作'});
+        return;
+    }
+
+    var logMsg = {
+        operator: req.session.user.username,
+        operation: '获取电子文件存放根目录',
+        target: '系统配置文件',
+        comment: '成功获取配置信息',
+        status: '成功'
+    };
+    var filePath = require('../config').path.file;
+    filePath = path.join(__dirname, filePath);
+    res.send({status: 'ok', rootPath: filePath});
+    tool.log(db, logMsg);
+});
+
 // get register information
 router.get('/getSerial', function(req, res) {
     if (!auth.testRights(req.session.user, 'administrator')) {

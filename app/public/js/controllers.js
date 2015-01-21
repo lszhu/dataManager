@@ -1542,6 +1542,32 @@ mainFrameCtrl.controller('DocumentAutoBindCtrl', ['$scope',
     }
 ]);
 
+mainFrameCtrl.controller('FileManagementCtrl', ['$scope', '$http',
+    function($scope, $http) {
+        $scope.rootPath = '电子文件存放根目录';
+
+        function getRootPath() {
+            console.log('getRootPath executed');
+            $http.get('/getRootPath').success(function(res) {
+                $scope.msgClass = res.status == 'ok' ?
+                    'alert-success' : 'alert-danger';
+                $scope.message = res.message ?
+                    res.message : '未知错误，请先退出后重新登录尝试';
+                $scope.rootPath = res.rootPath;
+            }).error(function(err) {
+                $scope.msgClass = 'alert-danger';
+                $scope.message = 'system error: ' + JSON.stringify(err);
+            })
+        }
+        getRootPath();
+
+        $scope.gotoPageHash = function (hash) {
+            location.hash = hash;
+            console.log('hash: ' + hash);
+        };
+    }
+]);
+
 mainFrameCtrl.controller('DocumentManualBindCtrl', ['$scope',
     function($scope) {
         $scope.tmp = '';

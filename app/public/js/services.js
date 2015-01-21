@@ -191,6 +191,11 @@ appService.provider('AppMenu', function() {
                         controller: 'VoucherManualBindCtrl'
                     },
                     {
+                        name: '电子文件分类管理',
+                        link: 'tool/fileManagement',
+                        controller: 'FileManagementCtrl'
+                    },
+                    {
                         name: '项目文档自动关联',
                         link: 'tool/documentAutoBind',
                         controller: 'DocumentAutoBindCtrl'
