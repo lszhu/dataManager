@@ -1088,9 +1088,10 @@ router.post('/voucherAutoBind', function(req, res) {
             return;
         }
         var filtered = [];
-        // filter voucher.id = 10000 which has no voucher
+        // filter voucher.id = 10000 or 20000 which has no voucher
         for (var i = 0, len = docs.length; i < len; i++) {
-            if (docs[i].voucher.id != '10000') {
+            if (docs[i].voucher.id != '10000' &&
+                docs[i].voucher.id != '20000') {
                 filtered.push(docs[i]);
             }
         }

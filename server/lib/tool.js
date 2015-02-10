@@ -382,15 +382,22 @@ function figureList(sheets, projectName, year) {
         }
         row.balance = sheets[i][col.balance];
 
+        // 处理“上年结转”或“期初余额”的情况
         if (!row.voucher.id) {
-            if (row.description && row.description.trim() != '上年结转') {
-                errLine.push(i + 2 + '行，不确定是否是上年结转；');
+            if (row.description && row.description.trim() != '上年结转' &&
+                row.description.trim() != '期初余额') {
+                errLine.push(i + 2 + '行，不确定是否是上年结转或期初余额；');
                 debug('errLine: %j', row);
                 continue;
             }
             // 令上年结转数据条目的凭证号为10000，不同于任何普通凭证号
-            row.voucher = {id: '10000'};
-            // 令上年结转数据条目产生日期为年度1月1日0时（当地时间）
+            var voucherId = '10000';
+            // 令期初余额数据条目的凭证号为20000，不同于任何普通凭证号
+            if (row.description.trim() == '期初余额') {
+                voucherId = '20000';
+            }
+            row.voucher = {id: voucherId};
+            // 令上年结转或期初余额数据条目产生日期为年度1月1日0时（当地时间）
             row.date = new Date(year.toString());
             debug('row: %j', row);
         } else if (!sheets[i][col.month] || !sheets[i][col.date]) {
@@ -484,8 +491,9 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
         //    // end为累计发生额
         //    grading[index] = {init: 0, end: 0, credit: 0, debit: 0};
         //}
-        // 处理年度结转数据
-        if (figures[i].voucher.id == '10000' &&
+        // 处理年度结转或期初余额数据
+        if ((figures[i].voucher.id == '10000' ||
+            figures[i].voucher.id == '20000') &&
             figures[i].date.getFullYear() == yearFrom) {
             debug('add balance from last year');
             grading[index].init += figures[i].balance;
@@ -608,8 +616,9 @@ function projectList(figures, startDate) {
             // end属性为累计发生额
             projects[project] = {init: 0, end: 0, credit: 0, debit: 0}
         }
-        // 处理年度结转数据
-        if (figures[i].voucher.id == '10000' &&
+        // 处理年度结转/期初余额数据
+        if ((figures[i].voucher.id == '10000' ||
+            figures[i].voucher.id == '20000') &&
             figures[i].date.getFullYear() == startDate.getFullYear()) {
             debug('add balance from last year');
             projects[project].init += figures[i].balance;
@@ -681,7 +690,8 @@ function pisList(figures, startDate) {
                 subjects[id] = {id: id, name: figures[i].subjectName,
                     init: 0, end: 0, credit: 0, debit: 0};
             }
-            if (figures[i].voucher.id == '10000' &&
+            if ((figures[i].voucher.id == '10000' ||
+                figures[i].voucher.id == '20000') &&
                 figures[i].date.getFullYear() == startDate.getFullYear()) {
                 debug('add balance from last year');
                 subjects[id].init += figures[i].balance;
