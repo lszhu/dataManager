@@ -1,6 +1,7 @@
 var debug = require('debug')('tool');
 var path = require('path');
 var util = require('util');
+var crypto = require('crypto');
 //var excel = require('j');
 var xlsx = require('xlsx');
 var fs = require('fs');
@@ -827,6 +828,15 @@ function voucherFilePath(params) {
     //    date, project, voucher + '.pdf');
 }
 
+// 采用sha1方式hash数据，输出base64格式
+function hash(data) {
+    var d = data || '';
+    var sha1 = crypto.createHash('sha1');
+    sha1.update(d.toString());
+    return sha1.digest('base64');
+}
+//console.log(hash('abc'));
+
 // 生成凭证唯一ID号
 function figureId(row) {
     var date = row.date.getFullYear() + '' +
@@ -834,7 +844,9 @@ function figureId(row) {
     var p1 = row.voucher.id.toString().split('-');
     p1 = date + (p1[1] === undefined ? p1[0] : p1[1]);
     var p2 = row.subjectId + '' + Math.round(Math.abs(row.balance) * 100);
-    return parseInt(p1).toString(36) + parseInt(p2).toString(36);
+    var description = hash(row.description);
+    debug('description: ' + description);
+    return parseInt(p1).toString(36) + parseInt(p2).toString(36) + description;
 }
 
 // 将docs中的数据与凭证电子文件进行关联
