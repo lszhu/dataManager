@@ -848,7 +848,7 @@ mainFrameCtrl.controller('QueryKeyCtrl', ['$scope',
 ]);
 
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
-    function($scope, $http, filterFilter) {
+    'summary', function($scope, $http, filterFilter, summary) {
         $scope.grade = 4;
         $scope.showSubject = true;
         $scope.showMsg = false;
@@ -862,6 +862,8 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
         var day = time.getDate();
         day = day > 9 ? day : '0' + day;
         $scope.dateTo = year + '-' + month + '-' + day;
+        // 初始化汇总数据
+        $scope.summary = {};
 
         $http.post('/queryProject', {}).success(function (res) {
             $scope.msgClass =
@@ -901,6 +903,8 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                     return;
                 }
                 $scope.subjectsRaw = res.data;
+                // 汇总：发生额、贷方累计、借方累计
+                $scope.summary = summary($scope.subjectsRaw);
                 // 过滤出指定级别以上的科目
                 $scope.subjects = $scope.subjectsRaw.filter(function(e) {
                     return e.id.length <= $scope.grade * 2 + 1;

@@ -238,4 +238,24 @@ appService.provider('AppMenu', function() {
     }
 });
 
-///////////////////////////////////////////////////////////
+appService.factory('summary', function() {
+        return function(table) {
+            var topSubject = table.filter(function(e) {
+                return e.id.length == 3;
+            });
+            var sum = {
+                "accrual": 0,
+                "credit": 0,
+                "debit": 0
+            };
+            console.log('topSubject: %o', topSubject);
+            return topSubject.reduce(function(previous, current) {
+                return {
+                    accrual: previous.accrual + current.end - current.init,
+                    credit: previous.credit + current.credit,
+                    debit: previous.debit + current.debit
+                };
+            }, sum);
+        };
+    }
+);

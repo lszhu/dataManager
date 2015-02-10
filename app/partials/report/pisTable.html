@@ -80,20 +80,17 @@
           <td class="text-right">{{subject.credit | currency: '¥'}}</td>
           <td class="text-right">{{subject.debit | currency: '¥'}}</td>
         </tr>
-        <!--
-        <tr class="info">
-          <td class="">一级</td><td>财政应返额度</td><td>期初</td><td>期末</td>
+        <thead>
+        <tr class="active pis">
+          <th class="code text-left"></th>
+          <th class="text-left"></th>
+          <th class="figure text-right"></th>
+          <th class="figure text-right">汇总：</th>
+          <th class="figure text-right">{{summary.accrual | currency: '¥'}}</th>
+          <th class="figure text-right">{{summary.credit | currency: '¥'}}</th>
+          <th class="figure text-right">{{summary.debit | currency: '¥'}}</th>
         </tr>
-        <tr class="success">
-          <td>二级</td><td>征地和拆迁补偿支出</td><td>期初</td><td>期末</td>
-        </tr>
-        <tr class="warning">
-          <td>三级</td><td>市国庆路香雪路飞虹路改造工程建设领导小组</td><td>期初</td><td>期末</td>
-        </tr>
-        <tr class="">
-          <td>四级</td><td>水利建设基金</td><td>期初</td><td>期末</td>
-        </tr>
-        -->
+        </thead>
         </tbody>
       </table>
     </div>

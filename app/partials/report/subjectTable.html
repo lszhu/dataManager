@@ -60,6 +60,17 @@
           <td class="text-right">{{subject.debit | currency: '¥'}}</td>
         </tr>
         </tbody>
+        <thead>
+        <tr class="active pis">
+          <th class="code text-left"></th>
+          <th class="text-left"></th>
+          <th class="figure text-right"></th>
+          <th class="figure text-right">汇总：</th>
+          <th class="figure text-right">{{summary.accrual | currency: '¥'}}</th>
+          <th class="figure text-right">{{summary.credit | currency: '¥'}}</th>
+          <th class="figure text-right">{{summary.debit | currency: '¥'}}</th>
+        </tr>
+        </thead>
       </table>
     </div>
   </div>
