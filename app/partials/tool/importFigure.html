@@ -1,5 +1,12 @@
-<div>
+﻿<div>
   <h1 class="page-header">财务凭证数据导入</h1>
+  <div class="col-sm-10 col-sm-offset-1">
+用友导出数据放在“D:\用友数据用友\”下的对应年份文件夹下。<br>
+如：2008年数据放在“D:\用友数据用友\2008”文件夹下
+文件类型为：excel2007(*.xlsx)文件(如果导出文件为excel2003(*.xls)文件要用xls2xlsx.vbs转化为2007版的。)<br>
+列格式如下：<br>
+月	日	凭证号数	科目编码	科目名称	摘要	借方	贷方	方向8	余额<br>&nbsp;
+  </div>
   <form class="form-horizontal" name="importFigure" role="form" ng-submit="serverModeImport()">
     <div class="form-group">
       <label for="style" class="col-sm-2 control-label">导入模式</label>

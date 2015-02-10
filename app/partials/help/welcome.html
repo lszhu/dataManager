@@ -1,4 +1,4 @@
-<div>
+﻿<div>
   <h1 class="page-header">财务档案系统</h1>
   <p>本系统具有简明的操作流程，快捷的操作方式。核心工作流程如下。</p>
 
@@ -37,17 +37,25 @@
 
   <div class="col-sm-10 col-sm-offset-1">
     <p>对财务数据从项目和科目等角度进行汇总</p>
-    <h4>4.1 特定项目分科目汇总</h4>
-    <button type="button" ng-click="gotoPageHash('/report/pisTable')">‘报表’ -> ‘特定项目分科目汇总’</button>，按照不同科目进行汇总，支持从1到4级科目的汇总
-    <h4>4.2 分科目汇总</h4>
-    <button type="button" ng-click="gotoPageHash('/report/subjectTable')">‘报表’ -> ‘分科目汇总’</button>，对所有项目数据按照不同科目进行汇总，支持从1到4级科目的汇总
-    <h4>4.3 按项目逐一汇总</h4>
-    <button type="button" ng-click="gotoPageHash('/report/projectTable')">‘报表’ -> ‘按项目逐一汇总’</button>，每个项目汇总成一条数据，将所有项目数据汇总到一张表
-    <h4>4.4 特定项目分阶段汇总</h4>
-    <button type="button" ng-click="gotoPageHash('/report/projectGradingTable')">‘报表’ -> ‘特定项目分阶段汇总’</button>，对某一项目，按照‘月’、‘季’或‘年’，分阶段汇总
-    <h4>4.5 分阶段汇总</h4>
-    <button type="button" ng-click="gotoPageHash('/report/gradingTable')">‘报表’ -> ‘分阶段汇总’</button>，对系统中的所有项目，按照‘月’、‘季’或‘年’，分阶段汇总
+    <h4>4.1 项目分科目汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/pisTable')">‘报表’ -> ‘项目分科目汇总’</button>，按照不同科目进行汇总，支持从1到4级科目的汇总
+    <h4>4.2 科目汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/subjectTable')">‘报表’ -> ‘科目汇总’</button>，对所有项目数据按照不同科目进行汇总，支持从1到4级科目的汇总
+    <h4>4.3 项目逐一汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/projectTable')">‘报表’ -> ‘项目逐一汇总’</button>，每个项目汇总成一条数据，将所有项目数据汇总到一张表
+    <h4>4.4 项目阶段汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/projectGradingTable')">‘报表’ -> ‘项目分阶段汇总’</button>，对某一项目，按照‘月’、‘季’或‘年’，分阶段汇总
+    <h4>4.5 阶段汇总</h4>
+    <button type="button" ng-click="gotoPageHash('/report/gradingTable')">‘报表’ -> ‘阶段汇总’</button>，对系统中的所有项目，按照‘月’、‘季’或‘年’，分阶段汇总
 
+  </div>
+  <div class="col-sm-10"><h3>5.电子档案管理</h3></div>
+
+  <div class="col-sm-10 col-sm-offset-1">
+    <h4>5.1 电子档案管理</h4>
+    <button type="button" ng-click="gotoPageHash('/tool/fileManagement')">‘档案’ -> ‘电子档案管理’</button>， 对单位各类公文、同合等文件进行无限级别的管理。
+    <h4>5.2 电子档案查询</h4>
+    <button type="button" ng-click="gotoPageHash('/search/queryFile')">‘检索’ -> ‘文件查询’</button>， 对单位各类公文、同合等文件进行查询。
   </div>
   <footer class="col-sm-12">
     <hr>

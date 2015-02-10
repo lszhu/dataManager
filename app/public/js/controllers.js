@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /* Controllers */
 
@@ -1377,10 +1377,13 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             //$scope.fileData = $scope.dataBackup;
             console.log('selected file name: %o', $scope.selectedFile);
             console.log('selected file name: %o', $scope.path);
-            // 从目录获取年份信息（如果是/或其他字符加4位数字）
+            // 从目录获取年份信息（去除前导字符'/'，目录名为4位数字）
             var year = $scope.path.slice(1);
+            var filterKey = $scope.selectedFile
+                .slice(0, $scope.selectedFile.length - 5);
             if (year > 0) {
                 $scope.year = year;
+                $scope.filterKey = filterKey;
             }
         };
 

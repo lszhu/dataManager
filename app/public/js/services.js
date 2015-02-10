@@ -1,4 +1,4 @@
-'use strict';
+﻿'use strict';
 
 /* Services */
 
@@ -38,8 +38,8 @@ appService.provider('AppMenu', function() {
                     },
                     {
                         name: '电子档案管理',
-                        link: 'archive/digitalArchive',
-                        controller: 'DigitalArchiveCtrl'
+                        link: 'tool/fileManagement',
+                        controller: 'FileManagementCtrl'
                     },
                     {
                         name: '档案关联管理',
@@ -109,27 +109,27 @@ appService.provider('AppMenu', function() {
                 name: '报表',
                 subMenu: [
                     {
-                        name: '特定项目分科目汇总', //'项目(p) - 时段(i) - 科目(s)',
+                        name: '项目分科目汇总', //'项目(p) - 时段(i) - 科目(s)',
                         link: 'report/pisTable',
                         controller: 'PisTableCtrl'
                     },
                     {
-                        name: '分科目汇总', //'时段 - 科目',
+                        name: '科目汇总', //'时段 - 科目',
                         link: 'report/subjectTable',
                         controller: 'PisTableCtrl'
                     },
                     {
-                        name: '按项目逐一汇总', //'时段 - 项目 *',
+                        name: '项目逐一汇总', //'时段 - 项目 *',
                         link: 'report/projectTable',
                         controller: 'ProjectTableCtrl'
                     },
                     {
-                        name: '特定项目分阶段汇总', //'项目 - 时段 *',
+                        name: '项目阶段汇总', //'项目 - 时段 *',
                         link: 'report/projectGradingTable',
                         controller: 'ProjectGradingTableCtrl'
                     },
                     {
-                        name: '分阶段汇总', //'时段 *',
+                        name: '阶段汇总', //'时段 *',
                         link: 'report/gradingTable',
                         controller: 'ProjectGradingTableCtrl'
                     }
@@ -189,11 +189,6 @@ appService.provider('AppMenu', function() {
                         name: '财务凭证手动关联',
                         link: 'tool/voucherManualBind',
                         controller: 'VoucherManualBindCtrl'
-                    },
-                    {
-                        name: '电子文件分类管理',
-                        link: 'tool/fileManagement',
-                        controller: 'FileManagementCtrl'
                     },
                     {
                         name: '项目文档自动关联',
