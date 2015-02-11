@@ -1,34 +1,35 @@
-
+// 从配置文件读取内置账号
 var builtinAccount = require('../config').builtinAccount;
-
+// 存放用户注册序列号的位置
 var customerIdPath = '../../staticData/customerId';
 
+// debug信息
 var debug = require('debug')('auth');
 var childProcess = require('child_process');
 var fs = require('fs');
 var path = require('path');
 var crypto = require('crypto');
 
-
+// 存放服务器Id，该值是异步获取的
 var serverId = createServerId();
 var customerId = getCustomerId();
 
 
-
+// 对两个参数代表的账号进行比对，如果一致，则返回真值
 function auth(acc, stdAcc) {
-
+    // 与系统中的账号进行比对
     if (stdAcc) {
         return acc && stdAcc.enabled &&
             acc.username == stdAcc.username &&
             acc.password == stdAcc.password;
     }
-
+    // 与内置账号进行比对
     return acc && builtinAccount.enabled &&
         acc.username == builtinAccount.username &&
         acc.password == builtinAccount.password;
 }
 
-
+// 检测acc对应账号的权限是否满足rights对应的权限，是则返回真值
 function testRights(acc, rights) {
     var permission = {
         readonly: 1,
@@ -55,7 +56,7 @@ function testRights(acc, rights) {
     //return false;
 }
 
-
+// 一般的操作，只有当权限符合且软件已成功注册才允许操作
 function allow(acc, rights) {
     if (!testRights(acc, rights)) {
         return false;
@@ -68,7 +69,10 @@ function allow(acc, rights) {
     return auth1 && auth2;
 }
 
+//////////////////////////////////////////////////////////////
+// 以下函数用于系统安装运行时的注册验证版权
 
+// 通过cpuID和网卡mac地址生成服务器ID
 function createServerId() {
     var command = ['wmic cpu get processorId', 'wmic nic get macaddress'];
     var serverId = {};
@@ -107,7 +111,7 @@ function createServerId() {
     return serverId;
 }
 
-
+// 将服务器唯一ID转换为字符串
 function serverIdString(sId) {
     if (!sId || !sId.cpuId || !sId.macAddress || sId.macAddress.length == 0) {
         console.log('server Id error ', sId);
@@ -118,7 +122,7 @@ function serverIdString(sId) {
     return idString;
 }
 
-
+// 将CPU信息加密
 function hashCpuId(cpuId) {
     cpuId += cpuId + cpuId + cpuId;
     var hashCpuId = crypto.createHash('sha256');
@@ -126,7 +130,7 @@ function hashCpuId(cpuId) {
     return hashCpuId.digest('hex');
 }
 
-
+// 将网卡mac地址加密
 function hashMacAddress(macList) {
     var hashMac = [];
     var hashMacAddress, MacAddress;
@@ -140,14 +144,14 @@ function hashMacAddress(macList) {
     return hashMac;
 }
 
-
+// 将用户注册序列号写入特定文件，callback(err)
 function saveCustomerId(cId, callback) {
     var cIdPath = path.join(__dirname, customerIdPath);
     customerId = cId;
     fs.writeFile(cIdPath, cId, callback);
 }
 
-
+// 将用户注册序列号从特定文件读出
 function getCustomerId() {
     var cIdPath = path.join(__dirname, customerIdPath);
     var customerId;
@@ -160,7 +164,7 @@ function getCustomerId() {
     return customerId;
 }
 
-
+// 验证cpuId，这里的cpuId并非全球唯一Id，类似于cpu型号Id
 function verifyCpuId(serverId, customerId) {
     var year = getYear(customerId);
     var month = getMonth(customerId);
@@ -178,7 +182,7 @@ function verifyCpuId(serverId, customerId) {
     return customerCpuId == hashCpuId(serverId.cpuId);
 }
 
-
+// 验证mac地址，只要有一个mac地址符合，即通过验证
 function verifyMacAddress(serverId, customerId) {
     var year = getYear(customerId);
     var month = getMonth(customerId);
@@ -203,7 +207,7 @@ function verifyMacAddress(serverId, customerId) {
     return false;
 }
 
-
+// 校验序列号中是否包含当年或下一年信息
 function getYear(customerId) {
     if (!customerId) {
         return 0;
@@ -226,7 +230,7 @@ function getYear(customerId) {
     return 0;
 }
 
-
+// 校验序列号中是否包含月份信息
 function getMonth(customerId) {
     if (!customerId) {
         return 0;
@@ -247,7 +251,7 @@ function getMonth(customerId) {
     return 0;
 }
 
-
+// 将服务器唯一Id转换为序列号
 function createCustomerId(sIdString) {
     if (!sIdString) {
         console.log('error server Id');
@@ -269,7 +273,7 @@ function createCustomerId(sIdString) {
     return hashMac.join('\n');
 }
 
-
+// 暂未使用，用户同时验证cpuId和mac地址
 function verifyCustomerId(serverId, customerId) {
     if (!customerId || !serverId || !serverId.cpuId || !serverId.macAddress) {
         return false;
@@ -324,6 +328,14 @@ function hashYear() {
     return hashYears;
 }
 
+// 可用来显示使用序列号
+//hashYear();
+//hashMonth();
+
+// 可用来显示用户注册序列号
+//setTimeout(function() {
+//    console.log(createCustomerId(serverIdString(serverId)))
+//}, 2000);
 
 module.exports = {
     auth: auth,

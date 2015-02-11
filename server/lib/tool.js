@@ -492,8 +492,8 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
         //    grading[index] = {init: 0, end: 0, credit: 0, debit: 0};
         //}
         // 处理年度结转或期初余额数据
-        if ((figures[i].voucher.id == '10000' ||
-            figures[i].voucher.id == '20000') &&
+        if (figures[i].voucher.id == '20000' ||
+            figures[i].voucher.id == '10000' &&
             figures[i].date.getFullYear() == yearFrom) {
             debug('add balance from last year');
             grading[index].init += figures[i].balance;
@@ -617,8 +617,8 @@ function projectList(figures, startDate) {
             projects[project] = {init: 0, end: 0, credit: 0, debit: 0}
         }
         // 处理年度结转/期初余额数据
-        if ((figures[i].voucher.id == '10000' ||
-            figures[i].voucher.id == '20000') &&
+        if (figures[i].voucher.id == '20000' ||
+            figures[i].voucher.id == '10000' &&
             figures[i].date.getFullYear() == startDate.getFullYear()) {
             debug('add balance from last year');
             projects[project].init += figures[i].balance;
@@ -690,8 +690,8 @@ function pisList(figures, startDate) {
                 subjects[id] = {id: id, name: figures[i].subjectName,
                     init: 0, end: 0, credit: 0, debit: 0};
             }
-            if ((figures[i].voucher.id == '10000' ||
-                figures[i].voucher.id == '20000') &&
+            if (figures[i].voucher.id == '20000' ||
+                figures[i].voucher.id == '10000' &&
                 figures[i].date.getFullYear() == startDate.getFullYear()) {
                 debug('add balance from last year');
                 subjects[id].init += figures[i].balance;

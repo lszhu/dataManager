@@ -314,7 +314,7 @@ function projectDeleteReply(db, counter, error, res, logMsg) {
     }
 }
 
-// collect sub projects or descendent projects of a project, include itself
+// collect sub projects or descendant projects of a project, include itself
 function getRelatives(name, projects) {
     debug('projects.length: ' + projects.length);
     if (!name) {
