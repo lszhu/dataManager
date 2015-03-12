@@ -110,16 +110,26 @@
     </div>
   </form>
 
-  <div class="col-md-8 col-md-offset-2" ng-show="message">
+  <div class="col-md-10 col-md-offset-1" ng-show="message">
     <div ng-class="msgClass" class="alert text-center" role="alert">
-      <strong >
-        <p>{{message}}</p>
-        <p ng-show="counter.ok">成功导入{{counter.ok}}条数据条目</p>
-        <p ng-show="counter.dup">{{errLines}}</p>
-        <p ng-show="counter.err">{{errLines}}</p>
-        <p ng-show="counter.">{{errLines}}</p>
-        <p ng-show="errLines && errLines.length">{{errLines}}</p>
-      </strong>
+      <p><strong>{{message}}</strong></p>
+      <p ng-show="importMsg.ok">
+        <strong>成功导入{{importMsg.ok}}条数据条目</strong>
+      </p>
+      <hr ng-show="importMsg.dup.length">
+      <p ng-show="importMsg.dup.length">
+        <strong>数据库已存在相同条目（{{importMsg.dup.length}}条）</strong><br>
+        <span ng-repeat="dup in importMsg.dup">
+          <span ng-repeat="(k, v) in dup.data">{{v}}／ </span><br><br></span>
+      </p>
+      <hr ng-show="importMsg.err.length">
+      <p ng-show="importMsg.err.length">
+        <strong>导入过程中出现异常或错误的条目（{{importMsg.err.length}}条）</strong><br>
+        <span ng-repeat="err in importMsg.err.data">
+          <span ng-repeat="(k, v) in err.data">{{v}}／ </span><br><br></span>
+      </p>
+      <hr ng-show="errLines">
+      <p ng-show="errLines">{{errLines}}</p>
     </div>
   </div>
 </div>

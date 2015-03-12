@@ -1404,40 +1404,66 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
 
         // 服务器端本地模式
         $scope.serverModeImport = function() {
+            $scope.importMsg = null;
+            $scope.errLines = '';
+            $scope.message = '';
             $http.post('/importFigure', {
                 style: 'server',
                 path: $scope.path + '/' + $scope.selectedFile,
                 projectName: $scope.projectName,
                 year: $scope.year
             }).success(function(res) {
-                $scope.msgClass = !res.errMsg || res.errMsg.length == 0 ?
-                    'alert-success' : 'alert-danger';
 
-                $scope.message = '从文件“' + $scope.selectedFile +
-                    '”导入数据，' + res.message;
+                console.log('response: ', JSON.stringify(res));
+                $scope.message = '从文件“' + $scope.selectedFile + '”导入数据';
+
                 if (res.status == 'nameErr' || res.status == 'rightsErr') {
                     return;
                 }
-
                 if (res.errLines) {
-                    $scope.errLines += ' #文件名: ' + res.filename + ', ' +
-                        '错误位置: ' + JSON.stringify(res.errLines);
+                    $scope.msgClass = 'alert-danger';
+                    $scope.errLines += ' #文件名: ' + $scope.selectedFile +
+                    ', ' + '错误位置: ' + JSON.stringify(res.errLines);
+                    console.log('errLines: ' + $scope.errLines);
                     return;
                 }
-                console.log('response: ', JSON.stringify(res));
+
+                var importMsg = res.importMsg;
+                $scope.msgClass = importMsg && (importMsg.dup.length ||
+                    importMsg.err.length) ? 'alert-danger' : 'alert-success';
 
                 if (res.status == 'import') {
-                    $scope.errMsg = res.errMsg;
-                    $scope.counter = res.counter;
+                    $scope.importMsg = res.importMsg;
                 }
 
+                // 未能成功导入至少一个条目，则直接返回
+                if (importMsg.ok == 0) {
+                    return;
+                }
+                var result = '成功';
+                var comment = '';
+                if (importMsg.dup.length) {
+                    comment = '部分待导入条目在系统中已存在';
+                }
+                if (importMsg.err.length) {
+                    if (comment) {
+                        comment += '且导入条目时发生错误'
+                    } else {
+                        comment = '部分条目导入时发生错误';
+                    }
+                }
+                if (comment) {
+                    result = '只导入部分条目';
+                } else {
+                    comment = '导入' + importMsg.ok + '条数据';
+                }
                 $scope.importedList.push({
-                    projectName:res.projectName,
-                    year:res.year,
-                    path:res.path,
-                    filename:res.filename,
-                    comment:res.comment,
-                    result:res.result
+                    projectName: $scope.projectName,
+                    year: $scope.year,
+                    path: $scope.path,
+                    filename: $scope.selectedFile,
+                    comment: comment,
+                    result: result
                 });
             }).error(function(res) {
                 $scope.msgClass = 'alert-danger';

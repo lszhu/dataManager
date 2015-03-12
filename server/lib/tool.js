@@ -347,7 +347,7 @@ function importFigures(db, filePath, projectName, year, callback) {
                     message: '数据库访问故障', data: data});
                 //counter.err++;
                 if (counter.count == 0) {
-                    callback({status: 'import', errMsg: importMsg});
+                    callback({status: 'import', importMsg: importMsg});
                 }
             } else if (docs.length) {
                 counter.count--;
@@ -356,7 +356,7 @@ function importFigures(db, filePath, projectName, year, callback) {
                     .push({status: 'dup', message: '数据已存在', data: data});
                 //counter.dup++;
                 if (counter.count == 0) {
-                    callback({status: 'import', errMsg: importMsg});
+                    callback({status: 'import', importMsg: importMsg});
                 }
             } else if (counter.count) {
                 db.save(collection, {id: data.id}, data, function(err) {
