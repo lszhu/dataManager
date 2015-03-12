@@ -327,6 +327,58 @@ function importFigures(db, filePath, projectName, year, callback) {
         callback(importMsg);
         return;
     }
+
+    debug('items to be inserted: ' + msg.data.length);
+
+    var importMsg = {ok: 0, dup: [], err: []};
+    var counter = {count: msg.data.length};
+    for (var i = 0; i < msg.data.length; i++) {
+        //counter.count++;
+        checkAndSave(db, 'figure', msg.data[i], importMsg);
+    }
+    //
+    function checkAndSave(db, collection, data, importMsg) {
+        db.query(collection, {id: data.id}, function(err, docs) {
+            debug("check data existence");
+            if (err) {
+                counter.count--;
+                debug("counter.count: " + counter.count);
+                importMsg.err.push({status: 'dbReadErr',
+                    message: '数据库访问故障', data: data});
+                //counter.err++;
+                if (counter.count == 0) {
+                    callback({status: 'import', errMsg: importMsg});
+                }
+            } else if (docs.length) {
+                counter.count--;
+                debug("counter.count: " + counter.count);
+                importMsg.dup
+                    .push({status: 'dup', message: '数据已存在', data: data});
+                //counter.dup++;
+                if (counter.count == 0) {
+                    callback({status: 'import', errMsg: importMsg});
+                }
+            } else if (counter.count) {
+                db.save(collection, {id: data.id}, data, function(err) {
+                    counter.count--;
+                    debug("counter.count: " + counter.count);
+                    if (err) {
+                        importMsg.err.push({status: 'dbWriteErr',
+                            message: '数据存储失败', data: data});
+                        //counter.err++;
+                    } else {
+                        importMsg.ok++;
+                    }
+                    if (counter.count == 0) {
+                        callback({status: 'import', importMsg: importMsg});
+                    }
+                });
+            }
+        });
+    }
+
+    // batch mode, but will overwrite exist docs with the save id
+    /*
     db.batchSaveFigures(msg.data, function(err, num) {
         if (err) {
             importMsg.status = 'dbWriteErr';
@@ -343,6 +395,7 @@ function importFigures(db, filePath, projectName, year, callback) {
         importMsg.result = '成功';
         callback(importMsg);
     });
+    */
 }
 
 // 获取excel表格的行数

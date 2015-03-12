@@ -1410,8 +1410,9 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 projectName: $scope.projectName,
                 year: $scope.year
             }).success(function(res) {
-                $scope.msgClass =
-                        res.status == 'ok' ? 'alert-success' : 'alert-danger';
+                $scope.msgClass = !res.errMsg || res.errMsg.length == 0 ?
+                    'alert-success' : 'alert-danger';
+
                 $scope.message = '从文件“' + $scope.selectedFile +
                     '”导入数据，' + res.message;
                 if (res.status == 'nameErr' || res.status == 'rightsErr') {
@@ -1422,6 +1423,12 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                     $scope.errLines += ' #文件名: ' + res.filename + ', ' +
                         '错误位置: ' + JSON.stringify(res.errLines);
                     return;
+                }
+                console.log('response: ', JSON.stringify(res));
+
+                if (res.status == 'import') {
+                    $scope.errMsg = res.errMsg;
+                    $scope.counter = res.counter;
                 }
 
                 $scope.importedList.push({

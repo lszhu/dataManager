@@ -3,7 +3,7 @@
   <div class="col-sm-10 col-sm-offset-1">
 用友导出数据放在“D:\用友数据用友\”下的对应年份文件夹下。<br>
 如：2008年数据放在“D:\用友数据用友\2008”文件夹下
-文件类型为：excel2007(*.xlsx)文件(如果导出文件为excel2003(*.xls)文件要用xls2xlsx.vbs转化为2007版的。)<br>
+文件类型为：excel2007(*.xlsx)文件(如果导出文件为excel2003(*.xls)文件，需先用excel2007（或以上版本）另存成xlsx格式，也可用xls2xlsx.vbs批量转化为xlsx格式。)<br>
 列格式如下：<br>
 月	日	凭证号数	科目编码	科目名称	摘要	借方	贷方	方向8	余额<br>&nbsp;
   </div>
@@ -112,7 +112,14 @@
 
   <div class="col-md-8 col-md-offset-2" ng-show="message">
     <div ng-class="msgClass" class="alert text-center" role="alert">
-      <strong >{{message}}<br><span ng-show="msgClass == 'alert-danger'">{{errLines}}</span></strong>
+      <strong >
+        <p>{{message}}</p>
+        <p ng-show="counter.ok">成功导入{{counter.ok}}条数据条目</p>
+        <p ng-show="counter.dup">{{errLines}}</p>
+        <p ng-show="counter.err">{{errLines}}</p>
+        <p ng-show="counter.">{{errLines}}</p>
+        <p ng-show="errLines && errLines.length">{{errLines}}</p>
+      </strong>
     </div>
   </div>
 </div>
