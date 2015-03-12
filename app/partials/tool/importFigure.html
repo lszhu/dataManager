@@ -118,13 +118,13 @@
       </p>
       <hr ng-show="importMsg.dup.length">
       <p ng-show="importMsg.dup.length">
-        <strong>数据库已存在相同条目（{{importMsg.dup.length}}条）</strong><br>
+        <strong>数据库已存在相同条目（{{importMsg.dup.length}}条）</strong><br><br>
         <span ng-repeat="dup in importMsg.dup">
           <span ng-repeat="(k, v) in dup.data">{{v}}／ </span><br><br></span>
       </p>
       <hr ng-show="importMsg.err.length">
       <p ng-show="importMsg.err.length">
-        <strong>导入过程中出现异常或错误的条目（{{importMsg.err.length}}条）</strong><br>
+        <strong>导入时出现异常或错误的条目（{{importMsg.err.length}}条）</strong><br><br>
         <span ng-repeat="err in importMsg.err.data">
           <span ng-repeat="(k, v) in err.data">{{v}}／ </span><br><br></span>
       </p>

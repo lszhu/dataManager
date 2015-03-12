@@ -1457,7 +1457,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 } else {
                     comment = '导入' + importMsg.ok + '条数据';
                 }
-                $scope.importedList.push({
+                $scope.importedList.unshift({
                     projectName: $scope.projectName,
                     year: $scope.year,
                     path: $scope.path,

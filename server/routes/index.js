@@ -1046,7 +1046,19 @@ router.post('/importFigure', function(req, res) {
         }
         tool.importFigures(db, filePath, projectName, year, function(msg) {
             res.send(msg);
-            tool.log(db, logMsg, msg.comment, msg.result);
+
+            if (!msg.importMsg) {
+                tool.log(db, logMsg, msg.comment, msg.result);
+                return;
+            }
+            var m = msg.importMsg;
+            if (m.dup && !m.dup.length && m.err && !m.err.length) {
+                logMsg.status = '成功';
+                logMsg.comment = '导入' + msg.importMsg.ok + '条数据';
+            } else {
+                logMsg.comment = '部分数据导入失败';
+            }
+            tool.log(db, logMsg);
         });
     }
 });
