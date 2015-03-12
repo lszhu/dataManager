@@ -1412,7 +1412,8 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
             }).success(function(res) {
                 $scope.msgClass =
                         res.status == 'ok' ? 'alert-success' : 'alert-danger';
-                $scope.message = res.message;
+                $scope.message = '从文件“' + $scope.selectedFile +
+                    '”导入数据，' + res.message;
                 if (res.status == 'nameErr' || res.status == 'rightsErr') {
                     return;
                 }
@@ -1451,6 +1452,17 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 }
             }
         );
+
+        $scope.$watch(
+            'selectedFile',
+            function(newValue, oldValue) {
+                if (newValue == oldValue) {
+                    return;
+                }
+                $scope.message = '';
+                $scope.errLines = '';
+            }
+        )
     }
 ]);
 
