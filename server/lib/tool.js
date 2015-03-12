@@ -380,6 +380,11 @@ function figureList(sheets, projectName, year) {
                 row.direction = sheets[i][col.direction + 7];
             }
         }
+        // 记录借贷方向非法情况
+        if (row.direction != '借' && row.direction != '贷' &&
+            row.direction != '平') {
+            errLine.push(i + 2 + '行，借贷方向错误；');
+        }
         row.balance = sheets[i][col.balance];
 
         // 处理“上年结转”或“期初余额”的情况
