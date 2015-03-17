@@ -999,9 +999,21 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
 
 mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
     function($scope, $http) {
+        $scope.projectNameIds = [];
         $scope.subject = 'all';
         initPeriod();
         initSubject();
+
+        // 获取项目信息，用于随后获取项目Id并注入到统计数据中
+        $http.post('/queryProject', {}).success(function (res) {
+            $scope.msgClass =
+                res.status == 'ok' ? 'alert-success' : 'alert-danger';
+            $scope.message = res.message;
+            $scope.projectNameIds = res.projects;
+        }).error(function (res) {
+            $scope.msgClass = 'alert-danger';
+            $scope.message = 'system error: ' + JSON.stringify(res);
+        });
 
         $scope.queryData = function() {
             console.log('subjectId: ' + $scope.subject);
@@ -1024,7 +1036,7 @@ mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
                     $scope.message = '没有任何财务数据';
                     return;
                 }
-                $scope.projects = res.data;
+                $scope.projects = addProjectId(res.data);
             }).error(function (res) {
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
@@ -1068,6 +1080,34 @@ mainFrameCtrl.controller('ProjectTableCtrl', ['$scope', '$http',
                 $scope.msgClass = 'alert-danger';
                 $scope.message = 'system error: ' + JSON.stringify(res);
             });
+        }
+
+        // 在统计数据中加入项目编号并按编号排序
+        function addProjectId(src) {
+            //console.log('projectNameIds: %o', $scope.projectNameIds);
+            //console.log('projects: %o', src);
+            for (var i = 0; i < src.length; i++) {
+                src[i].id = lookupId(src[i].name);
+            }
+            src.sort(function(a, b) {
+                var al = a.id.toLowerCase();
+                var bl = b.id.toLowerCase();
+                if (al == bl) {
+                    return 0;
+                }
+                return al < bl ? -1 : 1;
+            });
+            return src;
+        }
+
+        // 用于从项目表中通过名称查询Id
+        function lookupId(projectName) {
+            for (var i = 0; i < $scope.projectNameIds.length; i++) {
+                if ($scope.projectNameIds[i].name == projectName) {
+                    return $scope.projectNameIds[i].id;
+                }
+            }
+            return '';
         }
 
     }
@@ -1291,7 +1331,17 @@ mainFrameCtrl.controller('CreateProjectCtrl', ['$scope', '$http',
                     }
                 }
             }
-        )
+        );
+
+        $scope.$watch(
+            'name',
+            function(newValue, oldValue) {
+                if (newValue === oldValue) {
+                    return;
+                }
+                $scope.message = '';
+            }
+        );
     }
 ]);
 

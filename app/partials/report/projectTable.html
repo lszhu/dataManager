@@ -42,6 +42,7 @@
         <thead>
         <tr class="active pis">
           <th class="code text-left">序号</th>
+          <th class="code text-left">项目编号</th>
           <th class="text-left">项目名称</th>
           <th class="figure text-right">起始时间累计数</th>
           <th class="figure text-right">截止时间累计数</th>
@@ -53,6 +54,7 @@
         <tbody>
         <tr ng-repeat="project in projects | filter: globalFilterKey">
           <td class="text-left">{{$index + 1}}</td>
+          <td class="text-left">{{project.id}}</td>
           <td class="text-left">{{project.name}}</td>
           <td class="text-right">{{project.init | currency: '¥'}}</td>
           <td class="text-right">{{project.end | currency: '¥'}}</td>
