@@ -306,7 +306,7 @@ function importFigures(db, filePath, projectName, year, callback) {
             {raw: true}
         );
     } catch (e) {
-        console.log('ok here');
+        console.log('parse excel file error');
         //console.log('parse excel file error: ' + JSON.stringify(e));
         importMsg.status = 'fileParseErr';
         importMsg.message = '无法读取凭证数据文件，或文件格式错误';
@@ -440,10 +440,11 @@ function figureList(sheets, projectName, year) {
         }
         row.balance = sheets[i][col.balance];
 
-        // 处理“上年结转”或“期初余额”的情况
+        // 处理“上年结转”或“期初余额”的情况（描述字段以相应描述开始）
         if (!row.voucher.id) {
-            if (row.description && row.description.trim() != '上年结转' &&
-                row.description.trim() != '期初余额') {
+            if (row.description &&
+                row.description.trim().slice(0, 4) != '上年结转' &&
+                row.description.trim().slice(0, 4) != '期初余额') {
                 errLine.push(i + 2 + '行，不确定是否是上年结转或期初余额；');
                 debug('errLine: %j', row);
                 continue;
@@ -451,7 +452,7 @@ function figureList(sheets, projectName, year) {
             // 令上年结转数据条目的凭证号为10000，不同于任何普通凭证号
             var voucherId = '10000';
             // 令期初余额数据条目的凭证号为20000，不同于任何普通凭证号
-            if (row.description.trim() == '期初余额') {
+            if (row.description.trim().slice(0, 4) == '期初余额') {
                 voucherId = '20000';
             }
             row.voucher = {id: voucherId};
