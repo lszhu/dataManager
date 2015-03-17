@@ -1414,7 +1414,7 @@ mainFrameCtrl.controller('ImportFigureCtrl', ['$scope', '$http',
                 year: $scope.year
             }).success(function(res) {
 
-                console.log('response: ', JSON.stringify(res));
+                //console.log('response: ', JSON.stringify(res));
                 $scope.message = '从文件“' + $scope.selectedFile + '”导入数据';
 
                 if (res.status == 'nameErr' || res.status == 'rightsErr') {

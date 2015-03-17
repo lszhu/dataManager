@@ -46,8 +46,8 @@
           <th class="figure text-right">起始时间累计数</th>
           <th class="figure text-right">截止时间累计数</th>
           <th class="figure text-right">发生额</th>
-          <th class="figure text-right" ng-hide="subject=='all'">贷方累计发生</th>
-          <th class="figure text-right" ng-hide="subject=='all'">借方累计发生</th>
+          <th class="figure text-right">贷方累计发生</th>
+          <th class="figure text-right">借方累计发生</th>
         </tr>
         </thead>
         <tbody>
@@ -57,8 +57,8 @@
           <td class="text-right">{{project.init | currency: '¥'}}</td>
           <td class="text-right">{{project.end | currency: '¥'}}</td>
           <td class="text-right">{{(project.end - project.init) | currency: '¥'}}</td>
-          <td class="text-right" ng-hide="$parent.subject=='all'">{{project.credit | currency: '¥'}}</td>
-          <td class="text-right" ng-hide="$parent.subject=='all'">{{project.debit | currency: '¥'}}</td>
+          <td class="text-right">{{project.credit | currency: '¥'}}</td>
+          <td class="text-right">{{project.debit | currency: '¥'}}</td>
         </tr>
         </tbody>
       </table>
