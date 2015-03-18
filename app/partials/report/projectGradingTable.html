@@ -92,14 +92,14 @@
           <td class="text-left">{{$index + 1}}</td>
           <td class="text-left">{{g.name}}</td>
           <td class="text-right">{{g.init | currency: '¥'}}</td>
-          <td class="text-right">{{g.end | currency: '¥'}}</td>
+          <td class="text-right">{{(g.debit - g.credit) | currency: '¥'}}</td>
           <td class="text-right">{{g.credit | currency: '¥'}}</td>
           <td class="text-right">{{g.debit | currency: '¥'}}</td>
         </tr>
         </tbody>
       </table>
     </div>
-    <div class="col-sm-12"><strong>注意：累计数方向始终为“借”</strong></div>
+    <div class="col-sm-12"><strong>注意：累计数及发生额方向始终为“借”</strong></div>
   </div>
 
   <div class="col-md-8 col-md-offset-2" ng-show="showMsg">

@@ -57,14 +57,15 @@
           <td class="text-left">{{project.id}}</td>
           <td class="text-left">{{project.name}}</td>
           <td class="text-right">{{project.init | currency: '¥'}}</td>
-          <td class="text-right">{{project.end | currency: '¥'}}</td>
-          <td class="text-right">{{(project.end - project.init) | currency: '¥'}}</td>
+          <td class="text-right">{{(project.init + project.debit - project.credit) | currency: '¥'}}</td>
+          <td class="text-right">{{(project.debit - project.credit) | currency: '¥'}}</td>
           <td class="text-right">{{project.credit | currency: '¥'}}</td>
           <td class="text-right">{{project.debit | currency: '¥'}}</td>
         </tr>
         </tbody>
       </table>
     </div>
+    <div class="col-sm-12"><strong>注意：累计数及发生额方向始终为“借”</strong></div>
   </div>
 
   <div class="col-md-8 col-md-offset-2" ng-show="msgClass!='alert-success'">

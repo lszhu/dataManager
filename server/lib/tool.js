@@ -533,13 +533,13 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
     if (grading.length == 0) {
         return {status: 'paramsErr', message: '查询参数错误'};
     }
-    var startDate = new Date(yearFrom, 0, 1);
+    //var startDate = new Date(yearFrom, 0, 1);
     var tmp;
     for (var i = 0, len = figures.length; i < len; i++) {
-        var result = classifyRow(figures[i], startDate);
-        if (result.status != 'ok') {
-            return result;
-        }
+        //var result = classifyRow(figures[i], startDate);
+        //if (result.status != 'ok') {
+        //    return result;
+        //}
         var index = gradingIndex(figures[i].date, granularity, yearFrom);
         debug('index: ' + index);
         if (index == 'error') {
@@ -560,13 +560,14 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
             grading[index].init += tmp;
             continue;
         }
-        grading[index][result.type] += result.value;
+        //grading[index][result.type] += result.value;
         grading[index]['credit'] += figures[i]['credit'];
         grading[index]['debit'] += figures[i]['debit'];
     }
     // 将grading中的init值更新为上一阶段的init值与累计值之和
     for (i = 1, len = grading.length; i < len; i++) {
-        grading[i].init = grading[i-1].init + grading[i-1].end;
+        grading[i].init = grading[i-1].init +
+            grading[i-1].debit - grading[i-1].credit;
     }
     //var data = [];
     //for (var g in grading) {
@@ -624,6 +625,7 @@ function initGrading(granularity, yearFrom, yearTo) {
     return a;
 }
 
+// 返回阶段数
 function gradingIndex(date, granularity, yearFrom) {
     if (!util.isDate(date) || !parseInt(yearFrom)) {
         return 'error';
@@ -666,27 +668,32 @@ function gradingName(date, granularity) {
 // 生成按照项目逐一汇总的数据，每个项目一条，以数组方式返回
 function projectList(figures, startDate) {
     var projects = {};
+    var tmp;
     for (var i = 0, len = figures.length; i < len; i++) {
-        var result = classifyRow(figures[i], startDate);
-        if (result.status != 'ok') {
-            return result;
-        }
+        //var result = classifyRow(figures[i], startDate);
+        //if (result.status != 'ok') {
+        //    return result;
+        //}
         var project = figures[i].project;
         // 初始化项目数据
         if (!projects.hasOwnProperty(project)) {
-            // end属性为累计发生额
-            projects[project] = {init: 0, end: 0, credit: 0, debit: 0}
+            // init属性为初始累计数（方向为“借”）
+            projects[project] = {init: 0, credit: 0, debit: 0}
         }
         // 处理年度结转/期初余额数据
         if (figures[i].voucher.id == '20000' ||
             figures[i].voucher.id == '10000' &&
             figures[i].date.getFullYear() == startDate.getFullYear()) {
             debug('add balance from last year');
-            projects[project].init += figures[i].balance;
+            tmp = figures[i].balance;
+            if (figures[i].direction == '贷') {
+                tmp = -tmp;
+            }
+            projects[project].init += tmp;
             continue;
         }
         // 计算累计数
-        projects[project][result.type] += result.value;
+        //projects[project][result.type] += result.value;
         projects[project]['credit'] += figures[i]['credit'];
         projects[project]['debit'] += figures[i]['debit'];
     }
@@ -699,7 +706,7 @@ function projectList(figures, startDate) {
         }
         projects[i].name = i;
         // 将end属性保存的值由累计发生额改为期末数
-        projects[i].end += projects[i].init;
+        //projects[i].end += projects[i].init;
         data.push(projects[i])
     }
     data = data.sort(function(a, b) {return a.name < b.name ? -1 : 1;});
