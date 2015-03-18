@@ -694,8 +694,13 @@ function projectList(figures, startDate) {
         }
         // 计算累计数
         //projects[project][result.type] += result.value;
-        projects[project]['credit'] += figures[i]['credit'];
-        projects[project]['debit'] += figures[i]['debit'];
+        // 如果条目时间早于startDate则加到初始值中（累计方向为“借”）
+        if (figures[i].date <= startDate) {
+            projects[project].init = figures[i].debit - figures[i].credit;
+        } else {
+            projects[project]['credit'] += figures[i]['credit'];
+            projects[project]['debit'] += figures[i]['debit'];
+        }
     }
 
     // 将projects改为数组形式，并在每项中加入项目名称
