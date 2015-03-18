@@ -534,6 +534,7 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
         return {status: 'paramsErr', message: '查询参数错误'};
     }
     var startDate = new Date(yearFrom, 0, 1);
+    var tmp;
     for (var i = 0, len = figures.length; i < len; i++) {
         var result = classifyRow(figures[i], startDate);
         if (result.status != 'ok') {
@@ -545,17 +546,18 @@ function gradingList(figures, granularity, yearFrom, yearTo) {
             console.log('异常的财务数据：没有正确的发生时间');
             continue;
         }
-        // 初始化每个阶段的数据
-        //if (!grading.hasOwnProperty(index)) {
-        //    // end为累计发生额
-        //    grading[index] = {init: 0, end: 0, credit: 0, debit: 0};
-        //}
+
         // 处理年度结转或期初余额数据
         if (figures[i].voucher.id == '20000' ||
             figures[i].voucher.id == '10000' &&
             figures[i].date.getFullYear() == yearFrom) {
             debug('add balance from last year');
-            grading[index].init += figures[i].balance;
+            tmp = figures[i].balance;
+            if (figures[i].direction == '贷') {
+                tmp = -tmp;
+            }
+            debug('add special voucher: ' + tmp);
+            grading[index].init += tmp;
             continue;
         }
         grading[index][result.type] += result.value;
@@ -742,7 +744,7 @@ function pisList(figures, startDate) {
     // 计算每个子科目的期初数、积累、借方累计、贷方累计
     function subjectList(figures, startDate) {
         var subjects = {};
-        var id;
+        var id, tmp, direction;
         for (var i = 0, len = figures.length; i < len; i++) {
             id = figures[i].subjectId;
             if (!subjects.hasOwnProperty(id)) {
@@ -753,7 +755,21 @@ function pisList(figures, startDate) {
                 figures[i].voucher.id == '10000' &&
                 figures[i].date.getFullYear() == startDate.getFullYear()) {
                 debug('add balance from last year');
-                subjects[id].init += figures[i].balance;
+                // 由科目编码表获取对应科目记账方向
+                direction = lookupSubject(figures[i].subjectId)['direction'];
+                // 遇到未知科目
+                if (direction == '未知') {
+                    subjects.err = true;
+                    subjects.message = '请在科目映射文件中添加相关科目信息, ' +
+                        '科目编码为' + id;
+                    console.log('unregistered subject error.');
+                    return subjects;
+                }
+                tmp = figures[i].balance;
+                if (figures[i].direction != direction) {
+                    tmp = -tmp;
+                }
+                subjects[id].init += tmp;
                 continue;
             }
             var result = classifyRow(figures[i], startDate);
@@ -768,6 +784,9 @@ function pisList(figures, startDate) {
     }
 
     var subjects = subjectList(figures, startDate);
+    if (subjects.err) {
+        return {status: 'err', message: subjects.message};
+    }
     var aggregated = objectToArray(aggregateSubject(subjects));
     //debug('aggregated: ' + JSON.stringify(aggregated));
     subjects = objectToArray(subjects);
@@ -811,23 +830,28 @@ function lookupSubject(subjectId) {
         g3 = subjectId.slice(0, 7),
         g4 = subjectId.slice(0, 9);
     var subject = {};
+    var direction = '未知';
     //debug('subjectMap: %j', subjectMap);
     if (subject && subjectId.length >= 3) {
         subject = subjectMap[g1];
+        direction = subject && subject.direction || direction;
         //debug('subject level 1: %j', subject);
     }
     if (subject && subjectId.length >= 5) {
         subject = subject[g2];
+        direction = subject && subject.direction || direction;
         //debug('subject level 2: %j', subject);
     }
     if (subject && subjectId.length >= 7) {
         subject = subject[g3];
+        direction = subject && subject.direction || direction;
     }
     if (subject && subjectId.length >= 9) {
         subject = subject[g4];
+        direction = subject && subject.direction || direction;
     }
     if (!subject) {
-        subject = {name: '未知科目', direction: '未知'}
+        subject = {name: '未知科目', direction: direction}
     }
     return {name: subject.name, direction: subject.direction};
 }
