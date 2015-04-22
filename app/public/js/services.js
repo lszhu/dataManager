@@ -238,7 +238,7 @@ appService.provider('AppMenu', function() {
     }
 });
 
-appService.factory('summary', function() {
+appService.factory('summarize', function() {
         return function(table) {
             var topSubject = table.filter(function(e) {
                 return e.id.length == 3;

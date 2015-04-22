@@ -583,27 +583,20 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                             // 依次按项目名称、日期及凭证号排序
                             if (a.project < b.project) {
                                 return -1;
-                            } else if (a.project == b.project)  {
+                            } else if (a.project == b.project) {
                                 if (a.date < b.date) {
                                     return -1;
-                                } else if (a.date = b.date) {
+                                } else if (a.date == b.date) {
                                     var ida = a.voucher.id.slice(-4);
                                     var idb = b.voucher.id.slice(-4);
                                     //console.log(a + ' : ' + b);
                                     if (ida < idb) {
                                         return -1;
-                                    } else if (ida == idb) {
-                                        return 0;
-                                    } else {
-                                        return 1;
                                     }
-                                    return 0;
-                                } else {
-                                    return 1;
+                                    return ida == idb ? 0 : 1;
                                 }
-                            } else {
-                                return 1;
                             }
+                            return 1;
                         });
                     console.log('setBound:' + $scope.withoutVoucherBound);
                     if ($scope.withoutVoucherBound) {
@@ -879,7 +872,7 @@ mainFrameCtrl.controller('QueryKeyCtrl', ['$scope',
 ]);
 
 mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
-    'summary', function($scope, $http, filterFilter, summary) {
+    'summarize', function($scope, $http, filterFilter, summarize) {
         $scope.grade = 4;
         $scope.showSubject = true;
         $scope.showMsg = false;
@@ -935,7 +928,7 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 }
                 $scope.subjectsRaw = res.data;
                 // 汇总：发生额、贷方累计、借方累计
-                $scope.summary = summary($scope.subjectsRaw);
+                $scope.summary = summarize($scope.subjectsRaw);
                 // 过滤出指定级别以上的科目
                 $scope.subjects = $scope.subjectsRaw.filter(function(e) {
                     return e.id.length <= $scope.grade * 2 + 1;
