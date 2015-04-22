@@ -580,10 +580,27 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                     $scope.message = res.message;
                     $scope.figures = res.figures
                         .sort(function(a, b) {
-                            if (a.date < b.date) {
+                            // 依次按项目名称、日期及凭证号排序
+                            if (a.project < b.project) {
                                 return -1;
-                            } else if (a.data = b.data) {
-                                return 0;
+                            } else if (a.project == b.project)  {
+                                if (a.date < b.date) {
+                                    return -1;
+                                } else if (a.date = b.date) {
+                                    var ida = a.voucher.id.slice(-4);
+                                    var idb = b.voucher.id.slice(-4);
+                                    //console.log(a + ' : ' + b);
+                                    if (ida < idb) {
+                                        return -1;
+                                    } else if (ida == idb) {
+                                        return 0;
+                                    } else {
+                                        return 1;
+                                    }
+                                    return 0;
+                                } else {
+                                    return 1;
+                                }
                             } else {
                                 return 1;
                             }
