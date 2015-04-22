@@ -580,21 +580,17 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                     $scope.message = res.message;
                     $scope.figures = res.figures
                         .sort(function(a, b) {
-                            // 依次按项目名称、日期及凭证号排序
-                            if (a.project < b.project) {
+                            // 依次按日期及凭证号排序
+                            if (a.date < b.date) {
                                 return -1;
-                            } else if (a.project == b.project) {
-                                if (a.date < b.date) {
+                            } else if (a.date == b.date) {
+                                var ida = a.voucher.id.slice(-4);
+                                var idb = b.voucher.id.slice(-4);
+                                //console.log(a + ' : ' + b);
+                                if (ida < idb) {
                                     return -1;
-                                } else if (a.date == b.date) {
-                                    var ida = a.voucher.id.slice(-4);
-                                    var idb = b.voucher.id.slice(-4);
-                                    //console.log(a + ' : ' + b);
-                                    if (ida < idb) {
-                                        return -1;
-                                    }
-                                    return ida == idb ? 0 : 1;
                                 }
+                                return ida == idb ? 0 : 1;
                             }
                             return 1;
                         });
@@ -975,12 +971,13 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 }
                 $scope.subjects = [];
                 $scope.subjectsRaw = [];
-                var date = new Date(newValue);
-                $scope.showSubject = (date.toString() != 'Invalid Date' &&
-                    date.getFullYear() >= 2010);
-                if (!$scope.showSubject) {
-                    $scope.grade = 1;
-                }
+                $scope.summary = {};
+                //var date = new Date(newValue);
+                //$scope.showSubject = (date.toString() != 'Invalid Date' &&
+                //    date.getFullYear() >= 2010);
+                //if (!$scope.showSubject) {
+                //    $scope.grade = 1;
+                //}
             }
         );
 
@@ -992,6 +989,7 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 }
                 $scope.subjects = [];
                 $scope.subjectsRaw = [];
+                $scope.summary = {};
             }
         );
 
@@ -1003,6 +1001,7 @@ mainFrameCtrl.controller('PisTableCtrl', ['$scope', '$http', 'filterFilter',
                 }
                 $scope.subjects = [];
                 $scope.subjectsRaw = [];
+                $scope.summary = {};
             }
         );
 

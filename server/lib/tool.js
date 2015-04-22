@@ -750,6 +750,8 @@ function pisList(figures, startDate) {
                 }
             }
         }
+
+        debug('subjects: ' + JSON.stringify(aggregated));
         return aggregated;
     }
 
