@@ -605,6 +605,13 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                                 return 1;
                             }
                         });
+                    console.log('setBound:' + $scope.withoutVoucherBound);
+                    if ($scope.withoutVoucherBound) {
+                        $scope.figures = $scope.figures.filter(function(e) {
+                            return !e.voucher.path &&
+                                e.voucher.id.slice(-4) != '0000';
+                        });
+                    }
                     voucherListRaw = $scope.figures;
                     initPage();
                     $scope.setPage(1);
@@ -670,7 +677,6 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                 'scrollbars=1');
         };
 
-
         $scope.setPage = function(n) {
             $scope.baseNumber = (n - 1) * limit + 1;
             curPage = n;
@@ -730,6 +736,14 @@ mainFrameCtrl.controller('QueryVoucherCtrl', ['$scope', '$http', '$timeout',
                 $scope.pageList[i - 1] = i;
             }
         }
+
+        // 根据是否只显示未绑定原始凭证项目，过滤出条目，并保存和回复原始数据
+        $scope.$watch("withoutVoucherBound", function (newValue, oldValue) {
+            if (newValue === oldValue || newValue === '.') {
+                return;
+            }
+            $scope.queryVoucher();
+        });
     }
 ]);
 
