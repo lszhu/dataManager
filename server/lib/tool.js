@@ -721,6 +721,7 @@ function projectList(figures, startDate) {
 // 生成pis报表的数据，以数组方式返回
 function pisList(figures, startDate) {
     // 汇总子科目到上一级科目中，直到一级科目，生成科目列表并初始化或汇总相关数据
+    // 如果是上一级科目本身就有数据，则还需要另行处理
     function aggregateSubject(subjects) {
         var aggregated = {};
         var attr, newId;
@@ -802,6 +803,18 @@ function pisList(figures, startDate) {
         return {status: 'err', message: subjects.message};
     }
     var aggregated = objectToArray(aggregateSubject(subjects));
+    var tmpId;
+    for (var i = 0, len = aggregated.length; i < len; i++) {
+        tmpId = aggregated[i].id;
+        if (subjects.hasOwnProperty(tmpId)) {
+            aggregated[i].init += subjects[tmpId].init;
+            aggregated[i].end += subjects[tmpId].end;
+            aggregated[i].credit += subjects[tmpId].credit;
+            aggregated[i].debit += subjects[tmpId].debit;
+        }
+        delete subjects[tmpId];
+    }
+
     //debug('aggregated: ' + JSON.stringify(aggregated));
     subjects = objectToArray(subjects);
     //debug('subjects: ' + JSON.stringify(subjects));
