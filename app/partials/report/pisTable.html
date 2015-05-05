@@ -63,11 +63,13 @@
         <tr class="active pis">
           <th class="code text-left">科目编码</th>
           <th class="text-left">科目名称</th>
-          <th class="figure text-right">起始时间累计数</th>
-          <th class="figure text-right">截止时间累计数</th>
+          <th class="figure text-right">期间初余额</th>
+          <th class="figure text-right">期间末余额</th>
+          <!--
           <th class="figure text-right">发生额</th>
-          <th class="figure text-right">贷方累计发生</th>
-          <th class="figure text-right">借方累计发生</th>
+          -->
+          <th class="figure text-right">期间贷方发生</th>
+          <th class="figure text-right">期间借方发生</th>
         </tr>
         </thead>
         <tbody>
@@ -76,7 +78,9 @@
           <td class="text-left">{{subject.name}}</td>
           <td class="text-right">{{subject.init | currency: '¥'}}</td>
           <td class="text-right">{{subject.end | currency: '¥'}}</td>
+          <!--
           <td class="text-right">{{(subject.end - subject.init) | currency: '¥'}}</td>
+          -->
           <td class="text-right">{{subject.credit | currency: '¥'}}</td>
           <td class="text-right">{{subject.debit | currency: '¥'}}</td>
         </tr>
@@ -84,7 +88,9 @@
         <tr class="active pis">
           <th class="code text-left"></th>
           <th class="text-left"></th>
+          <!--
           <th class="figure text-right"></th>
+          -->
           <th class="figure text-right">汇总：</th>
           <th class="figure text-right">{{summary.accrual | currency: '¥'}}</th>
           <th class="figure text-right">{{summary.credit | currency: '¥'}}</th>

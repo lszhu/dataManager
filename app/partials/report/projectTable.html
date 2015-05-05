@@ -44,11 +44,13 @@
           <th class="code text-left">序号</th>
           <th class="code text-left">项目编号</th>
           <th class="text-left">项目名称</th>
-          <th class="figure text-right">起始时间累计数</th>
-          <th class="figure text-right">截止时间累计数</th>
+          <th class="figure text-right">期间初余额</th>
+          <th class="figure text-right">期间末余额</th>
+          <!--
           <th class="figure text-right">发生额</th>
-          <th class="figure text-right">贷方累计发生</th>
-          <th class="figure text-right">借方累计发生</th>
+          -->
+          <th class="figure text-right">期间贷方发生</th>
+          <th class="figure text-right">期间借方发生</th>
         </tr>
         </thead>
         <tbody>
@@ -58,7 +60,9 @@
           <td class="text-left">{{project.name}}</td>
           <td class="text-right">{{project.init | currency: '¥'}}</td>
           <td class="text-right">{{(project.init + project.debit - project.credit) | currency: '¥'}}</td>
+          <!--
           <td class="text-right">{{(project.debit - project.credit) | currency: '¥'}}</td>
+          -->
           <td class="text-right">{{project.credit | currency: '¥'}}</td>
           <td class="text-right">{{project.debit | currency: '¥'}}</td>
         </tr>

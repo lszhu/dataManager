@@ -804,6 +804,8 @@ function pisList(figures, startDate) {
     }
     var aggregated = objectToArray(aggregateSubject(subjects));
     var tmpId;
+    // 处理当科目本身有子科目又有数据条目的情况
+    // 将数据都汇总到汇总条目中
     for (var i = 0, len = aggregated.length; i < len; i++) {
         tmpId = aggregated[i].id;
         if (subjects.hasOwnProperty(tmpId)) {
@@ -812,6 +814,7 @@ function pisList(figures, startDate) {
             aggregated[i].credit += subjects[tmpId].credit;
             aggregated[i].debit += subjects[tmpId].debit;
         }
+        // 删除原来直接由凭证数据累计的结果，因为此结果已经加入汇总中。
         delete subjects[tmpId];
     }
 
