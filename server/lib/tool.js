@@ -832,19 +832,20 @@ function pisList(figures, startDate) {
     return {data: subjects, status: 'ok', message: '成功生成pis报表'};
 }
 
-
-// 分析每行数据的内容，以适当处理
+// 分析每行数据的内容，以适当处理, date已经设定为指定日期当天23点59分59秒
 function classifyRow(row, date) {
     var sum;
-    if (row.direction == '借') {
+    // 先通过科目Id从静态表中查到借贷方向
+    var direction = lookupSubject(row.subjectId).direction;
+    if (direction == '借') {
         sum = row.debit - row.credit;
-    } else if (row.direction == '贷') {
+    } else if (direction == '贷') {
         sum = row.credit - row.debit;
-    } else if (row.direction == '平') {
-        if (row.credit != 0 && row.debit != 0) {
-            return {status: 'errEqual', message: '平帐数据有误'};
-        }
-        sum = row.credit + row.debit;
+    //} else if (row.direction == '平') {
+    //    if (row.credit != 0 && row.debit != 0) {
+    //        return {status: 'errEqual', message: '平帐数据有误'};
+    //    }
+    //    sum = row.credit + row.debit;
     } else {
         return {status: 'errDirection', message: '借贷方向有误'};
     }
@@ -853,7 +854,7 @@ function classifyRow(row, date) {
     return {status: 'ok', type: point, value: sum};
 }
 
-// 由科目代码查询科目名称
+// 由科目代码查询科目名称和借贷方向
 function lookupSubject(subjectId) {
     var g1 = subjectId.slice(0, 3),
         g2 = subjectId.slice(0, 5),
