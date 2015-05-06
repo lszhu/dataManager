@@ -71,7 +71,7 @@
           <td class="text-left">{{$index + 1}}</td>
           <td class="text-left">{{g.name}}</td>
           <td class="text-right">{{g.init | currency: '¥'}}</td>
-          <td class="text-right">{{g.end | currency: '¥'}}</td>
+          <td class="text-right">{{(g.debit - g.credit) | currency: '¥'}}</td>
           <td class="text-right">{{g.credit | currency: '¥'}}</td>
           <td class="text-right">{{g.debit | currency: '¥'}}</td>
         </tr>
