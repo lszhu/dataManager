@@ -251,7 +251,7 @@ appService.factory('summarize', function() {
             console.log('topSubject: %o', topSubject);
             return topSubject.reduce(function(previous, current) {
                 return {
-                    accrual: previous.accrual + current.end - current.init,
+                    accrual: previous.accrual + current.end,
                     credit: previous.credit + current.credit,
                     debit: previous.debit + current.debit
                 };
